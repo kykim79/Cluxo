@@ -4,6 +4,21 @@
 
 ## [Unreleased]
 
+## [0.4.1] — 2026-05-18
+
+### Added
+
+- **README.en.md** — 영어 README. 한국어 README 상단에서 링크. 다국어 앱에 어울리는 docs.
+- **단위 테스트 9개 추가** — `DragAngleLabelTests` (atan2 라디안 → 시계방향 12시 기준 0~359° 변환 + 8방향 화살표 매핑). 총 47 tests.
+
+### Changed
+
+- **환경설정 윈도우 다국어 점진** — 5개 탭 이름, 9개 섹션 헤더, 11개 토글 라벨, 5개 LabeledContent 라벨, InfoTab 9개 항목 (앱 정보/버전/개발자/업데이트 등). SwiftUI Text/Toggle/Section/Label은 자동 LocalizedStringKey라 코드 변경 없이 `Localizable.xcstrings`에 key + en 번역만 추가.
+
+### Internal
+
+- `DragAngleLabel.displayDegrees`와 `directionArrow`를 `static func`으로 분리 — Tests 접근 가능. View 본문에서는 같은 함수를 호출.
+
 ## [0.4.0] — 2026-05-18
 
 ### Added

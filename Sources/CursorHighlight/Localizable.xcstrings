@@ -188,6 +188,54 @@
           "stringUnit" : { "state" : "translated", "value" : "🎨 %@" }
         }
       }
-    }
+    },
+
+    "모양" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Appearance" } } } },
+    "동작" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Behavior" } } } },
+    "단축키" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Shortcuts" } } } },
+    "정보" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Info" } } } },
+
+    "커서 링 색상" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Cursor Ring Color" } } } },
+    "링 모양" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Ring Shape" } } } },
+    "링 크기" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Ring Size" } } } },
+    "링 투명도" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Ring Opacity" } } } },
+    "테두리 두께" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Border Weight" } } } },
+    "테두리 스타일" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Border Style" } } } },
+    "애니메이션 속도" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Animation Speed" } } } },
+    "스포트라이트 반경" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Spotlight Radius" } } } },
+    "키스트로크" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Keystrokes" } } } },
+    "기타" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Other" } } } },
+    "투명도" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Opacity" } } } },
+    "반경" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Radius" } } } },
+    "표시 시간" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Display Duration" } } } },
+    "커서 숨김 대기" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Idle Hide Delay" } } } },
+    "커스텀 색상" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Custom Color" } } } },
+    "이중 링 (안쪽 반투명 선)" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Inner Ring (translucent line inside)" } } } },
+    "링 채우기 (반투명 도넛)" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Ring Fill (translucent donut)" } } } },
+    "글로우 효과" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Glow Effect" } } } },
+    "원근 왜곡 (Perspective Warping)" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Perspective Warping" } } } },
+
+    "스크롤 인디케이터" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Scroll Indicator" } } } },
+    "커서 트레일" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Cursor Trail" } } } },
+    "드래그 앵커 라인 (100pt 또는 1초 이상 드래그 시 자동 표시)" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Drag Anchor Line (auto-show after 100pt or 1s drag)" } } } },
+    "드래그 컴맷 테일 (드래그 중 cursor 뒤 streak)" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Drag Comet Tail (streak behind cursor while dragging)" } } } },
+    "드래그 각도 라벨 (도면·일러스트레이션용)" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Drag Angle Label (for drafting/illustration)" } } } },
+    "우클릭에 링 색상 적용" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Apply ring color to right-click" } } } },
+    "녹화·발표·회의 앱 활성화 시 자동 활성화" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Auto-enable when recording/presentation/meeting apps activate" } } } },
+    "로그인 시 자동 실행" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Launch at login" } } } },
+
+    "돋보기 설정" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Magnifier Settings" } } } },
+    "배율" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Zoom" } } } },
+    "렌즈 크기" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Lens Size" } } } },
+
+    "앱 정보" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "App Info" } } } },
+    "버전" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Version" } } } },
+    "개발자" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Developer" } } } },
+    "최소 요구 사항" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Minimum Requirement" } } } },
+    "업데이트" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Update" } } } },
+    "업데이트 확인" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Check for Updates" } } } },
+    "확인 중..." : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Checking..." } } } },
+    "지금 업데이트" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Update Now" } } } },
+    "Release 페이지" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Release Page" } } } }
   }
 }

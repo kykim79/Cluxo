@@ -730,20 +730,33 @@ struct DragAngleLabel: View {
     let position: CGPoint
     let angleRadians: Double
 
-    /// CW positive degrees, 0~360 range. 12시=0°, 3시=90°, 6시=180°, 9시=270°.
-    private var displayDegrees: Int {
-        // atan2 결과: -π(180°)~+π. dy 양수=아래(화면 좌표).
-        // dx>0,dy>0 → 우측 아래 → atan2 = +π/4 (45°). 시계 4시 30분 방향.
-        // 시계 0° (12시) = 위쪽 = dx=0, dy=-1 → atan2(-1, 0) = -π/2 (-90°)
-        // 따라서 raw atan2에 +90° 후 mod 360
+    var body: some View {
+        let degrees = Self.clockwiseDegrees(fromAtan2: angleRadians)
+        Text("\(Self.directionArrow(forCWDegrees: degrees)) \(degrees)°")
+            .font(.system(size: 11, weight: .semibold, design: .monospaced))
+            .foregroundColor(.white)
+            .padding(.horizontal, 6)
+            .padding(.vertical, 3)
+            .background(Capsule().fill(Color.black.opacity(0.72)))
+            .offset(x: 36, y: -28)
+            .position(position)
+            .allowsHitTesting(false)
+    }
+
+    // MARK: - 순수 함수 (Tests/DragAngleTests.swift에서 검증)
+
+    /// atan2(dy, dx) 결과(라디안)를 시계방향 12시=0° 기준 0~359° 정수로 변환.
+    /// CGEvent y축이 top-left이라 dy 양수=아래. atan2 표준은 -π~+π → +90° 회전 후 mod 360.
+    /// 예: dx=0,dy=-1 (위) → atan2=-π/2 → -90° + 90° = 0°. dx=1,dy=0 (오른쪽) → atan2=0 → 0+90 = 90°.
+    static func clockwiseDegrees(fromAtan2 angleRadians: Double) -> Int {
         let raw = angleRadians * 180 / .pi
-        let cw = raw + 90  // 12시 기준으로 회전
+        let cw = raw + 90
         return ((Int(cw.rounded()) % 360) + 360) % 360
     }
 
-    /// 각도 → 8방향 화살표 (직관적 추가 단서)
-    private var directionArrow: String {
-        switch displayDegrees {
+    /// CW degrees → 8방향 화살표. 각 방향 ±22.5° 범위.
+    static func directionArrow(forCWDegrees degrees: Int) -> String {
+        switch degrees {
         case 338...360, 0..<23:   return "↑"
         case 23..<68:             return "↗"
         case 68..<113:            return "→"
@@ -754,18 +767,6 @@ struct DragAngleLabel: View {
         case 293..<338:           return "↖"
         default:                  return "•"
         }
-    }
-
-    var body: some View {
-        Text("\(directionArrow) \(displayDegrees)°")
-            .font(.system(size: 11, weight: .semibold, design: .monospaced))
-            .foregroundColor(.white)
-            .padding(.horizontal, 6)
-            .padding(.vertical, 3)
-            .background(Capsule().fill(Color.black.opacity(0.72)))
-            .offset(x: 36, y: -28)
-            .position(position)
-            .allowsHitTesting(false)
     }
 }
 
