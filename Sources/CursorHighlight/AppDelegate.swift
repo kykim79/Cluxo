@@ -16,7 +16,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     // MARK: - Services
     private var permissionsManager: PermissionsManager?
-    private var recordingDetector: RecordingDetector?
+    private var appActivationDetector: AppActivationDetector?
     private var magnifierCaptureService: MagnifierCaptureService?
     private var keyboardHotkeyHandler: KeyboardHotkeyHandler?
 
@@ -69,10 +69,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         permissionsManager = PermissionsManager(runtime: runtime)
         permissionsManager?.startPolling()
 
-        recordingDetector = RecordingDetector(settings: settings) { [weak self] in
-            self?.handleRecordingDetected()
+        appActivationDetector = AppActivationDetector(settings: settings) { [weak self] in
+            self?.handleTriggerAppActivated()
         }
-        recordingDetector?.start()
+        appActivationDetector?.start()
 
         // runtime.isMagnifierActive를 구독해 켜질 때만 캡처 Timer 시작 — 꺼져있을 때 CPU 0
         magnifierCaptureService = MagnifierCaptureService(runtime: runtime, settings: settings)
@@ -200,7 +200,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     // MARK: - Service callbacks
 
-    private func handleRecordingDetected() {
+    private func handleTriggerAppActivated() {
         guard !isEnabled else { return }
         isEnabled = true
         updateIcon()

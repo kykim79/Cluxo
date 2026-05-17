@@ -207,7 +207,7 @@ private struct BehaviorTab: View {
                 Toggle("드래그 앵커 라인 (100pt 또는 1초 이상 드래그 시 자동 표시)", isOn: $settings.isAnchoredLineEnabled)
                 Toggle("드래그 컴맷 테일 (드래그 중 cursor 뒤 streak)", isOn: $settings.isCometTailEnabled)
                 Toggle("우클릭에 링 색상 적용", isOn: $settings.rightClickUsesRingColor)
-                Toggle("녹화 앱 실행 시 자동 활성화", isOn: $settings.autoEnableOnRecording)
+                Toggle("녹화·발표·회의 앱 활성화 시 자동 활성화", isOn: $settings.autoEnableOnRecording)
                 Toggle("로그인 시 자동 실행", isOn: $launchAtLogin)
                     .onChange(of: launchAtLogin) { v in settings.setLaunchAtLogin(v) }
             }
