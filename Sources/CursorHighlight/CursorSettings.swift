@@ -38,8 +38,11 @@ final class CursorSettings: ObservableObject {
 
     // customRingColor는 Color → NSColor → [Double] RGBA 변환 필요해서 @Persisted 미지원, 별도 처리
     @Published var customRingColor: Color = Color(red: 1, green: 0.5, blue: 0) {
-        didSet { saveCustomColor() }
+        didSet { scheduleCustomColorSave() }
     }
+
+    // ColorPicker 드래그 중 매 변화마다 NSColor 변환+UserDefaults set 회피 (@Persisted와 동일한 0.3초 debounce)
+    private var saveCustomColorTask: DispatchWorkItem?
 
     init() {
         if let rgba = UserDefaults.standard.array(forKey: "customRingColor") as? [Double], rgba.count >= 3 {
@@ -48,12 +51,18 @@ final class CursorSettings: ObservableObject {
         }
     }
 
-    private func saveCustomColor() {
-        let ns = NSColor(customRingColor).usingColorSpace(.deviceRGB) ?? .orange
-        UserDefaults.standard.set([
-            Double(ns.redComponent), Double(ns.greenComponent),
-            Double(ns.blueComponent), Double(ns.alphaComponent)
-        ], forKey: "customRingColor")
+    private func scheduleCustomColorSave() {
+        saveCustomColorTask?.cancel()
+        let color = customRingColor
+        let task = DispatchWorkItem {
+            let ns = NSColor(color).usingColorSpace(.deviceRGB) ?? .orange
+            UserDefaults.standard.set([
+                Double(ns.redComponent), Double(ns.greenComponent),
+                Double(ns.blueComponent), Double(ns.alphaComponent)
+            ], forKey: "customRingColor")
+        }
+        saveCustomColorTask = task
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3, execute: task)
     }
 
     // MARK: - Launch at Login
