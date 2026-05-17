@@ -251,6 +251,7 @@ struct RingMotion {
     let clickTilt: Double
     let isDragging: Bool
     let dragAngle: Double
+    let dragVelocity: CGFloat  // pt/s, #14 Speed Glow용
     let glowMultiplier: Double
 
     @MainActor
@@ -259,6 +260,7 @@ struct RingMotion {
         self.clickTilt = runtime.ringClickTilt
         self.isDragging = runtime.isDragging
         self.dragAngle = runtime.dragAngle
+        self.dragVelocity = runtime.dragVelocity
         self.glowMultiplier = runtime.glowMultiplier
     }
 }
@@ -305,7 +307,12 @@ struct CursorRingView: View {
     }
 
     var body: some View {
-        let glowM = motion.glowMultiplier
+        // #14 Speed Glow — 드래그 속도(pt/s)를 0~1 정규화해 glow에 추가 boost.
+        // 1000pt/s에서 +1.5 boost (총 glow multiplier가 약 2배). clamping으로 over-boost 회피.
+        let speedBoost: Double = motion.isDragging
+            ? min(1.5, Double(motion.dragVelocity) / 1000.0 * 1.5)
+            : 0
+        let glowM = motion.glowMultiplier + speedBoost
         let g = CGFloat(glowM)
         let glowBase = appearance.borderWeight.lineWidth * 0.8 + 4
         let staticTilt: Double = appearance.isPerspectiveWarping ? 32 : 0
@@ -339,6 +346,7 @@ struct CursorRingView: View {
         )
         .animation(.spring(response: 0.28, dampingFraction: 0.65), value: motion.isDragging)
         .animation(.spring(response: 0.2, dampingFraction: 0.7), value: motion.dragAngle)
+        .animation(.easeInOut(duration: 0.2), value: motion.dragVelocity)  // #14 speed glow 반응성
         .animation(.easeInOut(duration: 0.7), value: motion.glowMultiplier)
         .animation(.spring(response: 0.6, dampingFraction: 0.75), value: appearance.isPerspectiveWarping)
         .animation(.spring(response: 0.45, dampingFraction: 0.5), value: motion.clickTilt)

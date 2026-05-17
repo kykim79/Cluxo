@@ -9,7 +9,7 @@ class MouseEventMonitor {
     var onShake: ((CGPoint) -> Void)?
     var onScroll: ((CGPoint, Bool, Bool) -> Void)? // (position, isPositive, isVertical)
     var onDragStart: (() -> Void)?
-    var onDragAngle: ((Double) -> Void)?          // radians
+    var onDragAngle: ((Double, CGFloat) -> Void)?  // (angle in radians, velocity in pt/s)
     var onDragEnd: (() -> Void)?
 
     private var eventTap: CFMachPort?
@@ -27,6 +27,7 @@ class MouseEventMonitor {
     // 드래그 상태
     private var inDrag: Bool = false
     private var lastDragPos: CGPoint = .zero
+    private var lastDragTime: TimeInterval = 0
 
 
     func start() {
@@ -67,17 +68,23 @@ class MouseEventMonitor {
                 case .leftMouseDragged:
                     m.processMove(loc)
                     DispatchQueue.main.async { m.onMouseMove?(loc) }
+                    let now = Date().timeIntervalSinceReferenceDate
                     if !m.inDrag {
                         m.inDrag = true
                         m.lastDragPos = loc
+                        m.lastDragTime = now
                         DispatchQueue.main.async { m.onDragStart?() }
                     } else {
                         let dx = loc.x - m.lastDragPos.x
                         let dy = loc.y - m.lastDragPos.y
                         if abs(dx) > 2 || abs(dy) > 2 {
+                            let dt = now - m.lastDragTime
+                            let dist = sqrt(dx * dx + dy * dy)
+                            let velocity: CGFloat = dt > 0.001 ? dist / CGFloat(dt) : 0
                             let angle = atan2(dy, dx)
                             m.lastDragPos = loc
-                            DispatchQueue.main.async { m.onDragAngle?(angle) }
+                            m.lastDragTime = now
+                            DispatchQueue.main.async { m.onDragAngle?(angle, velocity) }
                         }
                     }
 

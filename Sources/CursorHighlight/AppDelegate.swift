@@ -277,8 +277,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             monitor?.onDragStart = { [weak self] in
                 self?.runtime.startDrag()
             }
-            monitor?.onDragAngle = { [weak self] angle in
-                self?.runtime.updateDragAngle(angle)
+            monitor?.onDragAngle = { [weak self] angle, velocity in
+                guard let self else { return }
+                self.runtime.updateDragAngle(angle)
+                self.runtime.updateDragVelocity(velocity)
             }
             monitor?.onDragEnd = { [weak self] in
                 self?.runtime.endDrag()

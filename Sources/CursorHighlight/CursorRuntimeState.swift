@@ -24,6 +24,7 @@ final class CursorRuntimeState: ObservableObject {
     @Published var ringClickTilt: Double = 0
     @Published var isDragging: Bool = false
     @Published var dragAngle: Double = 0
+    @Published var dragVelocity: CGFloat = 0   // pt/s, EMA smoothed (#14 Speed Glow)
     @Published var glowMultiplier: Double = 1.0
 
     // MARK: - Drag
@@ -43,11 +44,18 @@ final class CursorRuntimeState: ObservableObject {
         dragAngle += diff
     }
 
+    /// 새 raw velocity(pt/s)를 받아 EMA로 부드럽게 누적. 매 frame jitter 회피.
+    func updateDragVelocity(_ rawVelocity: CGFloat) {
+        // alpha=0.3 — 새 값 30%, 이전 값 70%. 빠른 변화는 흡수, 일정 속도엔 빠르게 수렴.
+        dragVelocity = dragVelocity * 0.7 + rawVelocity * 0.3
+    }
+
     func endDrag() {
         // 다음 드래그를 위해 (-π, π]로 정규화 후 0으로 리셋
         dragAngle = atan2(sin(dragAngle), cos(dragAngle))
         withAnimation(.spring(response: 0.45, dampingFraction: 0.55)) { isDragging = false }
         dragAngle = 0
+        withAnimation(.easeOut(duration: 0.3)) { dragVelocity = 0 }
     }
 
     // MARK: - Click Pulse
