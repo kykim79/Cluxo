@@ -4,6 +4,12 @@
 
 ## [Unreleased]
 
+## [0.2.8] — 2026-05-17
+
+### Fixed
+
+- **Silent 업데이트가 tap 24시간 캐시 때문에 "이미 latest" 잘못 판단** — v0.2.7은 `HOMEBREW_NO_AUTO_UPDATE` 제거만으로 부족. brew의 auto-update가 기본 24시간 interval(`HOMEBREW_AUTO_UPDATE_SECS=86400`)로 일정 시간 안에는 tap fetch를 skip. 새 release 직후 사용자가 click하면 local tap이 옛 cask file에 멈춰 또 no-op. `HOMEBREW_AUTO_UPDATE_SECS=0`로 매 호출마다 강제 update — 5-10초 추가되지만 silent UX에서 한 번이라 trade-off 받아들임.
+
 ## [0.2.7] — 2026-05-17
 
 ### Fixed
