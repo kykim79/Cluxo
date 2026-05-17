@@ -309,10 +309,15 @@ struct CursorRingView: View {
     var body: some View {
         // #14 Speed Glow — 드래그 속도(pt/s)를 0~1 정규화해 glow에 추가 boost.
         // 1000pt/s에서 +1.5 boost (총 glow multiplier가 약 2배). clamping으로 over-boost 회피.
-        let speedBoost: Double = motion.isDragging
-            ? min(1.5, Double(motion.dragVelocity) / 1000.0 * 1.5)
-            : 0
+        let velocityRatio: CGFloat = min(1.0, motion.dragVelocity / 1000.0)
+        let speedBoost: Double = motion.isDragging ? Double(velocityRatio) * 1.5 : 0
         let glowM = motion.glowMultiplier + speedBoost
+
+        // #16 Velocity Stretch — jelly stretch가 속도에 비례. 느리면 거의 원형, 빠르면 더 길게.
+        // 0pt/s: x=1.05, y=0.95 (약한 hint). 1000pt/s+: x=1.5, y=0.7 (max stretch).
+        let xStretch: CGFloat = motion.isDragging ? 1.05 + 0.45 * velocityRatio : 1.0
+        let yStretch: CGFloat = motion.isDragging ? 0.95 - 0.25 * velocityRatio : 1.0
+
         let g = CGFloat(glowM)
         let glowBase = appearance.borderWeight.lineWidth * 0.8 + 4
         let staticTilt: Double = appearance.isPerspectiveWarping ? 32 : 0
@@ -335,7 +340,7 @@ struct CursorRingView: View {
         .shadow(color: glowEnabled ? appearance.color.opacity(min(1, 0.9 * appearance.opacity * glowM)) : .clear, radius: glowEnabled ? glowBase * 0.9 * g : 0)
         .shadow(color: glowEnabled ? appearance.color.opacity(min(1, 0.5 * appearance.opacity * glowM)) : .clear, radius: glowEnabled ? glowBase * 2.2 * g : 0)
         .shadow(color: glowEnabled ? appearance.color.opacity(min(1, 0.2 * appearance.opacity * glowM)) : .clear, radius: glowEnabled ? glowBase * 4.0 * g : 0)
-        .scaleEffect(x: motion.isDragging ? 1.35 : 1.0, y: motion.isDragging ? 0.78 : 1.0)
+        .scaleEffect(x: xStretch, y: yStretch)
         .rotationEffect(motion.isDragging ? Angle(radians: motion.dragAngle) : .zero)
         .scaleEffect(motion.clickScale)
         .scaleEffect(motion.isDragging ? 1.0 : breathingScale)
