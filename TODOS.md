@@ -29,12 +29,6 @@
 공통: `RingMotion` struct에 새 property + `OverlayContentView`에서 분기. `CursorSettings`에
 `@Persisted` 토글 추가. 인프라 이미 잘 잡혀 있어 새 옵션 추가는 한 항목당 ~20-40줄.
 
-### #14 Speed Glow — 드래그 속도에 비례한 glow 강화
-- **목적**: 빠른 드래그일수록 ring이 더 빛남. 발표·녹화에서 가속이 시각적으로 강조.
-- **구현**: `CursorRuntimeState`에 dragVelocity 추적 (이전 dragAngle/dt와 비슷). `RingMotion`에 전달.
-  `glowMultiplier`를 속도에 비례하게 조정.
-- **난이도**: 低 (~20줄). 가장 작은 작업, 가장 즉시 체감.
-
 ### #15 Snap Back — 드래그 종료 시 spring overshoot
 - **목적**: 드래그 끝나면 ring이 살짝 튕겨 원상복귀. 만족스러운 마이크로인터랙션.
 - **구현**: `endDrag()`에 spring response 더 작은 값으로 추가 단계. 또는 SwiftUI animation timing 조정.
@@ -163,6 +157,11 @@
   독립 추적 + 0.5초 dedup window. 이전 dominant-axis 방식의 비대칭(좌하↔우상
   대각선 과도 발화, 다른 방향 detect 실패) 해결. 임계값 300→150으로 손목 흔들기
   커버. ShakeDetectionTests 14개 추가. 전체 38 tests SUCCEEDED.
+
+`fa5b8f0 feat: 드래그 속도 비례 glow (#14 Speed Glow)`:
+
+- ✅ **#14 Speed Glow** — 드래그 속도(pt/s)에 비례해 ring glow 강화.
+  EMA(0.3) smoothing + 1000pt/s에서 max +1.5 boost. 토글 없이 default on.
 
 `d772fec ci: GitHub Actions release workflow + Homebrew tap 자동 배포` 외 다수:
 
