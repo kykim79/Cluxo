@@ -87,6 +87,17 @@ xcodegen
 open CursorHighlight.xcodeproj
 ```
 
+### SourceKit-LSP 인식 (VS Code/Cursor 등 외부 에디터 사용 시)
+
+Xcode 외부 에디터에서 SourceKit-LSP가 모듈을 정확히 인식하게 하려면 build server 설정:
+
+```bash
+brew install xcode-build-server
+xcode-build-server config -project CursorHighlight.xcodeproj -scheme CursorHighlight
+```
+
+→ `buildServer.json` 생성 (gitignore됨, user-specific path 포함). 한 번 실행하면 이후 LSP가 cross-file 타입을 정확히 인식.
+
 이후 Xcode에서 `⌘R`로 빌드/실행 가능.
 
 ### CLI 빌드 + 설치
