@@ -20,9 +20,9 @@
 - **Sparkle 자동 업데이트** — Homebrew 안 쓰는 사용자에게 in-app 자동 업데이트. 코드 사이닝 + appcast.xml 필요.
 - **Notarization** — Apple Developer Program $99/년. Mac App Store 또는 일반 사용자 더블클릭 설치 마찰 제거.
 - **추가 마우스 효과** — middle click, scroll 진폭, 우클릭 컨텍스트 메뉴 시각화.
-- **앱별 자동 모드** — Keynote 발표 중 자동 활성화 등.
 - **PAT 만료 알림** — release workflow에 만료 30일 전 알림 step 추가.
 - **SSH Deploy Key로 PAT 대체** — PAT 만료 신경 안 써도 됨 (한 번 setup 후 영원).
+- **demo GIF / video** — README에 동작 영상 추가 (사용자가 OBS/QuickTime 녹화 → gifski 변환).
 
 ---
 

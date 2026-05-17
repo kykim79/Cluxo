@@ -141,15 +141,35 @@ CursorHighlight/
 ├── project.yml                          # XcodeGen 설정 (소스 of truth)
 ├── Sources/CursorHighlight/
 │   ├── main.swift                       # 앱 진입점
-│   ├── AppDelegate.swift                # 메뉴바, 권한, 이벤트 라우팅
-│   ├── CursorState.swift                # @Published 상태 + 설정 (UserDefaults)
+│   ├── AppDelegate.swift                # 메뉴바 + 서비스 oikkeo·이벤트 라우팅
+│   │
+│   │   # State (CursorState God Object 분할)
+│   ├── CursorSettings.swift             # @Persisted 영구 설정 + enums
+│   ├── CursorRuntimeState.swift         # cursor 위치·motion·드래그
+│   ├── EffectsState.swift               # 효과 큐 (클릭/스크롤/트레일/흔들기)
+│   ├── KeystrokeOverlayState.swift      # 키스트로크 알림 큐
+│   ├── Persisted.swift                  # @Persisted PropertyWrapper (UserDefaults bridging)
+│   ├── ShakeState.swift                 # 흔들기 감지 알고리즘 (각 축 독립)
+│   │
+│   │   # Services (AppDelegate God Object 분할)
+│   ├── PermissionsManager.swift         # Accessibility·ScreenRecord·ListenEvent 권한
+│   ├── AppActivationDetector.swift      # 발표·녹화·회의 앱 활성화 감지 (NSWorkspace)
+│   ├── MagnifierCaptureService.swift    # 돋보기 ScreenCaptureKit (SCStream)
+│   ├── KeyboardHotkeyHandler.swift      # 전역 단축키 + 키스트로크 표시
 │   ├── MouseEventMonitor.swift          # CGEventTap (백그라운드 스레드)
+│   │
+│   │   # Views
 │   ├── OverlayWindowController.swift    # 전체화면 투명 오버레이 NSWindow
-│   ├── OverlayContentView.swift         # SwiftUI 뷰 (링, 효과, 트레일)
+│   ├── OverlayContentView.swift         # SwiftUI 뷰 (링·효과·트레일·앵커라인·컴맷테일)
 │   ├── PreferencesView.swift            # 환경설정 윈도우
+│   │
 │   ├── Info.plist                       # LSUIElement, 권한 설명
 │   ├── CursorHighlight.entitlements
 │   └── Assets.xcassets/AppIcon.appiconset/
+├── Tests/CursorHighlightTests/          # 단위 테스트 38개 (standalone bundle)
+├── .github/workflows/release.yml        # tag push → 빌드 + zip + Release + tap 갱신
+├── docs/screenshots/                    # README 이미지
+├── CHANGELOG.md
 └── README.md
 ```
 
@@ -162,7 +182,8 @@ CursorHighlight/
 - **이벤트 기반 커서 추적**: 폴링 Timer 없음. `onMouseMove`로 push, idle 감지는 `DispatchWorkItem`
 - **좌표계 변환**: CGEvent의 Quartz 좌표(top-left)를 Cocoa 좌표(bottom-left)로 변환 후 `cursorPosition` 저장
 - **멀티 모니터**: 각 `NSScreen`마다 별도 오버레이 윈도우. `screenFrame.contains(point)` 필터로 같은 효과가 다른 화면에 중복 렌더링 안 됨
-- **돋보기 캡처**: `CGWindowListCreateImage`를 백그라운드 큐에서 실행, 20Hz. `isMagnifierActive=false`일 때 Timer 자체 정지 (Combine sink)
+- **돋보기 캡처**: ScreenCaptureKit `SCStream` 20Hz push, CIImage cropping. cursor가 다른 디스플레이로 옮기면 stream을 그 디스플레이로 자동 재구성
+- **Overlay sharingType**: 평소 `.none`이라야 자체 돋보기가 자기 overlay를 다시 capture 안 함. 메뉴바 "스크린샷 모드" ON 시 `.readOnly`로 일시 풀어 외부 screencapture/OBS가 잡게 함 (앱 재시작 시 자동 OFF)
 
 ## 라이선스
 

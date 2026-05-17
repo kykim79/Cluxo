@@ -4,10 +4,17 @@
 
 ## [Unreleased]
 
+## [0.2.1] — 2026-05-17
+
 ### Added
 
 - **스크린샷 모드 토글** — 메뉴바에 추가. 평소 overlay window의 `sharingType = .none` (자체 돋보기가 자기 overlay 재캡처 방지)이라 외부 `screencapture`/OBS에 잡히지 않던 제약을, 토글 ON 시 `.readOnly`로 일시 해제. 발표 자료/데모 GIF 만들 때 사용. 앱 재시작 시 자동 OFF.
 - **README 스크린샷 2장** — hero (스포트라이트 + 보라색 ring), 환경설정 모양 탭.
+
+### Changed
+
+- **README 프로젝트 구조** — God Object 분할 후 새 파일 구조 반영 (State/Services/Views 그룹). 옛 `CursorState.swift` 단일 파일 표기를 4개 store + 6개 service로 갱신.
+- **아키텍처 노트** — 돋보기 캡처 `CGWindowListCreateImage` → `ScreenCaptureKit SCStream` 표기. Overlay `sharingType` 동작 설명 추가.
 
 ## [0.2.0] — 2026-05-17
 
