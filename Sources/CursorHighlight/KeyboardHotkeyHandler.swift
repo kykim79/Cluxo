@@ -149,7 +149,8 @@ final class KeyboardHotkeyHandler {
         return subrole == "AXSecureTextField"
     }
 
-    private static func formatKey(_ event: NSEvent) -> String {
+    // internal access — Tests/KeyFormatTests.swift에서 검증
+    static func formatKey(_ event: NSEvent) -> String {
         let flags = event.modifierFlags.intersection([.control, .option, .command, .shift])
 
         // ⌃·⌥·⌘ 없으면 표시 안 함 — 단순 타이핑·패스워드 노출 방지
