@@ -6,28 +6,6 @@
 
 ---
 
-## P2 — DRY / 성능
-
-### #7 CursorRingView 매개변수 15개 → RingStyle struct
-- **위치**: `OverlayContentView.swift` `CursorRingView`
-- **문제**: 생성자 매개변수 16개 (position 포함). 옵션 추가 시 호출부도 매번 수정.
-- **방향**: 설정 14개를 `RingStyle` struct로 묶기.
-
-### #8 NSScreen.screens.first?.frame.height 캐시
-- **위치**: `AppDelegate.swift` `handleMouseMove`, `MagnifierCaptureService.swift` `start()`
-- **문제**: 60Hz throttle 후에도 매 호출마다 `NSScreen.screens` 배열 쿼리. 20Hz 돋보기 timer에서도 동일.
-- **방향**: AppDelegate가 `screensChanged()`에서 `primaryScreenHeight` 캐시 + MagnifierCaptureService에 주입.
-
-### #9 addScrollEffect의 removeAll 다중 모니터 race
-- **위치**: `EffectsState.swift` `addScrollEffect`
-- **문제**: 한 화면에서 스크롤하면 모든 화면의 효과를 다 지움. 다중 모니터에서 다른 화면 효과가 살아 있을 때 같이 꺼짐.
-
-### #10 saveCustomColor만 debounce 없음
-- **위치**: `CursorSettings.swift` `customRingColor` `didSet` → `saveCustomColor()`
-- **문제**: ColorPicker 슬라이더 드래그하는 동안 매 변경마다 NSColor 변환 + UserDefaults 호출. 다른 슬라이더는 @Persisted(debounce: 0.3)인데 customRingColor만 빠짐. @Persisted가 Color 타입 미지원이라 별도 처리됨.
-
----
-
 ## P3 — 배포 / 테스트
 
 ### #11 테스트 인프라 (순수 함수만이라도)
@@ -111,3 +89,23 @@
   그 디스플레이로 자동 재구성 (displayID 매칭 + screenContaining).
   `PermissionsManager.swift` 권한 polling이 false 감지 시 magnifier 강제
   off 처리 제거 (timing 회귀 방지). MagnifierCaptureService 101 → 226줄.
+
+`a9fcbd4 perf: customRingColor 저장에 0.3초 debounce 추가`:
+
+- ✅ **#10** `saveCustomColor`에 0.3초 debounce 추가 — ColorPicker 드래그 시
+  매 변화마다 NSColor 변환+UserDefaults set 회피. 다른 @Persisted 슬라이더와 일관.
+
+`3246935 refactor: CursorRingView 매개변수 16개 → RingAppearance/RingMotion struct`:
+
+- ✅ **#7** `CursorRingView` 생성자 16개 → `RingAppearance` + `RingMotion` 두 struct.
+  호출부 16줄 → 3줄. 옵션 추가는 struct에만 한 줄, 호출부 영향 0.
+
+`effbdf2 perf: primaryScreenHeight 캐시`:
+
+- ✅ **#8** `handleMouseMove` 60Hz hotpath에서 NSScreen 쿼리 제거.
+  `screensChanged()`에서 한 번 캐시 → 모니터 구성 안 바뀌면 lookup 비용 0.
+
+`da2be35 fix: addScrollEffect의 removeAll을 같은 화면으로 제한`:
+
+- ✅ **#9** `EffectsState.addScrollEffect`의 multi-monitor race 해결.
+  `NSScreen.frame.contains`로 point가 속한 화면을 찾아 그 화면 effect만 제거.
