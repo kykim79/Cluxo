@@ -31,21 +31,8 @@ struct OverlayContentView: View {
             if cursorOnScreen && runtime.isCursorVisible {
                 CursorRingView(
                     position: localPos,
-                    color: effectiveColor,
-                    size: settings.ringSize.diameter,
-                    shape: settings.ringShape,
-                    opacity: settings.ringOpacity,
-                    clickScale: runtime.ringClickScale,
-                    clickTilt: runtime.ringClickTilt,
-                    isDragging: runtime.isDragging,
-                    dragAngle: runtime.dragAngle,
-                    glowMultiplier: runtime.glowMultiplier,
-                    borderWeight: settings.borderWeight,
-                    borderStyle: settings.borderStyle,
-                    isPerspectiveWarping: settings.isPerspectiveWarping,
-                    hasInnerRing: settings.hasInnerRing,
-                    isRingFillEnabled: settings.isRingFillEnabled,
-                    isGlowEnabled: settings.isGlowEnabled
+                    appearance: RingAppearance(settings: settings, effectiveColor: effectiveColor),
+                    motion: RingMotion(runtime: runtime)
                 )
             }
 
@@ -230,17 +217,12 @@ struct RhombusShape: Shape {
     }
 }
 
-struct CursorRingView: View {
-    let position: CGPoint
+/// 링의 정적 외형 (settings에서 파생). 옵션 추가 시 호출부 영향 없이 여기에만 한 줄 추가.
+struct RingAppearance {
     let color: Color
     let size: CGFloat
     let shape: CursorSettings.RingShape
     let opacity: Double
-    let clickScale: CGFloat
-    let clickTilt: Double
-    let isDragging: Bool
-    let dragAngle: Double
-    let glowMultiplier: Double
     let borderWeight: CursorSettings.BorderWeight
     let borderStyle: CursorSettings.BorderStyle
     let isPerspectiveWarping: Bool
@@ -248,79 +230,119 @@ struct CursorRingView: View {
     let isRingFillEnabled: Bool
     let isGlowEnabled: Bool
 
+    @MainActor
+    init(settings: CursorSettings, effectiveColor: Color) {
+        self.color = effectiveColor
+        self.size = settings.ringSize.diameter
+        self.shape = settings.ringShape
+        self.opacity = settings.ringOpacity
+        self.borderWeight = settings.borderWeight
+        self.borderStyle = settings.borderStyle
+        self.isPerspectiveWarping = settings.isPerspectiveWarping
+        self.hasInnerRing = settings.hasInnerRing
+        self.isRingFillEnabled = settings.isRingFillEnabled
+        self.isGlowEnabled = settings.isGlowEnabled
+    }
+}
+
+/// 링의 동적 모션 (runtime에서 파생). 클릭/드래그/glow 등 매 frame 변하는 값.
+struct RingMotion {
+    let clickScale: CGFloat
+    let clickTilt: Double
+    let isDragging: Bool
+    let dragAngle: Double
+    let glowMultiplier: Double
+
+    @MainActor
+    init(runtime: CursorRuntimeState) {
+        self.clickScale = runtime.ringClickScale
+        self.clickTilt = runtime.ringClickTilt
+        self.isDragging = runtime.isDragging
+        self.dragAngle = runtime.dragAngle
+        self.glowMultiplier = runtime.glowMultiplier
+    }
+}
+
+struct CursorRingView: View {
+    let position: CGPoint
+    let appearance: RingAppearance
+    let motion: RingMotion
+
     @State private var breathingScale: CGFloat = 0.94
 
     private var strokeStyle: StrokeStyle {
-        let lw = borderWeight.lineWidth
+        let lw = appearance.borderWeight.lineWidth
         return StrokeStyle(
             lineWidth: lw,
             lineCap: .round,
-            dash: borderStyle == .dashed ? [lw * 2.2, lw * 1.4] : []
+            dash: appearance.borderStyle == .dashed ? [lw * 2.2, lw * 1.4] : []
         )
     }
 
     private var innerStrokeStyle: StrokeStyle {
-        let lw = borderWeight.lineWidth * 0.55
+        let lw = appearance.borderWeight.lineWidth * 0.55
         return StrokeStyle(lineWidth: lw, lineCap: .round)
     }
 
-    private var innerSize: CGFloat { size * 0.76 }
+    private var innerSize: CGFloat { appearance.size * 0.76 }
 
     @ViewBuilder
     private func ringShape(diameter: CGFloat, style: StrokeStyle, ringOpacity: Double) -> some View {
-        switch shape {
+        switch appearance.shape {
         case .circle:
             Circle()
-                .stroke(color.opacity(ringOpacity), style: style)
+                .stroke(appearance.color.opacity(ringOpacity), style: style)
                 .frame(width: diameter, height: diameter)
         case .squircle:
             RoundedRectangle(cornerRadius: diameter * 0.28, style: .continuous)
-                .stroke(color.opacity(ringOpacity), style: style)
+                .stroke(appearance.color.opacity(ringOpacity), style: style)
                 .frame(width: diameter, height: diameter)
         case .rhombus:
             RhombusShape()
-                .stroke(color.opacity(ringOpacity), style: style)
+                .stroke(appearance.color.opacity(ringOpacity), style: style)
                 .frame(width: diameter, height: diameter)
         }
     }
 
     var body: some View {
-        let g = CGFloat(glowMultiplier)
-        let glowBase = borderWeight.lineWidth * 0.8 + 4
-        let staticTilt: Double = isPerspectiveWarping ? 32 : 0
-        let totalTilt = staticTilt + clickTilt
+        let glowM = motion.glowMultiplier
+        let g = CGFloat(glowM)
+        let glowBase = appearance.borderWeight.lineWidth * 0.8 + 4
+        let staticTilt: Double = appearance.isPerspectiveWarping ? 32 : 0
+        let totalTilt = staticTilt + motion.clickTilt
+        let glowEnabled = appearance.isGlowEnabled
         ZStack {
             // 도넛 채우기 (inner~outer 사이 반투명 fill)
-            if isRingFillEnabled {
-                DonutFillShape(innerDiameter: innerSize, ringShape: shape)
-                    .fill(color.opacity(opacity * 0.18), style: FillStyle(eoFill: true))
-                    .frame(width: size, height: size)
+            if appearance.isRingFillEnabled {
+                DonutFillShape(innerDiameter: innerSize, ringShape: appearance.shape)
+                    .fill(appearance.color.opacity(appearance.opacity * 0.18), style: FillStyle(eoFill: true))
+                    .frame(width: appearance.size, height: appearance.size)
             }
             // 안쪽 링 (반투명)
-            if hasInnerRing {
-                ringShape(diameter: innerSize, style: innerStrokeStyle, ringOpacity: opacity * 0.32)
+            if appearance.hasInnerRing {
+                ringShape(diameter: innerSize, style: innerStrokeStyle, ringOpacity: appearance.opacity * 0.32)
             }
             // 바깥 링 (불투명)
-            ringShape(diameter: size, style: strokeStyle, ringOpacity: opacity)
+            ringShape(diameter: appearance.size, style: strokeStyle, ringOpacity: appearance.opacity)
         }
-        .shadow(color: isGlowEnabled ? color.opacity(min(1, 0.9 * opacity * glowMultiplier)) : .clear, radius: isGlowEnabled ? glowBase * 0.9 * g : 0)
-        .shadow(color: isGlowEnabled ? color.opacity(min(1, 0.5 * opacity * glowMultiplier)) : .clear, radius: isGlowEnabled ? glowBase * 2.2 * g : 0)
-        .shadow(color: isGlowEnabled ? color.opacity(min(1, 0.2 * opacity * glowMultiplier)) : .clear, radius: isGlowEnabled ? glowBase * 4.0 * g : 0)
-        .scaleEffect(x: isDragging ? 1.35 : 1.0, y: isDragging ? 0.78 : 1.0)
-        .rotationEffect(isDragging ? Angle(radians: dragAngle) : .zero)
-        .scaleEffect(clickScale)
-        .scaleEffect(isDragging ? 1.0 : breathingScale)
+        .shadow(color: glowEnabled ? appearance.color.opacity(min(1, 0.9 * appearance.opacity * glowM)) : .clear, radius: glowEnabled ? glowBase * 0.9 * g : 0)
+        .shadow(color: glowEnabled ? appearance.color.opacity(min(1, 0.5 * appearance.opacity * glowM)) : .clear, radius: glowEnabled ? glowBase * 2.2 * g : 0)
+        .shadow(color: glowEnabled ? appearance.color.opacity(min(1, 0.2 * appearance.opacity * glowM)) : .clear, radius: glowEnabled ? glowBase * 4.0 * g : 0)
+        .scaleEffect(x: motion.isDragging ? 1.35 : 1.0, y: motion.isDragging ? 0.78 : 1.0)
+        .rotationEffect(motion.isDragging ? Angle(radians: motion.dragAngle) : .zero)
+        .scaleEffect(motion.clickScale)
+        .scaleEffect(motion.isDragging ? 1.0 : breathingScale)
         .rotation3DEffect(
             .degrees(totalTilt),
             axis: (x: 1, y: 0, z: 0),
             perspective: totalTilt > 0 ? 0.3 : 1.0
         )
-        .animation(.spring(response: 0.28, dampingFraction: 0.65), value: isDragging)
-        .animation(.spring(response: 0.2, dampingFraction: 0.7), value: dragAngle)
-        .animation(.easeInOut(duration: 0.7), value: glowMultiplier)
-        .animation(.spring(response: 0.6, dampingFraction: 0.75), value: isPerspectiveWarping)
-        .animation(.spring(response: 0.45, dampingFraction: 0.5), value: clickTilt)
-        .animation(.easeInOut(duration: 0.3), value: hasInnerRing)
+        .animation(.spring(response: 0.28, dampingFraction: 0.65), value: motion.isDragging)
+        .animation(.spring(response: 0.2, dampingFraction: 0.7), value: motion.dragAngle)
+        .animation(.easeInOut(duration: 0.7), value: motion.glowMultiplier)
+        .animation(.spring(response: 0.6, dampingFraction: 0.75), value: appearance.isPerspectiveWarping)
+        .animation(.spring(response: 0.45, dampingFraction: 0.5), value: motion.clickTilt)
+        .animation(.easeInOut(duration: 0.3), value: appearance.hasInnerRing)
         .animation(.none, value: position)
         .position(position)
         .onAppear {
