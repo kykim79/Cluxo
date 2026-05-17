@@ -23,6 +23,57 @@
 
 ---
 
+## 기능 아이디어 — 드래그 시각 효과 옵션
+
+현재 드래그 시 ring이 jelly 스트레치(가로 1.35×, 세로 0.78× + rotation). 추가 옵션 brainstorm.
+공통: `RingMotion` struct에 새 property + `OverlayContentView`에서 분기. `CursorSettings`에
+`@Persisted` 토글 추가. 인프라 이미 잘 잡혀 있어 새 옵션 추가는 한 항목당 ~20-40줄.
+
+### #14 Speed Glow — 드래그 속도에 비례한 glow 강화
+- **목적**: 빠른 드래그일수록 ring이 더 빛남. 발표·녹화에서 가속이 시각적으로 강조.
+- **구현**: `CursorRuntimeState`에 dragVelocity 추적 (이전 dragAngle/dt와 비슷). `RingMotion`에 전달.
+  `glowMultiplier`를 속도에 비례하게 조정.
+- **난이도**: 低 (~20줄). 가장 작은 작업, 가장 즉시 체감.
+
+### #15 Snap Back — 드래그 종료 시 spring overshoot
+- **목적**: 드래그 끝나면 ring이 살짝 튕겨 원상복귀. 만족스러운 마이크로인터랙션.
+- **구현**: `endDrag()`에 spring response 더 작은 값으로 추가 단계. 또는 SwiftUI animation timing 조정.
+- **난이도**: 低 (~10줄). 호불호 적음, 안전.
+
+### #16 Velocity Stretch — 속도에 비례한 jelly stretch
+- **목적**: 현재는 isDragging=true면 일률 stretch. 속도 알면 느릴 땐 거의 원형, 빠를 땐 더 길게.
+- **구현**: `RingMotion`에 dragVelocity → `scaleEffect(x: 1.0 + velocity * k, y: 1.0 - velocity * k')`.
+  clamping으로 max stretch 제한.
+- **난이도**: 低 (~15줄). 기존 jelly 그대로 향상.
+
+### #17 Anchored Line — 시작점 ↔ 현재 위치 연결선
+- **목적**: 드래그 region 시각화. 디자인/CAD 툴 느낌. "여기서 끌고 왔다" 명시.
+- **구현**: `startDrag()`에 dragOrigin 저장. `OverlayContentView`에서 dragOrigin → cursorPosition 선
+  (실선/점선 옵션). 마우스 화면 사이 연결.
+- **난이도**: 中 (~50줄). 새 SwiftUI shape 또는 Path. `CursorRuntimeState`에 dragOrigin 추가.
+
+### #18 Comet Tail — 드래그 잔상
+- **목적**: 빠른 드래그 시 cursor 뒤에 streak. 화면 녹화에서 가시성 큼.
+- **구현**: 기존 `TrailView` 응용 — 드래그 중에만 더 굵고 짧은 trail 생성. `EffectsState.updateTrail`을
+  드래그 중일 때 다른 width/decay로.
+- **난이도**: 中 (~40줄). 기존 trail 코드 재활용.
+
+### 통합 디자인 (구현 시점에 결정)
+
+```
+환경설정 → 동작 → 드래그 스타일
+  ⦿ Jelly (탄력 stretch — 현재)
+  ◯ Anchored (시작점 연결)
+  ◯ Comet (잔상)
+☑ 속도에 따라 글로우 (#14)
+☑ 종료 시 튕김 (#15)
+☑ 속도에 비례한 stretch (#16)
+```
+
+스타일은 단일 선택, 향상 옵션은 토글 — 사용자가 조합 가능.
+
+---
+
 ## 기타
 
 ### git author 글로벌 설정
