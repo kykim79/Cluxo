@@ -2,6 +2,8 @@
 
 macOS 메뉴바 앱. 마우스 커서를 시각적으로 강조해 화면 녹화, 발표, 페어 프로그래밍 시 커서 위치를 명확하게 보여줍니다.
 
+> 🇺🇸 [English README](README.en.md)
+
 ![스포트라이트 + 보라색 커서 링](docs/screenshots/01-hero.png)
 
 ## 기능
