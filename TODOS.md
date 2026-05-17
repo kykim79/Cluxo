@@ -9,46 +9,14 @@
 ## P1 — 구조 / 안전성
 
 ### #2 ScreenCaptureKit 마이그레이션
-- **위치**: `AppDelegate.swift` (`startMagnifierCapture`, `requestScreenRecordingPermission`, `promptRelaunchIfNeeded`)
+- **위치**: `MagnifierCaptureService.swift` `start()`
 - **문제**: `CGWindowListCreateImage`가 macOS 14+에서 deprecated. 동작은 macOS 16(현재)까지 유지되나 향후 제거 가능. 돋보기가 앱의 핵심 기능 중 하나.
 - **방향**: `SCStream` 기반으로 전환. 한 번 stream 켜놓고 cursor 주변 cropping이 20Hz 폴링보다 효율적.
 - **상태**: 코드에 `// TODO:` 코멘트 표시됨. 별도 세션에서 ~1-2시간 작업.
 
-### #4 CursorState God Object 분할
-- **위치**: `CursorState.swift` 전체 (460줄, `@Published` **44개**)
-- **문제**: 4가지 책임이 한 클래스에 묶임 (런타임 상태 / 설정 / 효과 큐 / 키스트로크 오버레이). 어느 `@Published` 하나만 바뀌어도 `ObservableObject` 전체가 재발행되어 무관한 view까지 재계산. **이번에 잡은 60% CPU 폭주와 같은 원리.**
-- **방향**: 4개로 분리
-  - `CursorSettings` — UserDefaults-backed 모든 설정
-  - `CursorRuntimeState` — cursorPosition, isCursorVisible, drag, glow
-  - `EffectsState` — click/scroll/trail/shake/clipboard 효과 큐
-  - `KeystrokeOverlayState` — 키스트로크 + 상태 알림
-- **영향**: 각 View가 필요한 객체만 `@ObservedObject` → 60Hz cursorPosition 변경이 ring 설정 view를 흔들지 않게 됨.
-
-### #5 AppDelegate God Object 분할
-- **위치**: `AppDelegate.swift` 전체 (~540줄)
-- **문제**: 7가지 책임 (메뉴바 / 마우스 라우팅 / 키보드 / 권한 / 녹화 감지 / 돋보기 캡처 / 오버레이 lifecycle).
-- **방향**: 최소 4개 분리
-  - `MagnifierCaptureService`
-  - `KeyboardHotkeyHandler`
-  - `PermissionsManager`
-  - `RecordingDetector`
-
 ---
 
 ## P2 — DRY / 성능
-
-### #6 @Persisted PropertyWrapper로 UserDefaults DRY
-- **위치**: `CursorState.swift` `init()` (40줄) + 28개 `@Published`의 `didSet` (60줄)
-- **문제**: 같은 패턴이 28번 반복:
-  ```swift
-  @Published var foo: T = default { didSet { UserDefaults.standard.set(...) } }
-  // init에서: let x = UserDefaults.standard.X(forKey:); if x > 0 { foo = x }
-  ```
-- **방향**: 커스텀 PropertyWrapper로 압축:
-  ```swift
-  @Persisted("ringOpacity", default: 1.0, debounce: 0.3) var ringOpacity: Double
-  ```
-- **임팩트**: init 40줄 + didSet 60줄 → ~10줄.
 
 ### #7 CursorRingView 매개변수 15개 → RingStyle struct
 - **위치**: `OverlayContentView.swift` `CursorRingView`
@@ -56,17 +24,17 @@
 - **방향**: 설정 14개를 `RingStyle` struct로 묶기.
 
 ### #8 NSScreen.screens.first?.frame.height 캐시
-- **위치**: `AppDelegate.swift` `handleMouseMove`, `startMagnifierCapture`
+- **위치**: `AppDelegate.swift` `handleMouseMove`, `MagnifierCaptureService.swift` `start()`
 - **문제**: 60Hz throttle 후에도 매 호출마다 `NSScreen.screens` 배열 쿼리. 20Hz 돋보기 timer에서도 동일.
-- **방향**: `screensChanged()`에서 `primaryScreenHeight` 캐시.
+- **방향**: AppDelegate가 `screensChanged()`에서 `primaryScreenHeight` 캐시 + MagnifierCaptureService에 주입.
 
 ### #9 addScrollEffect의 removeAll 다중 모니터 race
-- **위치**: `CursorState.swift` `addScrollEffect`
+- **위치**: `EffectsState.swift` `addScrollEffect`
 - **문제**: 한 화면에서 스크롤하면 모든 화면의 효과를 다 지움. 다중 모니터에서 다른 화면 효과가 살아 있을 때 같이 꺼짐.
 
 ### #10 saveCustomColor만 debounce 없음
-- **위치**: `CursorState.swift` `customRingColor` `didSet` → `saveCustomColor()`
-- **문제**: ColorPicker 슬라이더 드래그하는 동안 매 변경마다 NSColor 변환 + UserDefaults 호출. 다른 슬라이더는 다 `debouncedSet` 쓰는데 이것만 빠짐.
+- **위치**: `CursorSettings.swift` `customRingColor` `didSet` → `saveCustomColor()`
+- **문제**: ColorPicker 슬라이더 드래그하는 동안 매 변경마다 NSColor 변환 + UserDefaults 호출. 다른 슬라이더는 @Persisted(debounce: 0.3)인데 customRingColor만 빠짐. @Persisted가 Color 타입 미지원이라 별도 처리됨.
 
 ---
 
@@ -77,8 +45,9 @@
 - **문제**: 흔들기 감지 같은 알고리즘은 회귀 위험이 큰데 매번 직접 흔들어보며 검증해야 함.
 - **방향**: GUI 이벤트 핸들링은 어렵지만 순수 함수는 충분히 테스트 가능:
   - `MouseEventMonitor.processMove` — 흔들기 감지 (시뮬레이션 데이터)
-  - `AppDelegate.formatKey` — 키 포맷팅 (NSEvent mock)
-  - `CursorState.updateDragAngle` — atan2 wrapping (±π 경계)
+  - `KeyboardHotkeyHandler.formatKey` — 키 포맷팅 (NSEvent mock)
+  - `CursorRuntimeState.updateDragAngle` — atan2 wrapping (±π 경계)
+  - `Persisted` — read/write/debounce 동작, enum/CGFloat/UInt16 bridging
   - 좌표계 변환 (Quartz top-left ↔ Cocoa bottom-left)
 - **시작**: `Tests/CursorHighlightTests/` 디렉토리 + `project.yml`에 test target 추가.
 
@@ -113,9 +82,33 @@
 
 ## 완료된 작업 (참고)
 
-`aaa8dcb fix: 환경설정 닫을 때 view tree 해제로 CPU 폭주 수정`에 묶여서 처리:
+`aaa8dcb fix: 환경설정 닫을 때 view tree 해제로 CPU 폭주 수정`:
 
-- ✅ **#1** Force cast 방어 — `AppDelegate.isPasswordFieldFocused`
+- ✅ **#1** Force cast 방어 — `KeyboardHotkeyHandler.isPasswordFieldFocused` (이전 AppDelegate)
 - ✅ **#3** EventTap enum 분기 — `MouseEventMonitor.start` callback
-- ✅ **#7 (Preferences leak)** view tree 해제 — `AppDelegate.openPreferences` (CPU 60% → 0%)
+- ✅ **Preferences view tree 누수 수정** — `AppDelegate.openPreferences` (CPU 60% → 0%)
 - 📝 **#2** ScreenCaptureKit TODO 코멘트만 추가 (위 P1 #2 참조)
+
+`1d39346 refactor: @Persisted PropertyWrapper로 UserDefaults boilerplate 제거`:
+
+- ✅ **#6** @Persisted PropertyWrapper — `Persisted.swift` (138줄). ObservableObject 안에서
+  enclosing subscript로 objectWillChange 자동 발행. CursorState.swift 460 → 349줄 (-24%).
+  init/didSet boilerplate 25개 압축.
+
+`efcb547 refactor: CursorState God Object를 4개 ObservableObject로 분할`:
+
+- ✅ **#4** CursorState → 4분할:
+  - `CursorSettings.swift` (188줄) — @Persisted + customRingColor + enums
+  - `CursorRuntimeState.swift` (70줄) — cursor pos + motion + 돋보기 런타임
+  - `EffectsState.swift` (91줄) — 효과 큐 + Effect structs
+  - `KeystrokeOverlayState.swift` (40줄) — keystroke 알림
+  - cursorPosition 60Hz 변경이 무관한 view를 더 이상 흔들지 않음 (Preferences 누수의 근본 원인 해결)
+
+`9708297 refactor: AppDelegate God Object를 4개 서비스로 분할`:
+
+- ✅ **#5** AppDelegate → 4서비스 + 코어:
+  - `PermissionsManager.swift` (90줄) — 권한 요청·polling·설정 패널
+  - `RecordingDetector.swift` (48줄) — 녹화 앱 감지 + 콜백
+  - `MagnifierCaptureService.swift` (101줄) — 돋보기 20Hz 캡처
+  - `KeyboardHotkeyHandler.swift` (176줄) — 전역 단축키 + 키스트로크
+  - AppDelegate 543 → 297줄 (-45%)
