@@ -88,14 +88,14 @@ jobs:
           echo "zip=./CursorHighlight.zip" >> "$GITHUB_OUTPUT"
           echo "Packaged with SHA256: $SHA256"
 
-      - name: Create GitHub Release
+      - name: Create or update GitHub Release (idempotent — re-run 안전)
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release create "v${{ steps.version.outputs.version }}" \
-            "${{ steps.package.outputs.zip }}" \
-            --title "v${{ steps.version.outputs.version }}" \
-            --notes "## CursorHighlight v${{ steps.version.outputs.version }}
+          TAG="v${{ steps.version.outputs.version }}"
+          ZIP="${{ steps.package.outputs.zip }}"
+          SHA="${{ steps.package.outputs.sha256 }}"
+          NOTES="## CursorHighlight $TAG
 
           ### 설치
           \`\`\`
@@ -103,10 +103,18 @@ jobs:
           \`\`\`
 
           ### SHA256
-          \`${{ steps.package.outputs.sha256 }}\`
+          \`$SHA\`
 
           ---
-          [전체 변경 사항](https://github.com/kykim79/CursorHighlight/commits/v${{ steps.version.outputs.version }})"
+          [전체 변경 사항](https://github.com/kykim79/CursorHighlight/commits/$TAG)"
+
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            echo "Release $TAG exists — replacing asset + updating notes"
+            gh release upload "$TAG" "$ZIP" --clobber
+            gh release edit "$TAG" --notes "$NOTES"
+          else
+            gh release create "$TAG" "$ZIP" --title "$TAG" --notes "$NOTES"
+          fi
 
       - name: Checkout tap repo
         uses: actions/checkout@v4
