@@ -88,7 +88,7 @@ jobs:
           echo "zip=./CursorHighlight.zip" >> "$GITHUB_OUTPUT"
           echo "Packaged with SHA256: $SHA256"
 
-      - name: Create or update GitHub Release (idempotent — re-run 안전)
+      - name: Create GitHub Release (idempotent — 기존 release 삭제 후 재생성)
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -108,13 +108,9 @@ jobs:
           ---
           [전체 변경 사항](https://github.com/kykim79/CursorHighlight/commits/$TAG)"
 
-          if gh release view "$TAG" >/dev/null 2>&1; then
-            echo "Release $TAG exists — replacing asset + updating notes"
-            gh release upload "$TAG" "$ZIP" --clobber
-            gh release edit "$TAG" --notes "$NOTES"
-          else
-            gh release create "$TAG" "$ZIP" --title "$TAG" --notes "$NOTES"
-          fi
+          # 기존 release 강제 삭제 (asset 누락 회피). --cleanup-tag 없이 tag는 유지.
+          gh release delete "$TAG" --yes 2>/dev/null || true
+          gh release create "$TAG" "$ZIP" --title "$TAG" --notes "$NOTES"
 
       - name: Checkout tap repo
         uses: actions/checkout@v4
