@@ -29,12 +29,6 @@
 공통: `RingMotion` struct에 새 property + `OverlayContentView`에서 분기. `CursorSettings`에
 `@Persisted` 토글 추가. 인프라 이미 잘 잡혀 있어 새 옵션 추가는 한 항목당 ~20-40줄.
 
-### #16 Velocity Stretch — 속도에 비례한 jelly stretch
-- **목적**: 현재는 isDragging=true면 일률 stretch. 속도 알면 느릴 땐 거의 원형, 빠를 땐 더 길게.
-- **구현**: `RingMotion`에 dragVelocity → `scaleEffect(x: 1.0 + velocity * k, y: 1.0 - velocity * k')`.
-  clamping으로 max stretch 제한.
-- **난이도**: 低 (~15줄). 기존 jelly 그대로 향상.
-
 ### #17 Anchored Line — 시작점 ↔ 현재 위치 연결선
 - **목적**: 드래그 region 시각화. 디자인/CAD 툴 느낌. "여기서 끌고 왔다" 명시.
 - **구현**: `startDrag()`에 dragOrigin 저장. `OverlayContentView`에서 dragOrigin → cursorPosition 선
@@ -162,6 +156,11 @@
 
 - ✅ **#15 Snap Back** — endDrag()에 ringClickScale 1.12 expand → spring back
   마이크로인터랙션 추가. "탁! 놓았다" 피드백.
+
+`2b5d6da feat: 속도 비례 jelly stretch (#16 Velocity Stretch)`:
+
+- ✅ **#16 Velocity Stretch** — scaleEffect를 dragVelocity에 비례화. 느린 드래그는
+  거의 원형(1.05/0.95), 빠르면 max(1.5/0.7). #14의 dragVelocity 인프라 재사용.
 
 `d772fec ci: GitHub Actions release workflow + Homebrew tap 자동 배포` 외 다수:
 
