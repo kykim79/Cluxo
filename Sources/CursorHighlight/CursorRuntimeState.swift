@@ -56,6 +56,19 @@ final class CursorRuntimeState: ObservableObject {
         withAnimation(.spring(response: 0.45, dampingFraction: 0.55)) { isDragging = false }
         dragAngle = 0
         withAnimation(.easeOut(duration: 0.3)) { dragVelocity = 0 }
+
+        // #15 Snap Back — 드래그 종료 순간 ring이 잠깐 expand 후 spring back.
+        // 만족스러운 마이크로인터랙션 ("탁! 놓았다" 피드백). ringClickScale 재사용 (click과 겹치는
+        // edge case는 드물고 동시 발생해도 visual 이상 X).
+        withAnimation(.spring(response: 0.15, dampingFraction: 0.6)) {
+            ringClickScale = 1.12
+        }
+        Task { @MainActor [weak self] in
+            try? await Task.sleep(for: .milliseconds(110))
+            withAnimation(.spring(response: 0.5, dampingFraction: 0.4)) {
+                self?.ringClickScale = 1.0
+            }
+        }
     }
 
     // MARK: - Click Pulse
