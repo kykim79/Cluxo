@@ -93,16 +93,44 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
         \(missingOrdered.map { "• \($0.rawValue)" }.joined(separator: "\n"))
 
-        앱 업데이트나 macOS 업데이트 시 권한이 reset될 수 있습니다. 시스템 설정에서 각 항목 토글을 다시 켜주세요.
+        ① 「시스템 설정 열기」 클릭
+        ② 목록에서 CursorHighlight 항목 클릭 후 하단 「-」 버튼으로 제거
+            (이미 토글 ON 상태인데 동작 안 하면 cdhash 변경으로 stuck. 제거 후 재부여만 동작.)
+        ③ CursorHighlight 다시 실행 → 권한 prompt에 「허용」
+
+        앱 이름은 클립보드에 복사돼 있어 시스템 설정 검색창에 ⌘V로 바로 붙여넣을 수 있습니다.
         """
         alert.alertStyle = .warning
+        if missingOrdered.count > 1 {
+            alert.addButton(withTitle: "모든 패널 열기")
+        }
         alert.addButton(withTitle: "시스템 설정 열기")
         alert.addButton(withTitle: "나중에")
 
+        // 사용자가 시스템 설정 검색창에서 빠르게 찾을 수 있게 클립보드에 앱 이름 복사
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.setString("CursorHighlight", forType: .string)
+
         NSApp.activate(ignoringOtherApps: true)
         let response = alert.runModal()
-        if response == .alertFirstButtonReturn, let first = missingOrdered.first {
-            NSWorkspace.shared.open(first.settingsURL)
+        switch (missingOrdered.count > 1, response) {
+        case (true, .alertFirstButtonReturn):
+            // "모든 패널 열기" — 각 missing 권한 패널 0.5초 간격으로 순차 오픈 (시스템 설정 안 깜빡거리게)
+            Task { @MainActor in
+                for (i, p) in missingOrdered.enumerated() {
+                    NSWorkspace.shared.open(p.settingsURL)
+                    if i < missingOrdered.count - 1 {
+                        try? await Task.sleep(for: .milliseconds(500))
+                    }
+                }
+            }
+        case (true, .alertSecondButtonReturn), (false, .alertFirstButtonReturn):
+            // 첫 missing 권한 패널 하나만 — 가장 흔한 경우
+            if let first = missingOrdered.first {
+                NSWorkspace.shared.open(first.settingsURL)
+            }
+        default:
+            break  // "나중에"
         }
     }
 
