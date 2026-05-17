@@ -145,6 +145,13 @@
   일반 trail보다 더 굵고 진함). 종료 시 점진 fade out. `isCometTailEnabled` 토글
   (default false — 시각 임팩트 커서 발표·녹화 시 ON).
 
+`#13 업데이트 확인 버튼 실제 동작` (PreferencesView InfoTab):
+
+- ✅ GitHub Releases API 폴링 — `/releases/latest`에서 `tag_name` 가져와
+  현재 `CFBundleShortVersionString`과 numeric option으로 비교. 결과별 메시지:
+  최신 ✓ / 새 버전 📥 (Release 페이지 열기 버튼 + brew upgrade 안내) /
+  로컬이 더 높음 ⚠️ (개발 빌드) / 에러.
+
 `d772fec ci: GitHub Actions release workflow + Homebrew tap 자동 배포` 외 다수:
 
 - ✅ **Homebrew Cask 배포 인프라** — `git tag vX.Y.Z + push` 한 줄로 자동 release:
