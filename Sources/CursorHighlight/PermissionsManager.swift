@@ -1,0 +1,90 @@
+import AppKit
+import ApplicationServices
+
+// MARK: - PermissionsManager
+//
+// 손쉬운 사용 / 화면 녹화 권한 요청·polling·설정 패널 오픈.
+// 화면 녹화 권한 상태는 runtime.hasScreenRecordingPermission으로 publish.
+@MainActor
+final class PermissionsManager {
+    private weak var runtime: CursorRuntimeState?
+    private var permissionCheckTimer: Timer?
+
+    init(runtime: CursorRuntimeState) {
+        self.runtime = runtime
+    }
+
+    deinit {
+        permissionCheckTimer?.invalidate()
+    }
+
+    // MARK: - Accessibility (손쉬운 사용)
+
+    /// 현재 손쉬운 사용 권한 보유 여부. CGEventTap이 동작하려면 true 필요.
+    static var isAccessibilityTrusted: Bool { AXIsProcessTrusted() }
+
+    /// 권한 요청 다이얼로그 표시 (한 번 부여하면 시스템에 등록됨).
+    func requestAccessibility() {
+        let opts = [kAXTrustedCheckOptionPrompt.takeUnretainedValue() as String: true] as CFDictionary
+        AXIsProcessTrustedWithOptions(opts)
+    }
+
+    // MARK: - Screen Recording (화면 녹화 — 돋보기용)
+
+    /// 시스템 권한 다이얼로그 표시 + 설정 목록 자동 추가.
+    func requestScreenRecordingPermission() {
+        if #available(macOS 14.0, *) {
+            CGRequestScreenCaptureAccess()
+        } else {
+            // macOS 13: 직접 캡처 시도로 프롬프트 유도
+            _ = CGWindowListCreateImage(.null, .optionOnScreenOnly, kCGNullWindowID, .bestResolution)
+        }
+        // 시스템 설정도 함께 열어서 사용자가 바로 활성화할 수 있게
+        NSWorkspace.shared.open(URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_ScreenCapture")!)
+    }
+
+    static func hasScreenRecordingPermission() -> Bool {
+        if #available(macOS 14.0, *) {
+            // 프로세스 캐시 없이 TCC 데이터베이스를 직접 조회 — 프롬프트 없음
+            return CGPreflightScreenCaptureAccess()
+        }
+        // macOS 13: kCGWindowName 유무로 확인
+        let list = CGWindowListCopyWindowInfo([.optionOnScreenOnly], kCGNullWindowID) as? [[String: Any]] ?? []
+        return list.contains { $0[kCGWindowName as String] != nil }
+    }
+
+    // MARK: - Polling
+
+    /// 권한 부여 전까지 2초 간격으로 polling, 부여되면 자동 중지.
+    func startPolling() {
+        runtime?.hasScreenRecordingPermission = Self.hasScreenRecordingPermission()
+        // 이미 권한 부여된 상태면 polling 불필요 (사용자가 회수하기 전까지 변하지 않음)
+        if runtime?.hasScreenRecordingPermission == true { return }
+        permissionCheckTimer?.invalidate()
+        permissionCheckTimer = Timer.scheduledTimer(withTimeInterval: 2.0, repeats: true) { [weak self] _ in
+            guard let self else { return }
+            let granted = Self.hasScreenRecordingPermission()
+            guard granted != self.runtime?.hasScreenRecordingPermission else { return }
+            DispatchQueue.main.async {
+                self.runtime?.hasScreenRecordingPermission = granted
+                if granted {
+                    // 권한 부여됨 → 더 이상 polling 불필요
+                    self.permissionCheckTimer?.invalidate()
+                    self.permissionCheckTimer = nil
+                } else {
+                    self.runtime?.isMagnifierActive = false
+                }
+            }
+        }
+    }
+
+    // MARK: - 설정 패널 열기
+
+    func openInputMonitoringSettings() {
+        NSWorkspace.shared.open(URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_ListenEvent")!)
+    }
+
+    func openAccessibilitySettings() {
+        NSWorkspace.shared.open(URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility")!)
+    }
+}
