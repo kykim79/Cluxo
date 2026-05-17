@@ -1,4 +1,5 @@
 import Foundation
+import AppKit
 import CoreGraphics
 
 // MARK: - EffectsState
@@ -64,7 +65,11 @@ final class EffectsState: ObservableObject {
     }
 
     func addScrollEffect(at point: CGPoint, isPositive: Bool, isVertical: Bool, animationSpeed: Double) {
-        scrollEffects.removeAll()
+        // 같은 화면의 이전 스크롤 효과만 제거 — 다중 모니터에서 다른 화면 효과는 유지.
+        // 스크롤은 0.25초 디바운스(MouseEventMonitor)라 NSScreen 쿼리 빈도 낮음.
+        if let currentScreen = NSScreen.screens.first(where: { $0.frame.contains(point) }) {
+            scrollEffects.removeAll { currentScreen.frame.contains($0.position) }
+        }
         let effect = ScrollEffect(position: point, isPositive: isPositive, isVertical: isVertical)
         scrollEffects.append(effect)
         Task {
