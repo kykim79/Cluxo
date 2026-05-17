@@ -29,28 +29,6 @@
 공통: `RingMotion` struct에 새 property + `OverlayContentView`에서 분기. `CursorSettings`에
 `@Persisted` 토글 추가. 인프라 이미 잘 잡혀 있어 새 옵션 추가는 한 항목당 ~20-40줄.
 
-### #18 Comet Tail — 드래그 잔상
-- **목적**: 빠른 드래그 시 cursor 뒤에 streak. 화면 녹화에서 가시성 큼.
-- **구현**: 기존 `TrailView` 응용 — 드래그 중에만 더 굵고 짧은 trail 생성. `EffectsState.updateTrail`을
-  드래그 중일 때 다른 width/decay로.
-- **난이도**: 中 (~40줄). 기존 trail 코드 재활용.
-
-### 통합 디자인 (구현 시점에 결정)
-
-```
-환경설정 → 동작 → 드래그 스타일
-  ⦿ Jelly (탄력 stretch — 현재)
-  ◯ Anchored (시작점 연결)
-  ◯ Comet (잔상)
-☑ 속도에 따라 글로우 (#14)
-☑ 종료 시 튕김 (#15)
-☑ 속도에 비례한 stretch (#16)
-```
-
-스타일은 단일 선택, 향상 옵션은 토글 — 사용자가 조합 가능.
-
----
-
 ## 기타
 
 ### git author 글로벌 설정
@@ -160,6 +138,12 @@
 
 - ✅ **#17 Anchored Line** — 드래그 시작점 dot + 점선 연결. 거리(100pt) OR 시간(1초)
   임계로 자동 fade in (짧은 드래그는 비표시). `isAnchoredLineEnabled` 토글로 ON/OFF.
+
+`dbde790 feat: 드래그 컴맷 테일 (#18 Comet Tail)`:
+
+- ✅ **#18 Comet Tail** — 드래그 중 cursor 뒤 굵은 streak (14-sample sliding window,
+  일반 trail보다 더 굵고 진함). 종료 시 점진 fade out. `isCometTailEnabled` 토글
+  (default false — 시각 임팩트 커서 발표·녹화 시 ON).
 
 `d772fec ci: GitHub Actions release workflow + Homebrew tap 자동 배포` 외 다수:
 
