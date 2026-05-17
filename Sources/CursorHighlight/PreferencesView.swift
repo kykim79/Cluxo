@@ -4,8 +4,8 @@ import AppKit
 // MARK: - Preferences Window Controller
 
 class PreferencesWindowController: NSWindowController {
-    init(state: CursorState) {
-        let view = PreferencesView(state: state)
+    init(settings: CursorSettings, runtime: CursorRuntimeState) {
+        let view = PreferencesView(settings: settings, runtime: runtime)
         let hosting = NSHostingView(rootView: view)
         hosting.frame = NSRect(x: 0, y: 0, width: 480, height: 500)
         let window = NSPanel(
@@ -27,20 +27,21 @@ class PreferencesWindowController: NSWindowController {
 // MARK: - Preferences View
 
 struct PreferencesView: View {
-    @ObservedObject var state: CursorState
+    @ObservedObject var settings: CursorSettings
+    @ObservedObject var runtime: CursorRuntimeState
 
     var body: some View {
         TabView {
-            AppearanceTab(state: state)
+            AppearanceTab(settings: settings)
                 .tabItem { Label("모양", systemImage: "circle.dashed") }
 
-            BehaviorTab(state: state)
+            BehaviorTab(settings: settings)
                 .tabItem { Label("동작", systemImage: "cursorarrow") }
 
-            MagnifierTab(state: state)
+            MagnifierTab(settings: settings, runtime: runtime)
                 .tabItem { Label("돋보기", systemImage: "magnifyingglass.circle") }
 
-            ShortcutsTab(state: state)
+            ShortcutsTab(settings: settings)
                 .tabItem { Label("단축키", systemImage: "keyboard") }
 
             InfoTab()
@@ -53,33 +54,33 @@ struct PreferencesView: View {
 // MARK: - Appearance Tab
 
 private struct AppearanceTab: View {
-    @ObservedObject var state: CursorState
+    @ObservedObject var settings: CursorSettings
 
     var body: some View {
         Form {
             Section("커서 링 색상") {
                 LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 4), spacing: 10) {
-                    ForEach(CursorState.RingColor.allCases.filter { $0 != .custom }) { c in
+                    ForEach(CursorSettings.RingColor.allCases.filter { $0 != .custom }) { c in
                         ColorSwatch(
                             color: c.color,
                             label: c.label,
-                            isSelected: state.ringColor == c
-                        ) { state.ringColor = c }
+                            isSelected: settings.ringColor == c
+                        ) { settings.ringColor = c }
                     }
                 }
                 .padding(.vertical, 4)
 
                 HStack {
                     ColorPicker("커스텀", selection: Binding(
-                        get: { state.customRingColor },
-                        set: { state.customRingColor = $0; state.ringColor = .custom }
+                        get: { settings.customRingColor },
+                        set: { settings.customRingColor = $0; settings.ringColor = .custom }
                     ))
                     .labelsHidden()
                     .frame(width: 28, height: 28)
-                    Button("커스텀") { state.ringColor = .custom }
+                    Button("커스텀") { settings.ringColor = .custom }
                         .buttonStyle(.plain)
-                        .foregroundColor(state.ringColor == .custom ? .accentColor : .primary)
-                    if state.ringColor == .custom {
+                        .foregroundColor(settings.ringColor == .custom ? .accentColor : .primary)
+                    if settings.ringColor == .custom {
                         Text("✓").foregroundColor(.accentColor)
                     }
                     Spacer()
@@ -87,8 +88,8 @@ private struct AppearanceTab: View {
             }
 
             Section("링 모양") {
-                Picker("모양", selection: $state.ringShape) {
-                    ForEach(CursorState.RingShape.allCases) { s in
+                Picker("모양", selection: $settings.ringShape) {
+                    ForEach(CursorSettings.RingShape.allCases) { s in
                         Text(s.label).tag(s)
                     }
                 }
@@ -97,8 +98,8 @@ private struct AppearanceTab: View {
             }
 
             Section("링 크기") {
-                Picker("크기", selection: $state.ringSize) {
-                    ForEach(CursorState.RingSize.allCases) { s in
+                Picker("크기", selection: $settings.ringSize) {
+                    ForEach(CursorSettings.RingSize.allCases) { s in
                         Text(s.label).tag(s)
                     }
                 }
@@ -109,35 +110,35 @@ private struct AppearanceTab: View {
             Section("링 투명도") {
                 LabeledContent("투명도") {
                     HStack {
-                        Slider(value: $state.ringOpacity, in: 0.2...1.0, step: 0.05)
-                        Text(String(format: "%.0f%%", state.ringOpacity * 100))
+                        Slider(value: $settings.ringOpacity, in: 0.2...1.0, step: 0.05)
+                        Text(String(format: "%.0f%%", settings.ringOpacity * 100))
                             .monospacedDigit().frame(width: 44, alignment: .trailing)
                     }
                 }
             }
 
             Section("테두리 두께") {
-                Picker("두께", selection: $state.borderWeight) {
-                    ForEach(CursorState.BorderWeight.allCases) { w in Text(w.label).tag(w) }
+                Picker("두께", selection: $settings.borderWeight) {
+                    ForEach(CursorSettings.BorderWeight.allCases) { w in Text(w.label).tag(w) }
                 }
                 .pickerStyle(.segmented).labelsHidden()
             }
 
             Section("테두리 스타일") {
-                Picker("스타일", selection: $state.borderStyle) {
-                    ForEach(CursorState.BorderStyle.allCases) { s in Text(s.label).tag(s) }
+                Picker("스타일", selection: $settings.borderStyle) {
+                    ForEach(CursorSettings.BorderStyle.allCases) { s in Text(s.label).tag(s) }
                 }
                 .pickerStyle(.segmented).labelsHidden()
 
-                Toggle("이중 링 (안쪽 반투명 선)", isOn: $state.hasInnerRing)
-                Toggle("링 채우기 (반투명 도넛)", isOn: $state.isRingFillEnabled)
-                Toggle("글로우 효과", isOn: $state.isGlowEnabled)
-                Toggle("원근 왜곡 (Perspective Warping)", isOn: $state.isPerspectiveWarping)
+                Toggle("이중 링 (안쪽 반투명 선)", isOn: $settings.hasInnerRing)
+                Toggle("링 채우기 (반투명 도넛)", isOn: $settings.isRingFillEnabled)
+                Toggle("글로우 효과", isOn: $settings.isGlowEnabled)
+                Toggle("원근 왜곡 (Perspective Warping)", isOn: $settings.isPerspectiveWarping)
             }
 
             Section("애니메이션 속도") {
-                Picker("속도", selection: $state.animationSpeed) {
-                    ForEach(CursorState.AnimationSpeed.allCases) { s in Text(s.label).tag(s) }
+                Picker("속도", selection: $settings.animationSpeed) {
+                    ForEach(CursorSettings.AnimationSpeed.allCases) { s in Text(s.label).tag(s) }
                 }
                 .pickerStyle(.segmented).labelsHidden()
             }
@@ -145,8 +146,8 @@ private struct AppearanceTab: View {
             Section("스포트라이트 반경") {
                 LabeledContent("반경") {
                     HStack {
-                        Slider(value: $state.spotlightRadius, in: 60...250, step: 10)
-                        Text("\(Int(state.spotlightRadius))pt")
+                        Slider(value: $settings.spotlightRadius, in: 60...250, step: 10)
+                        Text("\(Int(settings.spotlightRadius))pt")
                             .monospacedDigit().frame(width: 44, alignment: .trailing)
                     }
                 }
@@ -182,7 +183,7 @@ private struct ColorSwatch: View {
 // MARK: - Behavior Tab
 
 private struct BehaviorTab: View {
-    @ObservedObject var state: CursorState
+    @ObservedObject var settings: CursorSettings
     @State private var launchAtLogin: Bool = false
 
     var body: some View {
@@ -190,8 +191,8 @@ private struct BehaviorTab: View {
             Section("키스트로크") {
                 LabeledContent("표시 시간") {
                     HStack {
-                        Slider(value: $state.keystrokeTimeout, in: 1...8, step: 0.5)
-                        Text(String(format: "%.1f초", state.keystrokeTimeout))
+                        Slider(value: $settings.keystrokeTimeout, in: 1...8, step: 0.5)
+                        Text(String(format: "%.1f초", settings.keystrokeTimeout))
                             .monospacedDigit().frame(width: 44, alignment: .trailing)
                     }
                 }
@@ -200,36 +201,37 @@ private struct BehaviorTab: View {
             Section("기타") {
                 LabeledContent("커서 숨김 대기") {
                     HStack {
-                        Slider(value: $state.idleTimeout, in: 1...10, step: 0.5)
-                        Text(String(format: "%.1f초", state.idleTimeout))
+                        Slider(value: $settings.idleTimeout, in: 1...10, step: 0.5)
+                        Text(String(format: "%.1f초", settings.idleTimeout))
                             .monospacedDigit().frame(width: 44, alignment: .trailing)
                     }
                 }
-                Toggle("스크롤 인디케이터", isOn: $state.isScrollIndicatorEnabled)
-                Toggle("커서 트레일", isOn: $state.isTrailEnabled)
-                Toggle("우클릭에 링 색상 적용", isOn: $state.rightClickUsesRingColor)
-                Toggle("녹화 앱 실행 시 자동 활성화", isOn: $state.autoEnableOnRecording)
+                Toggle("스크롤 인디케이터", isOn: $settings.isScrollIndicatorEnabled)
+                Toggle("커서 트레일", isOn: $settings.isTrailEnabled)
+                Toggle("우클릭에 링 색상 적용", isOn: $settings.rightClickUsesRingColor)
+                Toggle("녹화 앱 실행 시 자동 활성화", isOn: $settings.autoEnableOnRecording)
                 Toggle("로그인 시 자동 실행", isOn: $launchAtLogin)
-                    .onChange(of: launchAtLogin) { v in state.setLaunchAtLogin(v) }
+                    .onChange(of: launchAtLogin) { v in settings.setLaunchAtLogin(v) }
             }
         }
         .formStyle(.grouped)
         .padding(.horizontal)
-        .onAppear { launchAtLogin = state.launchAtLoginEnabled }
+        .onAppear { launchAtLogin = settings.launchAtLoginEnabled }
     }
 }
 
 // MARK: - Magnifier Tab
 
 private struct MagnifierTab: View {
-    @ObservedObject var state: CursorState
+    @ObservedObject var settings: CursorSettings
+    @ObservedObject var runtime: CursorRuntimeState
 
     private let zoomOptions: [(Double, String)] = [(1.5,"1.5×"), (2.0,"2×"), (3.0,"3×"), (4.0,"4×")]
     private let sizeOptions: [(CGFloat, String)] = [(160,"작게"), (200,"보통"), (260,"크게"), (320,"매우 크게")]
 
     var body: some View {
         Form {
-            if !state.hasScreenRecordingPermission {
+            if !runtime.hasScreenRecordingPermission {
                 Section {
                     HStack(spacing: 8) {
                         Image(systemName: "exclamationmark.triangle.fill").foregroundColor(.orange)
@@ -250,18 +252,18 @@ private struct MagnifierTab: View {
 
             Section("돋보기 설정") {
                 Toggle("돋보기 활성화", isOn: Binding(
-                    get: { state.isMagnifierActive },
+                    get: { runtime.isMagnifierActive },
                     set: { newValue in
-                        if newValue && !state.hasScreenRecordingPermission {
+                        if newValue && !runtime.hasScreenRecordingPermission {
                             NSWorkspace.shared.open(URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_ScreenCapture")!)
                         } else {
-                            state.isMagnifierActive = newValue
+                            runtime.isMagnifierActive = newValue
                         }
                     }
                 ))
 
                 LabeledContent("배율") {
-                    Picker("배율", selection: $state.magnifierZoom) {
+                    Picker("배율", selection: $settings.magnifierZoom) {
                         ForEach(zoomOptions, id: \.0) { zoom, label in
                             Text(label).tag(zoom)
                         }
@@ -272,7 +274,7 @@ private struct MagnifierTab: View {
                 }
 
                 LabeledContent("렌즈 크기") {
-                    Picker("크기", selection: $state.magnifierSize) {
+                    Picker("크기", selection: $settings.magnifierSize) {
                         ForEach(sizeOptions, id: \.0) { size, label in
                             Text(label).tag(size)
                         }
@@ -297,7 +299,7 @@ private struct MagnifierTab: View {
 // MARK: - Shortcuts Tab
 
 private struct ShortcutsTab: View {
-    @ObservedObject var state: CursorState
+    @ObservedObject var settings: CursorSettings
 
     private let spotlightOptions: [(UInt16, String)] = [(1,"S"), (3,"F"), (18,"1"), (5,"G")]
     private let keystrokeOptions: [(UInt16, String)] = [(40,"K"), (37,"L"), (19,"2"), (32,"U")]
@@ -310,7 +312,7 @@ private struct ShortcutsTab: View {
             }
 
             Section("스포트라이트") {
-                Picker("키", selection: $state.spotlightKeyCode) {
+                Picker("키", selection: $settings.spotlightKeyCode) {
                     ForEach(spotlightOptions, id: \.0) { code, key in
                         Text("⌃⌥\(key)").tag(code)
                     }
@@ -319,7 +321,7 @@ private struct ShortcutsTab: View {
             }
 
             Section("키스트로크 표시") {
-                Picker("키", selection: $state.keystrokeShortcutKeyCode) {
+                Picker("키", selection: $settings.keystrokeShortcutKeyCode) {
                     ForEach(keystrokeOptions, id: \.0) { code, key in
                         Text("⌃⌥\(key)").tag(code)
                     }

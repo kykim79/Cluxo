@@ -1,82 +1,85 @@
 import SwiftUI
 
 struct OverlayContentView: View {
-    @ObservedObject var state: CursorState
+    @ObservedObject var settings: CursorSettings
+    @ObservedObject var runtime: CursorRuntimeState
+    @ObservedObject var effects: EffectsState
+    @ObservedObject var keystroke: KeystrokeOverlayState
     let screenFrame: CGRect
 
-    private var localPos: CGPoint { toLocal(state.cursorPosition) }
-    private var cursorOnScreen: Bool { screenFrame.contains(state.cursorPosition) }
-    private var speed: Double { state.animationSpeed.multiplier }
+    private var localPos: CGPoint { toLocal(runtime.cursorPosition) }
+    private var cursorOnScreen: Bool { screenFrame.contains(runtime.cursorPosition) }
+    private var speed: Double { settings.animationSpeed.multiplier }
     private var effectiveColor: Color {
-        state.ringColor == .custom ? state.customRingColor : state.ringColor.color
+        settings.ringColor == .custom ? settings.customRingColor : settings.ringColor.color
     }
 
     var body: some View {
         ZStack {
             // 스포트라이트
-            if state.isSpotlightActive {
-                if cursorOnScreen { SpotlightView(position: localPos, radius: state.spotlightRadius) }
+            if runtime.isSpotlightActive {
+                if cursorOnScreen { SpotlightView(position: localPos, radius: settings.spotlightRadius) }
                 else              { Color.black.opacity(0.78) }
             }
 
             // 커서 트레일 — 좌표 변환은 TrailView 내부에서 (body 재계산 시 매번 filter+map 회피)
-            if state.isTrailEnabled && !state.trailPoints.isEmpty {
-                TrailView(trailPoints: state.trailPoints, screenFrame: screenFrame, color: effectiveColor)
+            if settings.isTrailEnabled && !effects.trailPoints.isEmpty {
+                TrailView(trailPoints: effects.trailPoints, screenFrame: screenFrame, color: effectiveColor)
             }
 
             // 커서 링
-            if cursorOnScreen && state.isCursorVisible {
+            if cursorOnScreen && runtime.isCursorVisible {
                 CursorRingView(
                     position: localPos,
                     color: effectiveColor,
-                    size: state.ringSize.diameter,
-                    shape: state.ringShape,
-                    opacity: state.ringOpacity,
-                    clickScale: state.ringClickScale,
-                    clickTilt: state.ringClickTilt,
-                    isDragging: state.isDragging,
-                    dragAngle: state.dragAngle,
-                    glowMultiplier: state.glowMultiplier,
-                    borderWeight: state.borderWeight,
-                    borderStyle: state.borderStyle,
-                    isPerspectiveWarping: state.isPerspectiveWarping,
-                    hasInnerRing: state.hasInnerRing,
-                    isRingFillEnabled: state.isRingFillEnabled,
-                    isGlowEnabled: state.isGlowEnabled
+                    size: settings.ringSize.diameter,
+                    shape: settings.ringShape,
+                    opacity: settings.ringOpacity,
+                    clickScale: runtime.ringClickScale,
+                    clickTilt: runtime.ringClickTilt,
+                    isDragging: runtime.isDragging,
+                    dragAngle: runtime.dragAngle,
+                    glowMultiplier: runtime.glowMultiplier,
+                    borderWeight: settings.borderWeight,
+                    borderStyle: settings.borderStyle,
+                    isPerspectiveWarping: settings.isPerspectiveWarping,
+                    hasInnerRing: settings.hasInnerRing,
+                    isRingFillEnabled: settings.isRingFillEnabled,
+                    isGlowEnabled: settings.isGlowEnabled
                 )
             }
 
             // 클릭 파동
-            ForEach(state.clickEffects) { effect in
+            ForEach(effects.clickEffects) { effect in
                 if screenFrame.contains(effect.position) {
                     ClickRippleView(
                         position: toLocal(effect.position),
                         isRight: effect.isRight,
                         isDouble: effect.isDouble,
                         color: effectiveColor,
-                        rightClickUsesRingColor: state.rightClickUsesRingColor,
+                        rightClickUsesRingColor: settings.rightClickUsesRingColor,
                         speed: speed
                     )
                 }
             }
 
             // 더블클릭 버스트
-            ForEach(state.doubleClickEffects) { effect in
+            ForEach(effects.doubleClickEffects) { effect in
                 if screenFrame.contains(effect.position) {
                     DoubleClickBurstView(position: toLocal(effect.position), color: effectiveColor, speed: speed)
                 }
             }
 
             // 흔들기
-            ForEach(state.shakeEffects) { effect in
+            ForEach(effects.shakeEffects) { effect in
                 if screenFrame.contains(effect.position) {
                     ShakeEffectView(position: toLocal(effect.position), color: effectiveColor, speed: speed)
                 }
             }
 
             // 스크롤 인디케이터
-            if state.isScrollIndicatorEnabled {
-                ForEach(state.scrollEffects) { effect in
+            if settings.isScrollIndicatorEnabled {
+                ForEach(effects.scrollEffects) { effect in
                     if screenFrame.contains(effect.position) {
                         ScrollIndicatorView(
                             position: toLocal(effect.position),
@@ -89,26 +92,26 @@ struct OverlayContentView: View {
             }
 
             // 클립보드 인디케이터
-            ForEach(state.clipboardEffects) { effect in
+            ForEach(effects.clipboardEffects) { effect in
                 if screenFrame.contains(effect.position) {
                     ClipboardIndicatorView(position: toLocal(effect.position), emoji: effect.emoji)
                 }
             }
 
             // 돋보기
-            if state.isMagnifierActive && cursorOnScreen {
+            if runtime.isMagnifierActive && cursorOnScreen {
                 MagnifierView(
                     position: localPos,
-                    image: state.magnifierImage,
-                    size: state.magnifierSize,
+                    image: runtime.magnifierImage,
+                    size: settings.magnifierSize,
                     color: effectiveColor
                 )
             }
 
             // 키스트로크 / 상태 알림 (항상 트리에 포함 - 비활성 시 알림도 표시되어야 함)
             KeystrokeDisplayView(
-                text: state.keystrokeText,
-                isVisible: state.isKeystrokeVisible,
+                text: keystroke.keystrokeText,
+                isVisible: keystroke.isKeystrokeVisible,
                 position: CGPoint(x: screenFrame.width / 2, y: screenFrame.height - 80)
             )
         }
@@ -152,7 +155,7 @@ struct SpotlightView: View {
 // MARK: - 커서 트레일
 
 struct TrailView: View {
-    let trailPoints: [CursorState.TrailPoint]
+    let trailPoints: [EffectsState.TrailPoint]
     let screenFrame: CGRect
     let color: Color
 
@@ -194,7 +197,7 @@ struct TrailView: View {
 
 struct DonutFillShape: Shape {
     let innerDiameter: CGFloat
-    let ringShape: CursorState.RingShape
+    let ringShape: CursorSettings.RingShape
 
     func path(in rect: CGRect) -> Path {
         var path = Path()
@@ -231,15 +234,15 @@ struct CursorRingView: View {
     let position: CGPoint
     let color: Color
     let size: CGFloat
-    let shape: CursorState.RingShape
+    let shape: CursorSettings.RingShape
     let opacity: Double
     let clickScale: CGFloat
     let clickTilt: Double
     let isDragging: Bool
     let dragAngle: Double
     let glowMultiplier: Double
-    let borderWeight: CursorState.BorderWeight
-    let borderStyle: CursorState.BorderStyle
+    let borderWeight: CursorSettings.BorderWeight
+    let borderStyle: CursorSettings.BorderStyle
     let isPerspectiveWarping: Bool
     let hasInnerRing: Bool
     let isRingFillEnabled: Bool

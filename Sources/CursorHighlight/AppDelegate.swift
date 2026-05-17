@@ -20,7 +20,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private var lastTrailSampleTime: TimeInterval = 0
     private var preferencesController: PreferencesWindowController?
     private var cancellables = Set<AnyCancellable>()
-    let cursorState = CursorState()
+    // CursorState God Object를 4개로 분할: settings(영구) + runtime(커서) + effects(큐) + keystrokeOverlay(알림)
+    let settings = CursorSettings()
+    let runtime = CursorRuntimeState()
+    let effects = EffectsState()
+    let keystrokeOverlay = KeystrokeOverlayState()
     private var isEnabled = true
     private var enableMenuItem: NSMenuItem?
 
@@ -77,7 +81,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     @objc private func openPreferences() {
         if preferencesController == nil {
-            let controller = PreferencesWindowController(state: cursorState)
+            let controller = PreferencesWindowController(settings: settings, runtime: runtime)
             // 윈도우를 닫으면 controller를 풀어줘 SwiftUI view tree 전체를 해제한다.
             // 살려두면 보이지 않아도 @Published(cursorPosition 60Hz) 변경마다 layout이 재계산됨.
             NotificationCenter.default.addObserver(
@@ -168,24 +172,24 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         lastMousePos = pos
         lastMoveTime = Date()
 
-        if !cursorState.isCursorVisible { cursorState.isCursorVisible = true }
-        if cursorState.glowMultiplier > 1.0 { cursorState.glowMultiplier = 1.0 }
+        if !runtime.isCursorVisible { runtime.isCursorVisible = true }
+        if runtime.glowMultiplier > 1.0 { runtime.glowMultiplier = 1.0 }
 
         let now = Date().timeIntervalSinceReferenceDate
 
         // cursorPosition 업데이트는 60Hz throttle (고DPI 마우스 1000Hz 대비)
         if now - lastPosUpdateTime >= 1.0 / 60.0 {
             lastPosUpdateTime = now
-            cursorState.cursorPosition = pos
+            runtime.cursorPosition = pos
         }
 
         // 트레일 샘플링 (~15Hz throttle)
         if now - lastTrailSampleTime > 0.066 {
             lastTrailSampleTime = now
-            if cursorState.isTrailEnabled {
-                cursorState.updateTrail(pos)
-            } else if !cursorState.trailPoints.isEmpty {
-                cursorState.clearTrail()
+            if settings.isTrailEnabled {
+                effects.updateTrail(pos)
+            } else if !effects.trailPoints.isEmpty {
+                effects.clearTrail()
             }
         }
 
@@ -199,17 +203,17 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         let hide = DispatchWorkItem { [weak self] in
             guard let self else { return }
             // 보정: 마지막 throttled 위치가 빠졌을 수 있어 다시 commit
-            if self.cursorState.cursorPosition != self.lastMousePos {
-                self.cursorState.cursorPosition = self.lastMousePos
+            if self.runtime.cursorPosition != self.lastMousePos {
+                self.runtime.cursorPosition = self.lastMousePos
             }
-            if self.cursorState.isCursorVisible { self.cursorState.isCursorVisible = false }
+            if self.runtime.isCursorVisible { self.runtime.isCursorVisible = false }
         }
         idleHideWorkItem = hide
-        DispatchQueue.main.asyncAfter(deadline: .now() + cursorState.idleTimeout, execute: hide)
+        DispatchQueue.main.asyncAfter(deadline: .now() + settings.idleTimeout, execute: hide)
 
         let glow = DispatchWorkItem { [weak self] in
             guard let self else { return }
-            if self.cursorState.glowMultiplier < 1.7 { self.cursorState.glowMultiplier = 1.7 }
+            if self.runtime.glowMultiplier < 1.7 { self.runtime.glowMultiplier = 1.7 }
         }
         glowEnhanceWorkItem = glow
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.5, execute: glow)
@@ -227,39 +231,39 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             monitor?.onLeftClick = { [weak self] _, isDouble in
                 guard let self else { return }
                 self.lastMoveTime = Date()
-                self.cursorState.isCursorVisible = true
-                let pos = self.cursorState.cursorPosition
-                self.cursorState.addClickEffect(at: pos, isRight: false, isDouble: isDouble)
-                self.cursorState.triggerClickPulse(isDouble: isDouble)
+                self.runtime.isCursorVisible = true
+                let pos = self.runtime.cursorPosition
+                self.effects.addClickEffect(at: pos, isRight: false, isDouble: isDouble, animationSpeed: self.settings.animationSpeed.multiplier)
+                self.runtime.triggerClickPulse(isDouble: isDouble)
             }
             monitor?.onRightClick = { [weak self] _ in
                 guard let self else { return }
                 self.lastMoveTime = Date()
-                self.cursorState.isCursorVisible = true
-                let pos = self.cursorState.cursorPosition
-                self.cursorState.addClickEffect(at: pos, isRight: true)
-                self.cursorState.triggerClickPulse()
+                self.runtime.isCursorVisible = true
+                let pos = self.runtime.cursorPosition
+                self.effects.addClickEffect(at: pos, isRight: true, animationSpeed: self.settings.animationSpeed.multiplier)
+                self.runtime.triggerClickPulse()
             }
             monitor?.onShake = { [weak self] _ in
                 guard let self else { return }
                 self.lastMoveTime = Date()
-                self.cursorState.isCursorVisible = true
-                self.cursorState.triggerShake(at: self.cursorState.cursorPosition)
+                self.runtime.isCursorVisible = true
+                self.effects.triggerShake(at: self.runtime.cursorPosition, animationSpeed: self.settings.animationSpeed.multiplier)
             }
             monitor?.onScroll = { [weak self] _, isPositive, isVertical in
                 guard let self else { return }
                 self.lastMoveTime = Date()
-                self.cursorState.isCursorVisible = true
-                self.cursorState.addScrollEffect(at: self.cursorState.cursorPosition, isPositive: isPositive, isVertical: isVertical)
+                self.runtime.isCursorVisible = true
+                self.effects.addScrollEffect(at: self.runtime.cursorPosition, isPositive: isPositive, isVertical: isVertical, animationSpeed: self.settings.animationSpeed.multiplier)
             }
             monitor?.onDragStart = { [weak self] in
-                self?.cursorState.startDrag()
+                self?.runtime.startDrag()
             }
             monitor?.onDragAngle = { [weak self] angle in
-                self?.cursorState.updateDragAngle(angle)
+                self?.runtime.updateDragAngle(angle)
             }
             monitor?.onDragEnd = { [weak self] in
-                self?.cursorState.endDrag()
+                self?.runtime.endDrag()
             }
         }
         monitor?.start()
@@ -273,29 +277,29 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 // ⌃⌥ 단축키 처리
                 if flags == [.control, .option] {
                     // 스포트라이트 토글
-                    if event.keyCode == self.cursorState.spotlightKeyCode {
+                    if event.keyCode == self.settings.spotlightKeyCode {
                         DispatchQueue.main.async {
-                            withAnimation(.easeInOut(duration: 0.35)) { self.cursorState.isSpotlightActive.toggle() }
-                            self.cursorState.showStatusNotification(self.cursorState.isSpotlightActive ? "🔦 스포트라이트 켜짐" : "🔦 스포트라이트 꺼짐")
+                            withAnimation(.easeInOut(duration: 0.35)) { self.runtime.isSpotlightActive.toggle() }
+                            self.keystrokeOverlay.showStatusNotification(self.runtime.isSpotlightActive ? "🔦 스포트라이트 켜짐" : "🔦 스포트라이트 꺼짐")
                         }
                         return
                     }
                     // 키스트로크 표시 토글
-                    if event.keyCode == self.cursorState.keystrokeShortcutKeyCode {
+                    if event.keyCode == self.settings.keystrokeShortcutKeyCode {
                         DispatchQueue.main.async {
-                            self.cursorState.isKeystrokeEnabled.toggle()
-                            self.cursorState.showStatusNotification(self.cursorState.isKeystrokeEnabled ? "⌨ 키스트로크 켜짐" : "⌨ 키스트로크 꺼짐")
+                            self.settings.isKeystrokeEnabled.toggle()
+                            self.keystrokeOverlay.showStatusNotification(self.settings.isKeystrokeEnabled ? "⌨ 키스트로크 켜짐" : "⌨ 키스트로크 꺼짐")
                         }
                         return
                     }
                     // ⌃⌥M 돋보기 토글
-                    if event.keyCode == self.cursorState.magnifierShortcutKeyCode {
+                    if event.keyCode == self.settings.magnifierShortcutKeyCode {
                         DispatchQueue.main.async {
-                            if !self.cursorState.hasScreenRecordingPermission {
+                            if !self.runtime.hasScreenRecordingPermission {
                                 self.requestScreenRecordingPermission()
                             } else {
                                 withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                                    self.cursorState.isMagnifierActive.toggle()
+                                    self.runtime.isMagnifierActive.toggle()
                                 }
                             }
                         }
@@ -304,11 +308,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
                     // ⌃⌥1~6 색상 즉시 변경
                     // keyCode: 1=18, 2=19, 3=20, 4=21, 5=23, 6=22
-                    let colorMap: [UInt16: CursorState.RingColor] = [
+                    let colorMap: [UInt16: CursorSettings.RingColor] = [
                         18: .yellow, 19: .red, 20: .blue, 21: .green, 23: .cyan, 22: .purple
                     ]
                     if let color = colorMap[event.keyCode] {
-                        DispatchQueue.main.async { self.cursorState.ringColor = color }
+                        DispatchQueue.main.async { self.settings.ringColor = color }
                         return
                     }
                 }
@@ -341,15 +345,15 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                         } else {
                             emoji = "📋"
                         }
-                        self.cursorState.addClipboardEffect(at: self.cursorState.cursorPosition, emoji: emoji)
+                        self.effects.addClipboardEffect(at: self.runtime.cursorPosition, emoji: emoji)
                     }
                 }
 
                 // 키스트로크 표시
-                if self.cursorState.isKeystrokeEnabled && !Self.isPasswordFieldFocused() {
+                if self.settings.isKeystrokeEnabled && !Self.isPasswordFieldFocused() {
                     let text = Self.formatKey(event)
                     if !text.isEmpty {
-                        DispatchQueue.main.async { self.cursorState.showKeystroke(text) }
+                        DispatchQueue.main.async { self.keystrokeOverlay.showKeystroke(text, timeout: self.settings.keystrokeTimeout) }
                     }
                 }
             }
@@ -361,7 +365,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private func startRecordingDetection() {
         recordingCheckTimer?.invalidate()
         recordingCheckTimer = Timer.scheduledTimer(withTimeInterval: 5.0, repeats: true) { [weak self] _ in
-            guard let self, self.cursorState.autoEnableOnRecording else { return }
+            guard let self, self.settings.autoEnableOnRecording else { return }
             if Self.isScreenBeingRecorded() && !self.isEnabled {
                 DispatchQueue.main.async {
                     self.isEnabled = true
@@ -378,7 +382,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     // isMagnifierActive=true일 때만 캡처 Timer 시작 — 꺼져있을 때 CPU 0
     private func observeMagnifierToggle() {
-        cursorState.$isMagnifierActive
+        runtime.$isMagnifierActive
             .removeDuplicates()
             .sink { [weak self] active in
                 if active { self?.startMagnifierCapture() }
@@ -390,25 +394,25 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private func stopMagnifierCapture() {
         magnifierTimer?.invalidate()
         magnifierTimer = nil
-        cursorState.magnifierImage = nil
+        runtime.magnifierImage = nil
     }
 
     private func startMagnifierCapture() {
         magnifierTimer?.invalidate()
         magnifierTimer = Timer.scheduledTimer(withTimeInterval: 1.0 / 20.0, repeats: true) { [weak self] _ in
-            guard let self, self.cursorState.isMagnifierActive else { return }
-            guard self.cursorState.hasScreenRecordingPermission else {
-                DispatchQueue.main.async { self.cursorState.isMagnifierActive = false }
+            guard let self, self.runtime.isMagnifierActive else { return }
+            guard self.runtime.hasScreenRecordingPermission else {
+                DispatchQueue.main.async { self.runtime.isMagnifierActive = false }
                 return
             }
             // 첫 프레임에서 캡처 실패 시(프로세스 캐시 문제) 재시작 안내
-            if self.cursorState.magnifierImage == nil && !self.isCheckingMagnifierCapture {
+            if self.runtime.magnifierImage == nil && !self.isCheckingMagnifierCapture {
                 self.isCheckingMagnifierCapture = true
                 self.promptRelaunchIfNeeded()
             }
-            let pos = self.cursorState.cursorPosition
-            let zoom = self.cursorState.magnifierZoom
-            let capturePts = self.cursorState.magnifierSize / zoom
+            let pos = self.runtime.cursorPosition
+            let zoom = self.settings.magnifierZoom
+            let capturePts = self.settings.magnifierSize / zoom
             let primaryH = NSScreen.screens.first?.frame.height ?? 1080
             let quartzY = primaryH - pos.y
             let rect = CGRect(
@@ -420,7 +424,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             // 메인 스레드 부하를 줄이기 위해 백그라운드에서 캡처
             DispatchQueue.global(qos: .userInteractive).async { [weak self] in
                 let image = CGWindowListCreateImage(rect, [.optionOnScreenOnly], kCGNullWindowID, [.bestResolution])
-                DispatchQueue.main.async { self?.cursorState.magnifierImage = image }
+                DispatchQueue.main.async { self?.runtime.magnifierImage = image }
             }
         }
     }
@@ -451,22 +455,22 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     // MARK: - Screen Recording 권한 실시간 감지
 
     private func startPermissionPolling() {
-        cursorState.hasScreenRecordingPermission = Self.hasScreenRecordingPermission()
+        runtime.hasScreenRecordingPermission = Self.hasScreenRecordingPermission()
         // 이미 권한 부여된 상태면 polling 불필요 (사용자가 회수하기 전까지 변하지 않음)
-        if cursorState.hasScreenRecordingPermission { return }
+        if runtime.hasScreenRecordingPermission { return }
         permissionCheckTimer?.invalidate()
         permissionCheckTimer = Timer.scheduledTimer(withTimeInterval: 2.0, repeats: true) { [weak self] _ in
             guard let self else { return }
             let granted = Self.hasScreenRecordingPermission()
-            guard granted != self.cursorState.hasScreenRecordingPermission else { return }
+            guard granted != self.runtime.hasScreenRecordingPermission else { return }
             DispatchQueue.main.async {
-                self.cursorState.hasScreenRecordingPermission = granted
+                self.runtime.hasScreenRecordingPermission = granted
                 if granted {
                     // 권한 부여됨 → 더 이상 polling 불필요
                     self.permissionCheckTimer?.invalidate()
                     self.permissionCheckTimer = nil
                 } else {
-                    self.cursorState.isMagnifierActive = false
+                    self.runtime.isMagnifierActive = false
                 }
             }
         }
@@ -481,7 +485,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             DispatchQueue.main.async {
                 self.isCheckingMagnifierCapture = false
                 guard needsRestart else { return } // 캡처 정상 — 재시작 불필요
-                self.cursorState.isMagnifierActive = false
+                self.runtime.isMagnifierActive = false
                 let alert = NSAlert()
                 alert.messageText = "돋보기를 사용하려면 재시작이 필요합니다"
                 alert.informativeText = "화면 녹화 권한이 이 세션에 아직 적용되지 않았습니다."
@@ -517,7 +521,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     private func setupOverlays() {
         overlays.forEach { $0.close() }
-        overlays = NSScreen.screens.map { OverlayWindowController(screen: $0, state: cursorState) }
+        overlays = NSScreen.screens.map { OverlayWindowController(screen: $0, settings: settings, runtime: runtime, effects: effects, keystroke: keystrokeOverlay) }
     }
 
     @objc private func screensChanged() { setupOverlays() }

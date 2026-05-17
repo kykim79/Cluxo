@@ -5,7 +5,12 @@ import SwiftUI
 class OverlayWindowController {
     private var window: NSWindow?
 
-    init(screen: NSScreen, state: CursorState) {
+    init(screen: NSScreen,
+         settings: CursorSettings,
+         runtime: CursorRuntimeState,
+         effects: EffectsState,
+         keystroke: KeystrokeOverlayState)
+    {
         // screen: 파라미터를 넘기면 contentRect가 해당 스크린 로컬 좌표로 해석됨 → 제거
         let win = NSWindow(
             contentRect: screen.frame,
@@ -22,7 +27,13 @@ class OverlayWindowController {
         win.hasShadow = false
         win.sharingType = .none  // 돋보기 캡처에 오버레이가 포함되지 않도록
 
-        let content = OverlayContentView(state: state, screenFrame: screen.frame)
+        let content = OverlayContentView(
+            settings: settings,
+            runtime: runtime,
+            effects: effects,
+            keystroke: keystroke,
+            screenFrame: screen.frame
+        )
         win.contentView = NSHostingView(rootView: content)
         win.orderFrontRegardless()
 
