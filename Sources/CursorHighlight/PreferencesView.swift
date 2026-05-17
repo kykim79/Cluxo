@@ -59,6 +59,7 @@ private struct AppearanceTab: View {
     var body: some View {
         Form {
             Section("커서 링 색상") {
+                // 7개 표준 색 + 커스텀 = 8슬롯, 4×2 grid 깔끔하게 채움.
                 LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 4), spacing: 10) {
                     ForEach(CursorSettings.RingColor.allCases.filter { $0 != .custom }) { c in
                         ColorSwatch(
@@ -67,23 +68,18 @@ private struct AppearanceTab: View {
                             isSelected: settings.ringColor == c
                         ) { settings.ringColor = c }
                     }
+                    // 커스텀 swatch — 다른 swatch와 동일한 시각, 현재 customRingColor 미리보기
+                    ColorSwatch(
+                        color: settings.customRingColor,
+                        label: "커스텀",
+                        isSelected: settings.ringColor == .custom
+                    ) { settings.ringColor = .custom }
                 }
                 .padding(.vertical, 4)
 
-                HStack {
-                    ColorPicker("커스텀", selection: Binding(
-                        get: { settings.customRingColor },
-                        set: { settings.customRingColor = $0; settings.ringColor = .custom }
-                    ))
-                    .labelsHidden()
-                    .frame(width: 28, height: 28)
-                    Button("커스텀") { settings.ringColor = .custom }
-                        .buttonStyle(.plain)
-                        .foregroundColor(settings.ringColor == .custom ? .accentColor : .primary)
-                    if settings.ringColor == .custom {
-                        Text("✓").foregroundColor(.accentColor)
-                    }
-                    Spacer()
+                // 커스텀 선택 시만 ColorPicker 노출 — clutter 줄이고 의도 명확
+                if settings.ringColor == .custom {
+                    ColorPicker("커스텀 색상", selection: $settings.customRingColor)
                 }
             }
 
@@ -353,6 +349,8 @@ private struct ShortcutsTab: View {
 
 private struct InfoTab: View {
     @State private var updateMessage: String = ""
+    @State private var checking: Bool = false
+    @State private var newerVersion: String? = nil   // 최신 release tag (예: "0.1.2"). nil이면 업데이트 없음.
 
     private var appVersion: String {
         Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.0"
@@ -384,13 +382,59 @@ private struct InfoTab: View {
                 if !updateMessage.isEmpty {
                     Text(updateMessage).font(.caption).foregroundColor(.secondary)
                 }
-                Button("업데이트 확인") {
-                    updateMessage = "현재 최신 버전입니다 (v\(appVersion))"
+                HStack(spacing: 8) {
+                    Button(checking ? "확인 중..." : "업데이트 확인") {
+                        Task { await checkForUpdate() }
+                    }
+                    .disabled(checking)
+                    if newerVersion != nil {
+                        Button("Release 페이지 열기") {
+                            if let url = URL(string: "https://github.com/kykim79/CursorHighlight/releases/latest") {
+                                NSWorkspace.shared.open(url)
+                            }
+                        }
+                    }
+                }
+                if newerVersion != nil {
+                    Text("Homebrew 사용 중이면: `brew upgrade --cask kykim79/tap/cursorhighlight`")
+                        .font(.caption2).foregroundColor(.secondary).textSelection(.enabled)
                 }
             }
         }
         .formStyle(.grouped)
         .padding(.horizontal)
+    }
+
+    /// GitHub Releases API에서 latest tag 조회 후 appVersion과 비교.
+    /// 비교는 numeric option (0.1.10 > 0.1.2 정확히 처리).
+    private func checkForUpdate() async {
+        checking = true
+        newerVersion = nil
+        defer { checking = false }
+        let url = URL(string: "https://api.github.com/repos/kykim79/CursorHighlight/releases/latest")!
+        do {
+            var request = URLRequest(url: url)
+            request.setValue("application/vnd.github+json", forHTTPHeaderField: "Accept")
+            let (data, response) = try await URLSession.shared.data(for: request)
+            guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
+                updateMessage = "확인 실패: 서버 응답 \((response as? HTTPURLResponse)?.statusCode ?? -1)"
+                return
+            }
+            struct Release: Decodable { let tag_name: String }
+            let release = try JSONDecoder().decode(Release.self, from: data)
+            let latestVersion = release.tag_name.hasPrefix("v") ? String(release.tag_name.dropFirst()) : release.tag_name
+            switch appVersion.compare(latestVersion, options: .numeric) {
+            case .orderedSame:
+                updateMessage = "✓ 최신 버전입니다 (v\(appVersion))"
+            case .orderedAscending:
+                newerVersion = latestVersion
+                updateMessage = "📥 새 버전 v\(latestVersion) 사용 가능 (현재 v\(appVersion))"
+            case .orderedDescending:
+                updateMessage = "⚠️ 로컬 버전(v\(appVersion))이 최신 release(v\(latestVersion))보다 높습니다 — 개발 빌드"
+            }
+        } catch {
+            updateMessage = "확인 실패: \(error.localizedDescription)"
+        }
     }
 }
 

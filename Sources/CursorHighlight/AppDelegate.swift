@@ -23,6 +23,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     // MARK: - UI
     private var statusItem: NSStatusItem?
     private var enableMenuItem: NSMenuItem?
+    private var spotlightMenuItem: NSMenuItem?
+    private var magnifierMenuItem: NSMenuItem?
+    private var keystrokeMenuItem: NSMenuItem?
     private var preferencesController: PreferencesWindowController?
     private var overlays: [OverlayWindowController] = []
 
@@ -93,10 +96,29 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         button.image = NSImage(systemSymbolName: "cursorarrow.rays", accessibilityDescription: nil)
 
         let menu = NSMenu()
+        menu.delegate = self   // menuWillOpen에서 토글 항목 ✓ state 갱신
 
         let prefItem = NSMenuItem(title: "환경설정...", action: #selector(openPreferences), keyEquivalent: "")
         prefItem.target = self
         menu.addItem(prefItem)
+
+        menu.addItem(.separator())
+
+        // 빠른 토글 — 환경설정 안 열고 메뉴바에서 바로. 단축키도 함께 표시(metadata).
+        let spotlight = NSMenuItem(title: "스포트라이트  ⌃⌥S", action: #selector(toggleSpotlight), keyEquivalent: "")
+        spotlight.target = self
+        menu.addItem(spotlight)
+        spotlightMenuItem = spotlight
+
+        let magnifier = NSMenuItem(title: "돋보기  ⌃⌥M", action: #selector(toggleMagnifier), keyEquivalent: "")
+        magnifier.target = self
+        menu.addItem(magnifier)
+        magnifierMenuItem = magnifier
+
+        let keystroke = NSMenuItem(title: "키스트로크 표시  ⌃⌥K", action: #selector(toggleKeystroke), keyEquivalent: "")
+        keystroke.target = self
+        menu.addItem(keystroke)
+        keystrokeMenuItem = keystroke
 
         menu.addItem(.separator())
 
@@ -112,6 +134,28 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         menu.addItem(quitItem)
 
         statusItem?.menu = menu
+    }
+
+    // MARK: - 메뉴 빠른 토글 actions
+
+    @objc private func toggleSpotlight() {
+        withAnimation(.easeInOut(duration: 0.35)) { runtime.isSpotlightActive.toggle() }
+        keystrokeOverlay.showStatusNotification(runtime.isSpotlightActive ? "🔦 스포트라이트 켜짐" : "🔦 스포트라이트 꺼짐")
+    }
+
+    @objc private func toggleMagnifier() {
+        if !runtime.hasScreenRecordingPermission {
+            permissionsManager?.requestScreenRecordingPermission()
+            return
+        }
+        withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+            runtime.isMagnifierActive.toggle()
+        }
+    }
+
+    @objc private func toggleKeystroke() {
+        settings.isKeystrokeEnabled.toggle()
+        keystrokeOverlay.showStatusNotification(settings.isKeystrokeEnabled ? "⌨ 키스트로크 켜짐" : "⌨ 키스트로크 꺼짐")
     }
 
     @objc private func openPreferences() {
@@ -314,4 +358,13 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     @objc private func screensChanged() { setupOverlays() }
+}
+
+// MARK: - 메뉴 열릴 때마다 토글 항목 ✓ state 동기화
+extension AppDelegate: NSMenuDelegate {
+    func menuWillOpen(_ menu: NSMenu) {
+        spotlightMenuItem?.state = runtime.isSpotlightActive ? .on : .off
+        magnifierMenuItem?.state = runtime.isMagnifierActive ? .on : .off
+        keystrokeMenuItem?.state = settings.isKeystrokeEnabled ? .on : .off
+    }
 }
