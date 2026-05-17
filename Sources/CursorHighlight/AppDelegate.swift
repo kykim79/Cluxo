@@ -35,6 +35,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private var lastPosUpdateTime: TimeInterval = 0
     private var lastTrailSampleTime: TimeInterval = 0
 
+    // Quartz↔Cocoa 좌표 변환용 (handleMouseMove가 60Hz hotpath라 매번 NSScreen 쿼리 회피)
+    // screensChanged()에서 갱신 — 모니터 구성 바뀔 때만.
+    private var primaryScreenHeight: CGFloat = 0
+
     private var isEnabled = true
 
     // MARK: - Lifecycle
@@ -181,8 +185,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private func handleMouseMove(_ cgPos: CGPoint) {
         // CGEvent.location은 Quartz 좌표(top-left origin) → cursorPosition 소비처는
         // Cocoa 좌표(bottom-left, NSEvent.mouseLocation과 동일) 가정. 여기서 변환.
-        let primaryH = NSScreen.screens.first?.frame.height ?? 0
-        let pos = CGPoint(x: cgPos.x, y: primaryH - cgPos.y)
+        let pos = CGPoint(x: cgPos.x, y: primaryScreenHeight - cgPos.y)
 
         lastMousePos = pos
         lastMoveTime = Date()
@@ -291,6 +294,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         overlays = NSScreen.screens.map {
             OverlayWindowController(screen: $0, settings: settings, runtime: runtime, effects: effects, keystroke: keystrokeOverlay)
         }
+        primaryScreenHeight = NSScreen.screens.first?.frame.height ?? 0
     }
 
     @objc private func screensChanged() { setupOverlays() }
