@@ -209,6 +209,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             } else if !effects.trailPoints.isEmpty {
                 effects.clearTrail()
             }
+            // #18 Comet Tail — 드래그 중에만 별도 streak sample
+            if runtime.isDragging && settings.isCometTailEnabled {
+                effects.updateDragTrail(pos)
+            }
         }
 
         // #17 Anchored Line — 드래그 중 거리 임계 체크 (시간 임계는 startDrag의 Task)
@@ -291,7 +295,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 self.runtime.updateDragVelocity(velocity)
             }
             monitor?.onDragEnd = { [weak self] in
-                self?.runtime.endDrag()
+                guard let self else { return }
+                self.runtime.endDrag()
+                self.effects.fadeDragTrail()   // #18 — 종료 시 streak fade out
             }
         }
         monitor?.start()

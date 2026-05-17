@@ -93,4 +93,26 @@ final class EffectsState: ObservableObject {
         if trailPoints.count > 26 { trailPoints.removeFirst() }
     }
     func clearTrail() { trailPoints.removeAll() }
+
+    // MARK: - Drag Trail (#18 Comet Tail — 드래그 중에만 sample, 더 짧고 굵게)
+    @Published var dragTrailPoints: [TrailPoint] = []
+
+    func updateDragTrail(_ point: CGPoint) {
+        dragTrailPoints.append(TrailPoint(position: point))
+        if dragTrailPoints.count > 14 { dragTrailPoints.removeFirst() }  // 일반 trail보다 짧은 streak
+    }
+
+    /// 드래그 종료 시 즉시 비우지 않고 점진 fade out — 매 frame 앞 point 1개씩 제거.
+    /// SwiftUI animation으로 부드럽게 사라지는 효과.
+    func fadeDragTrail() {
+        guard !dragTrailPoints.isEmpty else { return }
+        let initial = dragTrailPoints.count
+        Task { @MainActor [weak self] in
+            for _ in 0..<initial {
+                try? await Task.sleep(for: .milliseconds(40))
+                guard let self, !self.dragTrailPoints.isEmpty else { return }
+                self.dragTrailPoints.removeFirst()
+            }
+        }
+    }
 }

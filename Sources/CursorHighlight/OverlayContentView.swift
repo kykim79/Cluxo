@@ -27,6 +27,11 @@ struct OverlayContentView: View {
                 TrailView(trailPoints: effects.trailPoints, screenFrame: screenFrame, color: effectiveColor)
             }
 
+            // #18 Comet Tail — 드래그 중 streak (별도 더 굵고 진한 trail)
+            if settings.isCometTailEnabled && !effects.dragTrailPoints.isEmpty {
+                CometTailView(points: effects.dragTrailPoints, screenFrame: screenFrame, color: effectiveColor)
+            }
+
             // #17 Anchored Line — settings 토글 + 거리/시간 임계 만족 시만 표시.
             // 짧은 드래그(스크롤바)는 line 안 보임, 의도적 긴 드래그(영역 강조)에 자동 fade in.
             if settings.isAnchoredLineEnabled, let origin = runtime.dragOrigin {
@@ -147,6 +152,45 @@ struct SpotlightView: View {
         }
         .animation(.none, value: position)
         .transition(.opacity)
+    }
+}
+
+// MARK: - 컴맷 테일 (#18)
+
+/// 드래그 중에만 cursor 뒤에 streak. 기존 TrailView 베이스 + 더 굵고 진함.
+/// 14개 sample 슬라이딩 윈도우 (TrailView 26개보다 짧음 — 빠른 streak 느낌).
+struct CometTailView: View {
+    let points: [EffectsState.TrailPoint]
+    let screenFrame: CGRect
+    let color: Color
+
+    var body: some View {
+        Canvas { context, _ in
+            let positions: [CGPoint] = points.compactMap { tp in
+                guard screenFrame.contains(tp.position) else { return nil }
+                return CGPoint(x: tp.position.x - screenFrame.minX,
+                               y: screenFrame.maxY - tp.position.y)
+            }
+            let count = positions.count
+            guard count >= 2 else { return }
+            for i in 0..<(count - 1) {
+                let t = Double(i + 1) / Double(count)
+                let alpha = t * t   // 꼬리는 빨리 사라짐
+                let coreW = CGFloat(3.0 + t * 7.0)  // 일반 trail보다 굵음 (3~10)
+                var seg = Path()
+                seg.move(to: positions[i])
+                seg.addLine(to: positions[i + 1])
+                // 강한 glow 단계 (일반 trail보다 더 진함)
+                context.stroke(seg, with: .color(color.opacity(alpha * 0.08)),
+                               style: StrokeStyle(lineWidth: coreW + 28, lineCap: .round))
+                context.stroke(seg, with: .color(color.opacity(alpha * 0.20)),
+                               style: StrokeStyle(lineWidth: coreW + 14, lineCap: .round))
+                context.stroke(seg, with: .color(color.opacity(alpha * 0.55)),
+                               style: StrokeStyle(lineWidth: coreW + 6, lineCap: .round))
+                context.stroke(seg, with: .color(color.opacity(min(1.0, alpha + 0.25))),
+                               style: StrokeStyle(lineWidth: coreW, lineCap: .round))
+            }
+        }
     }
 }
 
