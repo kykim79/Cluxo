@@ -524,10 +524,12 @@ private struct InfoTab: View {
         let pipe = Pipe()
         process.standardOutput = pipe
         process.standardError = pipe
-        // HOMEBREW_NO_AUTO_UPDATE를 켜면 tap fetch도 막혀 local tap이 옛 cask file에 멈춤 →
-        // "이미 latest 설치됨"으로 잘못 판단하는 회귀. v0.2.7부터 auto-update 허용.
-        // analytics + env hints는 출력 노이즈만 줄이는 무해 옵션이라 유지.
+        // HOMEBREW_AUTO_UPDATE_SECS=0 — brew의 auto-update 24시간 interval을 0으로 강제,
+        // 매 호출마다 tap을 fetch. v0.2.5~0.2.7은 interval 안에 들면 tap 못 받아 "이미 latest"
+        // 잘못 판단하는 회귀. 5-10초 추가되지만 silent UX에서 한 번이라 trade-off 받아들임.
+        // NO_ANALYTICS + NO_ENV_HINTS는 출력 노이즈만 줄이는 무해 옵션.
         var env = ProcessInfo.processInfo.environment
+        env["HOMEBREW_AUTO_UPDATE_SECS"] = "0"
         env["HOMEBREW_NO_ANALYTICS"] = "1"
         env["HOMEBREW_NO_ENV_HINTS"] = "1"
         process.environment = env
