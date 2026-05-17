@@ -8,14 +8,6 @@
 
 ## P3 — 배포 / 테스트
 
-### #11-followup MouseEventMonitor 흔들기 감지 테스트
-- **위치**: `MouseEventMonitor.processMove`
-- **상태**: #11에서 인프라 + 3개 영역(Persisted, DragAngle, KeyFormat) 커버됨.
-  흔들기 감지는 알고리즘 추출 refactor 필요해서 보류.
-- **방향**: `private func processMove`를 pure function으로 추출 — `ShakeState` struct +
-  `static func detectShake(state: inout ShakeState, point: CGPoint, now: TimeInterval) -> Bool`.
-  시간을 인자로 받게 해 테스트에서 시뮬레이션 데이터로 검증 가능.
-
 ### #12 Notarization (Gatekeeper 마찰 제거)
 - **위치**: 배포 절차, README
 - **문제**: 사용자가 `xattr -dr com.apple.quarantine` 직접 실행해야 함. 큰 마찰.
@@ -114,4 +106,10 @@
   - DragAngleTests (6): ±π wrapping, 한 바퀴 누적, endDrag 리셋
   - KeyFormatTests (7): 모디파이어 게이트, special keys, 순서
   - 실행: `xcodebuild test -project CursorHighlight.xcodeproj -scheme CursorHighlight -destination 'platform=macOS'`
-  - 흔들기 감지는 알고리즘 추출 refactor 필요해 보류 (P3 #11-followup).
+
+`6487dfc refactor: 흔들기 감지 알고리즘 추출 + 축별 독립 검증 + 14 테스트`:
+
+- ✅ **#11-followup** `ShakeState` 순수 struct로 알고리즘 추출 + 각 축(vx/vy)
+  독립 추적 + 0.5초 dedup window. 이전 dominant-axis 방식의 비대칭(좌하↔우상
+  대각선 과도 발화, 다른 방향 detect 실패) 해결. 임계값 300→150으로 손목 흔들기
+  커버. ShakeDetectionTests 14개 추가. 전체 38 tests SUCCEEDED.
