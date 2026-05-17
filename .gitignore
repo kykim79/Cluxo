@@ -1,6 +1,9 @@
 # XcodeGen이 생성하는 프로젝트 파일 (project.yml에서 재생성됨)
 *.xcodeproj
 
+# xcode-build-server config — 사용자별 absolute path 포함, 각자 setup
+buildServer.json
+
 # Xcode 빌드 산물
 build/
 DerivedData/
