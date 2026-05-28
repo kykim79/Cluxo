@@ -30,7 +30,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Extract version from tag
         id: version
@@ -115,7 +115,7 @@ jobs:
           gh release create "$TAG" "$ZIP" --title "$TAG" --notes "$NOTES" --latest
 
       - name: Checkout tap repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           repository: kykim79/homebrew-tap
           token: ${{ secrets.HOMEBREW_TAP_TOKEN }}
