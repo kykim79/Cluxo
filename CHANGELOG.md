@@ -4,6 +4,13 @@
 
 ## [Unreleased]
 
+## [0.5.4] — 2026-05-29
+
+### Fixed
+
+- **클릭 리플 효과 빌드 실패 수정 — v0.5.2·v0.5.3 미배포 복구** — v0.5.2에서 좌·우클릭·더블클릭·흔들기 효과 호출부에 `ringShape` 인자를 추가했으나 `ClickRippleView`·`LeftClickRippleView`·`RightClickRippleView`·`DoubleClickBurstView`·`ShakeEffectView`·`ExpandingRing` 정의에는 `ringShape` 프로퍼티가 빠져 컴파일이 실패했다. 이 때문에 v0.5.2·v0.5.3 릴리스 빌드가 CI에서 실패해 배포되지 못했다(공개 최신은 v0.5.1에 머묾). 누락된 정의를 채워 좌클릭(1중)·우클릭(2중+회전)·더블클릭(채움+외곽선)·흔들기(3중 확장)가 모두 선택한 ring shape를 따르도록 완성 — v0.5.2 CHANGELOG의 의도대로 동작.
+- **Xcode 26.5 `ForEach` 타입 추론 회귀 대응** — 효과 배열을 도는 `ForEach`가 `Binding<C>` 오버로드로 잘못 해소돼 컴파일이 깨지던 문제를 `id: \.id` 명시로 해결(7곳). 구버전 Xcode와도 호환.
+
 ## [0.5.3] — 2026-05-29
 
 ### Changed

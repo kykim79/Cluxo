@@ -58,7 +58,7 @@ struct OverlayContentView: View {
             }
 
             // 클릭 파동
-            ForEach(effects.clickEffects) { effect in
+            ForEach(effects.clickEffects, id: \.id) { effect in
                 if screenFrame.contains(effect.position) {
                     ClickRippleView(
                         position: toLocal(effect.position),
@@ -73,21 +73,21 @@ struct OverlayContentView: View {
             }
 
             // 더블클릭 버스트
-            ForEach(effects.doubleClickEffects) { effect in
+            ForEach(effects.doubleClickEffects, id: \.id) { effect in
                 if screenFrame.contains(effect.position) {
                     DoubleClickBurstView(position: toLocal(effect.position), color: effectiveColor, ringShape: settings.ringShape, speed: speed)
                 }
             }
 
             // 휠 클릭 (button 2) — 회전 파동
-            ForEach(effects.middleClickEffects) { effect in
+            ForEach(effects.middleClickEffects, id: \.id) { effect in
                 if screenFrame.contains(effect.position) {
                     MiddleClickEffectView(position: toLocal(effect.position), color: effectiveColor, ringShape: settings.ringShape, speed: speed)
                 }
             }
 
             // 흔들기
-            ForEach(effects.shakeEffects) { effect in
+            ForEach(effects.shakeEffects, id: \.id) { effect in
                 if screenFrame.contains(effect.position) {
                     ShakeEffectView(position: toLocal(effect.position), color: effectiveColor, ringShape: settings.ringShape, speed: speed)
                 }
@@ -95,7 +95,7 @@ struct OverlayContentView: View {
 
             // 스크롤 인디케이터
             if settings.isScrollIndicatorEnabled {
-                ForEach(effects.scrollEffects) { effect in
+                ForEach(effects.scrollEffects, id: \.id) { effect in
                     if screenFrame.contains(effect.position) {
                         ScrollIndicatorView(
                             position: toLocal(effect.position),
@@ -109,14 +109,14 @@ struct OverlayContentView: View {
             }
 
             // 클립보드 인디케이터
-            ForEach(effects.clipboardEffects) { effect in
+            ForEach(effects.clipboardEffects, id: \.id) { effect in
                 if screenFrame.contains(effect.position) {
                     ClipboardIndicatorView(position: toLocal(effect.position), emoji: effect.emoji)
                 }
             }
 
             // 트랙패드 시스템 제스처 (4핀치 / 3·4 swipe) — MultitouchService 감지
-            ForEach(effects.trackpadGestureEffects) { effect in
+            ForEach(effects.trackpadGestureEffects, id: \.id) { effect in
                 if screenFrame.contains(effect.position) {
                     TrackpadGestureVisualView(
                         position: toLocal(effect.position),
@@ -539,6 +539,7 @@ struct ClickRippleView: View {
     let isDouble: Bool
     let color: Color
     let rightClickUsesRingColor: Bool
+    let ringShape: CursorSettings.RingShape
     let speed: Double
 
     var rippleColor: Color {
@@ -548,9 +549,9 @@ struct ClickRippleView: View {
 
     var body: some View {
         if isRight {
-            RightClickRippleView(position: position, color: rippleColor, speed: speed)
+            RightClickRippleView(position: position, color: rippleColor, ringShape: ringShape, speed: speed)
         } else {
-            LeftClickRippleView(position: position, color: rippleColor, isDouble: isDouble, speed: speed)
+            LeftClickRippleView(position: position, color: rippleColor, isDouble: isDouble, ringShape: ringShape, speed: speed)
         }
     }
 }
@@ -560,12 +561,13 @@ struct LeftClickRippleView: View {
     let position: CGPoint
     let color: Color
     let isDouble: Bool
+    let ringShape: CursorSettings.RingShape
     let speed: Double
     @State private var scale: CGFloat = 0.4
     @State private var opacity: Double = 0.9
 
     var body: some View {
-        Circle()
+        ringShape.anyShape
             .stroke(color.opacity(opacity), lineWidth: isDouble ? 3 : 2.5)
             .frame(width: 52, height: 52)
             .scaleEffect(scale)
@@ -583,6 +585,7 @@ struct LeftClickRippleView: View {
 struct RightClickRippleView: View {
     let position: CGPoint
     let color: Color
+    let ringShape: CursorSettings.RingShape
     let speed: Double
     @State private var scale1: CGFloat = 0.3
     @State private var scale2: CGFloat = 0.3
@@ -592,12 +595,12 @@ struct RightClickRippleView: View {
 
     var body: some View {
         ZStack {
-            RhombusShape()
+            ringShape.anyShape
                 .stroke(color.opacity(opacity1), lineWidth: 2.5)
                 .frame(width: 52, height: 52)
                 .scaleEffect(scale1)
                 .rotationEffect(.degrees(rotation))
-            RhombusShape()
+            ringShape.anyShape
                 .stroke(color.opacity(opacity2), lineWidth: 1.5)
                 .frame(width: 52, height: 52)
                 .scaleEffect(scale2)
@@ -623,14 +626,15 @@ struct RightClickRippleView: View {
 struct DoubleClickBurstView: View {
     let position: CGPoint
     let color: Color
+    let ringShape: CursorSettings.RingShape
     let speed: Double
     @State private var scale: CGFloat = 0.2
     @State private var opacity: Double = 1.0
 
     var body: some View {
         ZStack {
-            Circle().fill(color.opacity(0.25)).frame(width: 65, height: 65)
-            Circle().stroke(color, lineWidth: 2.5).frame(width: 85, height: 85)
+            ringShape.anyShape.fill(color.opacity(0.25)).frame(width: 65, height: 65)
+            ringShape.anyShape.stroke(color, lineWidth: 2.5).frame(width: 85, height: 85)
         }
         .scaleEffect(scale)
         .opacity(opacity)
@@ -808,13 +812,14 @@ struct DragAngleLabel: View {
 struct ShakeEffectView: View {
     let position: CGPoint
     let color: Color
+    let ringShape: CursorSettings.RingShape
     let speed: Double
 
     var body: some View {
         ZStack {
-            ExpandingRing(delay: 0.00, color: color, speed: speed)
-            ExpandingRing(delay: 0.12, color: color, speed: speed)
-            ExpandingRing(delay: 0.24, color: color, speed: speed)
+            ExpandingRing(delay: 0.00, color: color, ringShape: ringShape, speed: speed)
+            ExpandingRing(delay: 0.12, color: color, ringShape: ringShape, speed: speed)
+            ExpandingRing(delay: 0.24, color: color, ringShape: ringShape, speed: speed)
         }
         .position(position)
     }
@@ -823,12 +828,13 @@ struct ShakeEffectView: View {
 struct ExpandingRing: View {
     let delay: Double
     let color: Color
+    let ringShape: CursorSettings.RingShape
     let speed: Double
     @State private var scale: CGFloat = 0.3
     @State private var opacity: Double = 1.0
 
     var body: some View {
-        Circle()
+        ringShape.anyShape
             .stroke(color, lineWidth: 3)
             .frame(width: 110, height: 110)
             .scaleEffect(scale)
