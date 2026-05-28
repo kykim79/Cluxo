@@ -18,6 +18,38 @@
 - `CursorSettings`: `autoKeystrokeOnUnknownMonitor` (@Persisted) + `trustedMonitorUUIDs` ([String], UserDefaults 직접).
 - `AppDelegate.evaluateAutoKeystroke()` — `screensChanged()` + launch 시 호출. 자동 ON/OFF 상태 추적 (autoKeystrokeActive + keystrokeStateBeforeAuto로 복원).
 
+## [0.4.4] — 2026-05-27
+
+### Fixed
+
+- **트랙패드 좌·우 스와이프 효과 가시성 / 중복** — Space 전환 중 컴포지터 스냅샷에 effect가 묻혀 슬라이드 종료 후에야 보이던 문제, 연속 swipe 시 이전 화면 effect와 새 화면 effect가 겹쳐 보이던 문제를 해결. boundary(끝단)에서는 즉시 softReveal로 발사하고, 중간 화면에서는 `CGSManagedDisplayGetCurrentSpace`로 Space commit을 50ms 간격 polling해 슬라이드 종료 시점에 자연스럽게 합류시킴. 가장 최근 swipe의 firedAt만 살리는 stale 보호로 빠른 연속 swipe 시 항상 마지막 swipe의 effect만 표시.
+
+### Added
+
+- **입력 모니터링 권한 자동 등록** — 앱 실행 시 `CGRequestListenEventAccess`로 silent 등록 호출. macOS Sonoma+에서 `IOHIDRequestAccess`가 prompt를 안 띄우는 회귀가 있어 CoreGraphics 쪽 private API로 우회. 첫 실행 시 macOS 표준 prompt 한 번 뜨고 시스템 설정 → 입력 모니터링 목록에 앱이 자동 등장.
+- **권한 안내 UI 정리** — 환경설정 → 돋보기 탭의 화면 녹화 권한 배너를 작은 info 아이콘 + caption + 작은 "설정 열기" 버튼으로 축소. ad-hoc 사이닝 앱이 자동 등록되지 않는 경우 시스템 설정에서 "+" 버튼으로 직접 추가하는 가이드 추가.
+
+### Internal
+
+- Space commit 타이밍 차이(외장 ~580ms, 내장 600~1000ms+)는 OS 동작이라 polling deadline 1.6s로 양쪽 흡수. NSWorkspace의 `activeSpaceDidChangeNotification`이 내장 모니터에서 안 오는 케이스 대비해 `CGSManagedDisplayGetCurrentSpace` 디스플레이별 query로 fallback.
+
+## [0.4.3] — 2026-05-26
+
+### Added
+
+- **트랙패드 시스템 제스처 효과** (실험적, 기본 OFF) — 4·5손가락 핀치(Launchpad / Show Desktop), 3·4손가락 위·아래 스와이프(Mission Control / App Exposé), 3·4손가락 좌·우 스와이프(Space 전환)에 시각 피드백. 환경설정 → 동작 → 기타 → "트랙패드 제스처 효과"에서 켬.
+
+### Internal
+
+- macOS는 멀티터치 시스템 제스처를 컴포지터 레벨에서 처리해 `NSEvent`/`CGEventTap` 같은 공식 API로 안 보임. 비공식 `MultitouchSupport.framework`를 `dlopen`해서 raw 터치 frame을 직접 읽음 (BetterTouchTool/MiddleClick 등이 쓰는 이 분야 표준 우회로). macOS 업데이트로 깨질 수 있어 `isAvailable` 가드로 graceful no-op 처리. 토글 OFF 시 service 시작 자체 안 함 → CPU 0.
+- `TrackpadGestureClassifier`를 순수 함수로 분리해 18개 단위 테스트로 검증 — swipe threshold 0.08(정규화), pinch threshold 0.05, 일관성 검사 tolerance 0.02. 수평 swipe는 시스템 Space slide 애니메이션과 시각 경쟁 회피 위해 0.2초 지연 fade-in.
+
+## [0.4.2] — 2026-05-24
+
+### Fixed
+
+- **전역 단축키가 포커스된 앱으로 새던 버그** — `⌃⌥` 단축키를 `NSEvent.addGlobalMonitorForEvents`(수동 모니터)로 받아, 우리 핸들러가 처리하면서도 같은 키가 포커스 앱에도 그대로 전달됐다. 예: 돋보기 토글 `⌃⌥M`이 YouTube 쇼츠의 `M`(음소거)로 새고, `⌃⌥0~6`이 YouTube 숫자 탐색으로 샜다. 키보드 핸들링을 마우스와 동일한 CGEventTap(`.defaultTap`)으로 바꿔, 우리가 처리하는 `⌃⌥` 단축키는 이벤트를 삼킨다(consume). 일반 타이핑·`⌘⇧3/4/5`·`⌘V`는 그대로 통과해 키스트로크 표시 등 기능 유지.
+
 ## [0.4.1] — 2026-05-18
 
 ### Added

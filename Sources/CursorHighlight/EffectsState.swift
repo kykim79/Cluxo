@@ -16,6 +16,7 @@ final class EffectsState: ObservableObject {
     @Published var scrollEffects: [ScrollEffect] = []
     @Published var trailPoints: [TrailPoint] = []
     @Published var clipboardEffects: [ClipboardEffect] = []
+    @Published var trackpadGestureEffects: [TrackpadGestureEffect] = []
 
     // MARK: - Effect Structs
     struct ClickEffect: Identifiable {
@@ -39,6 +40,12 @@ final class EffectsState: ObservableObject {
     }
     struct ClipboardEffect: Identifiable {
         let id = UUID(); let position: CGPoint; let emoji: String
+    }
+    /// 트랙패드 시스템 제스처 (4핀치 / 3·4 swipe). MultitouchService에서 감지 → main에서 발사.
+    /// softReveal=true는 Space 전환 종료 후 재발사된 경우 — 슬라이드 종료에 부드럽게 합류하는
+    /// 느린 fade-in 사용. 기본 false는 즉시 punchy 등장 (양끝단·수직·핀치).
+    struct TrackpadGestureEffect: Identifiable {
+        let id = UUID(); let position: CGPoint; let gesture: TrackpadGesture; let softReveal: Bool
     }
 
     // MARK: - Add Effects
@@ -91,6 +98,25 @@ final class EffectsState: ObservableObject {
             try? await Task.sleep(for: .seconds(0.7 * animationSpeed))
             middleClickEffects.removeAll { $0.id == effect.id }
         }
+    }
+
+    /// 트랙패드 제스처 인식 시 발사. softReveal=true면 슬라이드 종료 후 부드러운 합류를 위한 느린 fade-in.
+    /// 단일 표시 보장 — 새 effect 추가 전 기존 trackpad effect를 모두 제거해 연속 swipe 시 중복 회피.
+    @discardableResult
+    func addTrackpadGesture(_ gesture: TrackpadGesture, at point: CGPoint, animationSpeed: Double, softReveal: Bool = false) -> UUID {
+        trackpadGestureEffects.removeAll()
+        let effect = TrackpadGestureEffect(position: point, gesture: gesture, softReveal: softReveal)
+        trackpadGestureEffects.append(effect)
+        Task {
+            try? await Task.sleep(for: .seconds(1.6 * animationSpeed))
+            trackpadGestureEffects.removeAll { $0.id == effect.id }
+        }
+        return effect.id
+    }
+
+    /// 외부에서 즉시 제거 — Space 전환 감지로 immediate fire 무효화하고 재발사할 때.
+    func removeTrackpadGesture(id: UUID) {
+        trackpadGestureEffects.removeAll { $0.id == id }
     }
 
     func addClipboardEffect(at point: CGPoint, emoji: String) {

@@ -114,6 +114,19 @@ struct OverlayContentView: View {
                 }
             }
 
+            // 트랙패드 시스템 제스처 (4핀치 / 3·4 swipe) — MultitouchService 감지
+            ForEach(effects.trackpadGestureEffects) { effect in
+                if screenFrame.contains(effect.position) {
+                    TrackpadGestureVisualView(
+                        position: toLocal(effect.position),
+                        gesture: effect.gesture,
+                        softReveal: effect.softReveal,
+                        color: effectiveColor,
+                        speed: speed
+                    )
+                }
+            }
+
             // 돋보기
             if runtime.isMagnifierActive && cursorOnScreen {
                 MagnifierView(
@@ -839,5 +852,186 @@ struct ClipboardIndicatorView: View {
                 withAnimation(.easeOut(duration: 0.6)) { yOffset = -28 }
                 withAnimation(.easeIn(duration: 0.3).delay(0.75)) { opacity = 0 }
             }
+    }
+}
+
+// MARK: - 트랙패드 시스템 제스처 (4핀치 / 3·4손가락 swipe)
+
+/// 디스패처 — gesture 종류에 맞는 시각 뷰 선택. softReveal은 swipe에만 의미 있음
+/// (Space 전환 종료 후 부드러운 합류). pinch는 시스템 애니가 다른 종류라 무관.
+struct TrackpadGestureVisualView: View {
+    let position: CGPoint
+    let gesture: TrackpadGesture
+    let softReveal: Bool
+    let color: Color
+    let speed: Double
+
+    var body: some View {
+        switch gesture {
+        case .fourFingerPinchIn:
+            PinchVisualView(position: position, dotCount: 4, isPinchIn: true,  color: color, speed: speed)
+        case .fourFingerPinchOut:
+            PinchVisualView(position: position, dotCount: 4, isPinchIn: false, color: color, speed: speed)
+        case .fiveFingerPinchIn:
+            PinchVisualView(position: position, dotCount: 5, isPinchIn: true,  color: color, speed: speed)
+        case .fiveFingerPinchOut:
+            PinchVisualView(position: position, dotCount: 5, isPinchIn: false, color: color, speed: speed)
+        default:
+            if let dir = swipeDirection(for: gesture) {
+                SwipeVisualView(
+                    position: position,
+                    direction: dir,
+                    fingerCount: gesture.fingerCount,
+                    softReveal: softReveal,
+                    color: color,
+                    speed: speed
+                )
+            }
+        }
+    }
+
+    /// SwiftUI 화면 좌표 단위 벡터 — y는 위가 음수.
+    private func swipeDirection(for g: TrackpadGesture) -> CGPoint? {
+        switch g {
+        case .threeFingerSwipeUp, .fourFingerSwipeUp:       return CGPoint(x: 0,  y: -1)
+        case .threeFingerSwipeDown, .fourFingerSwipeDown:   return CGPoint(x: 0,  y: 1)
+        case .threeFingerSwipeLeft, .fourFingerSwipeLeft:   return CGPoint(x: -1, y: 0)
+        case .threeFingerSwipeRight, .fourFingerSwipeRight: return CGPoint(x: 1,  y: 0)
+        default: return nil
+        }
+    }
+}
+
+/// 4·5손가락 핀치 — N개 dot이 중심으로 수축(In=Launchpad) 또는 바깥으로 확산(Out=Show Desktop).
+/// dot 개수가 실제 손가락 수와 일치 — 4핀치는 4개, 5핀치는 5개.
+struct PinchVisualView: View {
+    let position: CGPoint
+    let dotCount: Int       // 4 또는 5
+    let isPinchIn: Bool
+    let color: Color
+    let speed: Double
+    @State private var scale: CGFloat
+    @State private var opacity: Double = 0.9
+
+    private let outerRadius: CGFloat = 42
+
+    init(position: CGPoint, dotCount: Int, isPinchIn: Bool, color: Color, speed: Double) {
+        self.position = position
+        self.dotCount = dotCount
+        self.isPinchIn = isPinchIn
+        self.color = color
+        self.speed = speed
+        _scale = State(initialValue: isPinchIn ? 1.0 : 0.1)
+    }
+
+    /// dot 개수에 따라 원주 균등 분포한 offset 계산 (SwiftUI 좌표: -y가 위).
+    /// 시작 각도는 위(12시)로 — 시각적으로 안정적.
+    private func offset(for i: Int) -> CGSize {
+        let angle = -.pi / 2 + (2 * .pi * Double(i)) / Double(dotCount)
+        return CGSize(width: cos(angle) * Double(outerRadius), height: sin(angle) * Double(outerRadius))
+    }
+
+    var body: some View {
+        ZStack {
+            ForEach(0..<dotCount, id: \.self) { i in
+                let off = offset(for: i)
+                Circle()
+                    .fill(color.opacity(opacity))
+                    .frame(width: 11, height: 11)
+                    .offset(x: off.width * scale, y: off.height * scale)
+            }
+        }
+        .position(position)
+        .onAppear {
+            withAnimation(.easeOut(duration: 0.58 * speed)) {
+                scale = isPinchIn ? 0.1 : 1.35
+                opacity = 0
+            }
+        }
+    }
+}
+
+/// 3·4손가락 스와이프 — N개 평행 capsule이 direction으로 이동하며 페이드 + cursor anchor pulse.
+///
+/// 진단 로그 검증 (log show ... Multitouch): mid-fire가 gesture 시작 t+0.06~0.13s에
+/// 즉시 발사됨. 시스템 슬라이드 시작 전에 effect는 이미 화면에 있음. 사용자가 "느리게
+/// 나타난다"고 체감하는 건 slide 동안 시선이 슬라이드 따라가서 cursor 위치 effect를 놓치다가
+/// slide 끝(~t=0.4)에 시선 돌아오면 그제야 보이기 때문.
+///
+/// 대응: effect를 slide(~0.4s) 동안은 bright 유지 → slide 끝난 뒤에도 peak 상태로 시선 catch
+/// → 부드러운 페이드. fade-in 빠르게, hold 길게, fade-out 부드럽게.
+struct SwipeVisualView: View {
+    let position: CGPoint
+    let direction: CGPoint    // 단위 벡터 (SwiftUI 좌표; -y가 위)
+    let fingerCount: Int      // 3 또는 4
+    let softReveal: Bool      // true면 슬라이드 종료 후 합류용 느린 fade-in
+    let color: Color
+    let speed: Double
+    @State private var offset: CGFloat = 0
+    @State private var opacity: Double = 0.0
+    @State private var anchorScale: CGFloat = 0.5
+    @State private var anchorOpacity: Double = 0.65
+
+    private let travelDistance: CGFloat = 44
+    private let lateralSpacing: CGFloat = 15
+
+    var body: some View {
+        let perpX = -direction.y
+        let perpY = direction.x
+        let angle = atan2(direction.y, direction.x) + .pi / 2
+
+        ZStack {
+            Circle()
+                .fill(color.opacity(anchorOpacity))
+                .frame(width: 56, height: 56)
+                .scaleEffect(anchorScale)
+                .blur(radius: 7)
+
+            ForEach(0..<fingerCount, id: \.self) { i in
+                let lateral = (CGFloat(i) - CGFloat(fingerCount - 1) / 2) * lateralSpacing
+                Capsule()
+                    .fill(color.opacity(opacity))
+                    .frame(width: 10, height: 36)
+                    .rotationEffect(.radians(Double(angle)))
+                    .offset(
+                        x: perpX * lateral + direction.x * offset,
+                        y: perpY * lateral + direction.y * offset
+                    )
+            }
+        }
+        .position(position)
+        .onAppear {
+            // softReveal: 슬라이드 종료 후 재발사 — 느린 fade-in으로 갑작스러움 회피.
+            // 0.50s fade-in → 슬라이드 마무리 시점에 천천히 emerge, 사용자가 fade-in 전체 다 봄.
+            // 일반: 즉시 punchy 등장 (양끝단·수직·핀치).
+            let fadeInDuration = softReveal ? 0.50 : 0.10
+            let anchorOpacityStart = softReveal ? 0.45 : 0.65
+            let anchorDuration = softReveal ? 1.00 : 0.70
+
+            // anchor pulse 초기값 보정 (softReveal면 낮은 시작)
+            if softReveal {
+                anchorOpacity = 0.45
+            }
+
+            withAnimation(.easeInOut(duration: fadeInDuration * speed)) {
+                opacity = 1.0
+            }
+            // softReveal면 이동도 천천히 + 페이드 아웃 더 늦게 (fade-in이 끝난 뒤 peak hold가 있어야 또렷이 인지)
+            let travelDuration = softReveal ? 1.10 : 0.85
+            let fadeOutDelay = softReveal ? 0.80 : 0.55
+            let fadeOutDuration = softReveal ? 0.65 : 0.60
+            withAnimation(.easeOut(duration: travelDuration * speed)) {
+                offset = travelDistance
+            }
+            withAnimation(.easeIn(duration: fadeOutDuration * speed).delay(fadeOutDelay * speed)) {
+                opacity = 0
+            }
+            // anchor pulse — softReveal면 더 천천히 확산, peak도 부드럽게.
+            withAnimation(.easeOut(duration: anchorDuration * speed)) {
+                anchorScale = 1.9
+                anchorOpacity = 0
+            }
+            _ = anchorOpacityStart  // (placeholder — 향후 더 미세 조정시 사용)
+        }
     }
 }
