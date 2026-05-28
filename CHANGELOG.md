@@ -4,6 +4,12 @@
 
 ## [Unreleased]
 
+## [0.5.5] — 2026-05-29
+
+### Added
+
+- **스포트라이트·돋보기가 ring shape를 따라감 (실제 구현)** — v0.5.3 CHANGELOG가 이 기능을 주장했지만, 실제 v0.5.3 커밋은 `CHANGELOG.md`·`project.yml`만 바꾼 빈 커밋이라 코드가 전혀 없었다(언급된 `SpotlightMask`·`MagnifierLensView` struct도 부재). 이번에 실제로 구현: 스포트라이트의 밝게 뚫리는 cutout과 돋보기 렌즈의 clip·외곽선이 선택한 ring shape(원형/둥근 사각형/마름모)를 따른다. gradient는 radial 유지(중심→가장자리 fade). `RingShape.anyShape`(v0.5.2 인프라) 재사용 — 원형은 기존과 동일 렌더.
+
 ## [0.5.4] — 2026-05-29
 
 ### Fixed

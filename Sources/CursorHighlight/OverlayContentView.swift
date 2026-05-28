@@ -18,7 +18,7 @@ struct OverlayContentView: View {
         ZStack {
             // 스포트라이트
             if runtime.isSpotlightActive {
-                if cursorOnScreen { SpotlightView(position: localPos, radius: settings.spotlightRadius) }
+                if cursorOnScreen { SpotlightView(position: localPos, radius: settings.spotlightRadius, ringShape: settings.ringShape) }
                 else              { Color.black.opacity(0.78) }
             }
 
@@ -134,7 +134,8 @@ struct OverlayContentView: View {
                     position: localPos,
                     image: runtime.magnifierImage,
                     size: settings.magnifierSize,
-                    color: effectiveColor
+                    color: effectiveColor,
+                    ringShape: settings.ringShape
                 )
             }
 
@@ -159,14 +160,17 @@ struct OverlayContentView: View {
 struct SpotlightView: View {
     let position: CGPoint
     let radius: CGFloat
+    let ringShape: CursorSettings.RingShape
 
     var body: some View {
         Canvas { context, size in
             context.fill(Path(CGRect(origin: .zero, size: size)), with: .color(.black.opacity(0.78)))
             context.blendMode = .clear
+            // 밝게 뚫리는 cutout이 ring shape를 따름. gradient는 radial 유지(중심→가장자리 fade).
+            let cutout = CGRect(x: position.x - radius, y: position.y - radius,
+                                width: radius * 2, height: radius * 2)
             context.fill(
-                Path(ellipseIn: CGRect(x: position.x - radius, y: position.y - radius,
-                                       width: radius * 2, height: radius * 2)),
+                ringShape.anyShape.path(in: cutout),
                 with: .radialGradient(
                     Gradient(stops: [
                         .init(color: .white, location: 0),
@@ -506,6 +510,7 @@ struct MagnifierView: View {
     let image: CGImage?
     let size: CGFloat
     let color: Color
+    let ringShape: CursorSettings.RingShape
 
     var body: some View {
         ZStack {
@@ -515,13 +520,13 @@ struct MagnifierView: View {
                     .resizable()
                     .scaledToFill()
                     .frame(width: size, height: size)
-                    .clipShape(Circle())
+                    .clipShape(ringShape.anyShape)
             } else {
-                Circle()
+                ringShape.anyShape
                     .fill(Color.black.opacity(0.6))
                     .frame(width: size, height: size)
             }
-            Circle()
+            ringShape.anyShape
                 .stroke(color, lineWidth: 3)
                 .frame(width: size, height: size)
         }
