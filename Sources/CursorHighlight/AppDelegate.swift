@@ -99,11 +99,20 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     // 낯선 외장 모니터 자동 키스트로크 상태 추적.
     // autoKeystrokeActive: 우리가 자동으로 켰는지. keystrokeStateBeforeAuto: 자동 켜기 직전 사용자 상태(복원용).
-    private var autoKeystrokeActive = false
-    private var keystrokeStateBeforeAuto = false
+    // 앱 재시작을 넘어 유지돼야 한다 — 메모리 변수면 재시작 시 "자동으로 켰다"는 사실을 잊어,
+    // isKeystrokeEnabled(영구 저장)가 복원되지 않고 영구 ON으로 남는 버그가 생긴다. 그래서 UserDefaults에 persist.
+    private var autoKeystrokeActive: Bool {
+        get { UserDefaults.standard.bool(forKey: "autoKeystrokeActive") }
+        set { UserDefaults.standard.set(newValue, forKey: "autoKeystrokeActive") }
+    }
+    private var keystrokeStateBeforeAuto: Bool {
+        get { UserDefaults.standard.bool(forKey: "keystrokeStateBeforeAuto") }
+        set { UserDefaults.standard.set(newValue, forKey: "keystrokeStateBeforeAuto") }
+    }
 
     // 트랙패드 제스처 (실험적, 비공식 API) — 토글 변화 구독.
     private var trackpadGestureCancellable: AnyCancellable?
+    private var autoKeystrokeCancellable: AnyCancellable?
 
     // 가장 최근 트랙패드 swipe 발생 시점 (gesture detect 시점, fire 시점 아님).
     // polling이 자기 firedAt < latestSwipeFiredAt이면 stale (=더 새 swipe 이미 있음) → skip.
@@ -285,6 +294,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                     MultitouchService.shared.stop()
                 }
             }
+
+        // 설정 변화(신뢰 모니터 등록·기능 토글 등) 시 자동 키스트로크 재평가 — 같은 세션에서도 즉시 반영.
+        autoKeystrokeCancellable = settings.objectWillChange
+            .receive(on: RunLoop.main)
+            .sink { [weak self] in self?.evaluateAutoKeystroke() }
     }
 
     func applicationWillTerminate(_ notification: Notification) {

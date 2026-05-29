@@ -4,6 +4,12 @@
 
 ## [Unreleased]
 
+## [0.5.7] — 2026-05-29
+
+### Fixed
+
+- **낯선 모니터가 아닌데도 키스트로크가 계속 표시되던 버그** — 자동 키스트로크 상태(`autoKeystrokeActive`·`keystrokeStateBeforeAuto`)가 메모리 변수라, 앱 재시작 시 "우리가 자동으로 켰다"는 사실이 유실됐다. 그 결과 낯선 모니터로 자동 ON된 키스트로크가 재시작 후엔 모니터를 분리하거나 신뢰 등록해도 복원(꺼짐)되지 않고 `isKeystrokeEnabled`(영구 저장)가 ON으로 남았다. 두 상태를 `UserDefaults`에 persist해 재시작 후에도 올바르게 복원되도록 수정. 또 신뢰 모니터 등록·기능 토글 등 설정 변화를 구독해 `evaluateAutoKeystroke`를 즉시 재평가 — 같은 세션에서도 바로 반영된다.
+
 ## [0.5.6] — 2026-05-29
 
 ### Added
