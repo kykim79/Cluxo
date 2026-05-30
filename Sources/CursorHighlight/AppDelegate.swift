@@ -600,7 +600,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         let pulse = DispatchWorkItem { [weak self] in
             guard let self else { return }
             guard self.settings.isIdlePulseEnabled, self.runtime.isCursorVisible,
-                  !self.runtime.isLaserPointerActive, !self.runtime.isDragging else { return }
+                  !self.runtime.isDragging else { return }
             self.effects.addIdlePulseEffect(at: self.runtime.cursorPosition)
         }
         idlePulseWorkItem = pulse
