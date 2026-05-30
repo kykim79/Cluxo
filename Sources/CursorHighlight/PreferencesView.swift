@@ -374,10 +374,6 @@ private struct ShortcutsTab: View {
                     .font(.caption).foregroundColor(.secondary)
             }
 
-            Section("레이저 포인터") {
-                Text("오른쪽 ⌥ (단독 누름 유지) — 누르고 있는 동안 레이저 포인터, 떼면 자동 복귀 (한 손 발표용)")
-                    .font(.caption).foregroundColor(.secondary)
-            }
 
             Section("돋보기") {
                 Text("⌃⌥M — 돋보기 켜기/끄기")

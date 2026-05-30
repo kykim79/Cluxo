@@ -43,15 +43,14 @@ struct OverlayContentView: View {
                 )
             }
 
-            // 커서 링 — 레이저 포인터 모드면 숨기고 빨간 점으로 대체
-            if cursorOnScreen && runtime.isCursorVisible && !runtime.isLaserPointerActive {
+            // 커서 링
+            if cursorOnScreen && runtime.isCursorVisible {
                 CursorRingView(
                     position: localPos,
                     appearance: RingAppearance(settings: settings, effectiveColor: effectiveColor),
                     motion: RingMotion(runtime: runtime)
                 )
             }
-            // 레이저 모드는 시스템 cursor 자체를 빨간 점으로 변경(AppDelegate의 NSCursor.set) — overlay 그리기 없음.
 
             // 정지 펄스 — 1.5초 정지 시 1회 ring shape 확장 fade
             ForEach(effects.idlePulseEffects, id: \.id) { effect in

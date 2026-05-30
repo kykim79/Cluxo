@@ -4,6 +4,12 @@
 
 ## [Unreleased]
 
+## [0.5.9] — 2026-05-30
+
+### Removed
+
+- **레이저 포인터 기능 폐기** — v0.5.8에 추가한 레이저 포인터(오른쪽 ⌥ hold, 시스템 cursor를 빨간 점으로 전환)는 평소엔 깜빡임 없이 잘 동작하는 듯 보였으나, **클릭하면 active context가 다른 앱으로 옮겨가면서 cursor가 즉시 그 앱의 cursor로 덮여 빨간 점이 깜빡거리는** 본질적 한계가 확인됐다. `NSCursor.set` cross-app, `CGDisplayHideCursor`, hold 방식 어느 우회로도 macOS의 cross-app cursor 모델을 안정적으로 우회 불가 → 기능 자체 제거. 모양 cycle(⌃⌥7)·정지 펄스는 그대로 유지.
+
 ## [0.5.8] — 2026-05-30
 
 ### Added
