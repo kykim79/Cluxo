@@ -676,11 +676,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 }
                 // 그리기 모드 — 새 도형 시작. 모디파이어로 도구 결정 (Shift=직선 / Opt=화살표 / 그 외 펜)
                 if self.drawing.isDrawingModeActive {
-                    let mods = NSEvent.modifierFlags
-                    let color = self.settings.ringColor == .custom
-                        ? self.settings.customRingColor
-                        : self.settings.ringColor.color
-                    self.drawing.startShape(at: self.runtime.cursorPosition, modifiers: mods, color: color)
+                    self.drawing.startShape(
+                        at: self.runtime.cursorPosition,
+                        modifiers: NSEvent.modifierFlags,
+                        color: self.settings.effectiveRingColor
+                    )
                     return
                 }
                 let pos = self.runtime.cursorPosition

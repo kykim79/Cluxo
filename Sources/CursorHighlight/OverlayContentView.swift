@@ -11,9 +11,7 @@ struct OverlayContentView: View {
     private var localPos: CGPoint { toLocal(runtime.cursorPosition) }
     private var cursorOnScreen: Bool { screenFrame.contains(runtime.cursorPosition) }
     private var speed: Double { settings.animationSpeed.multiplier }
-    private var effectiveColor: Color {
-        settings.ringColor == .custom ? settings.customRingColor : settings.ringColor.color
-    }
+    private var effectiveColor: Color { settings.effectiveRingColor }
 
     var body: some View {
         ZStack {
@@ -1391,9 +1389,9 @@ struct DrawnShapeView: View {
     let shape: DrawingState.Shape
     let screenFrame: CGRect
 
-    private let lineWidth: CGFloat = 4
-    private let headLen: CGFloat = 16
-    private let headAngle: CGFloat = .pi / 6  // 30°
+    private let lineWidth = Tokens.Drawing.lineWidth
+    private let headLen = Tokens.Drawing.arrowHeadLength
+    private let headAngle = Tokens.Drawing.arrowHeadAngle
 
     var body: some View {
         Canvas { context, _ in

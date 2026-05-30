@@ -69,6 +69,12 @@ final class CursorSettings: ObservableObject {
         didSet { scheduleCustomColorSave() }
     }
 
+    /// 사용자가 설정한 active accent color — ringColor가 .custom이면 customRingColor, 아니면 미리 정의된 색.
+    /// 클릭/드래그/radial accent/그리기 stroke 등 모든 Active 효과가 이 값을 따른다 (DESIGN.md Color Rule).
+    var effectiveRingColor: Color {
+        ringColor == .custom ? customRingColor : ringColor.color
+    }
+
     // ColorPicker 드래그 중 매 변화마다 NSColor 변환+UserDefaults set 회피 (@Persisted와 동일한 0.3초 debounce)
     private var saveCustomColorTask: DispatchWorkItem?
 

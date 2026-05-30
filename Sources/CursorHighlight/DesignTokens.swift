@@ -115,6 +115,17 @@ enum Tokens {
         static let xxl: CGFloat = 32
     }
 
+    // MARK: Drawing — ⌃⌥D 그리기 도형 (펜·직선·화살표)
+
+    enum Drawing {
+        /// 모든 도형 stroke 두께 — 발표 시 시청자 가시성 + 너무 굵지 않은 균형
+        static let lineWidth: CGFloat = 4
+        /// 화살표 머리(arrowhead) 양 변 길이
+        static let arrowHeadLength: CGFloat = 16
+        /// 화살표 머리 양 변이 shaft에서 벌어지는 각도 (라디안). 30° = 일반적인 가독성 균형
+        static let arrowHeadAngle: CGFloat = .pi / 6
+    }
+
     // MARK: Text — 시스템 폰트 역할별 토큰
 
     enum Text {

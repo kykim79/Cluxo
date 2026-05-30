@@ -129,6 +129,46 @@ radial menu는 거리(distance)로 의도를 표현하는 컴포넌트라 별도
 | `radius.md` | 8 | 작은 panel (인스펙터) |
 | `radius.lg` | 12 | 키스트로크·중앙 컨텍스트 (Capsule 사용 시 fully rounded) |
 
+## Drawing (⌃⌥D, v0.6.0)
+
+발표·스크린캐스트용 화면 annotation. ⌃⌥D 토글로 모드 ON, 마우스 드래그로 stroke. 모디파이어로 도구 결정 (drag start 시점, Sketch/Figma 컨벤션 차용).
+
+### 도구 (3종)
+
+| 도구 | 활성화 | shape data |
+|---|---|---|
+| 펜 | 드래그 (모디파이어 없음) | 모든 샘플 점 line join |
+| 직선 | Shift+드래그 | [start, end] 두 점 |
+| 화살표 | Opt+드래그 | [start, end] + ±30° head |
+
+### 토큰 (`Tokens.Drawing`)
+
+| Token | Value | 의미 |
+|---|---|---|
+| `lineWidth` | 4pt | 모든 stroke 두께 — 발표 가시성 + 너무 굵지 않음 |
+| `arrowHeadLength` | 16pt | 화살촉 양 변 길이 |
+| `arrowHeadAngle` | π/6 (30°) | 화살촉 양 변 벌어짐 |
+
+### 색
+
+stroke 색은 `CursorSettings.effectiveRingColor` (사용자 선택 ringColor) — startShape 시점에 캡처. 사용자가 stroke 도중 색 바꿔도 진행 중 도형은 원래 색 유지 (DESIGN.md "Active = ringColor follow" 일관성).
+
+### Cursor 인디케이터
+
+그리기 모드 활성 시 cursor 옆에 `Image(systemName: "plus")` (size 14pt, weight .semibold, opacity 0.85, drop shadow). 사용자가 "지금 그리기 모드"임을 인지.
+
+### 라이프사이클
+
+- ⌃⌥D 토글 OFF: 도형 유지 (발표 중 그리고 → 끄고 마우스 작업 → 다시 켜서 추가 패턴)
+- ESC: 모든 도형 clear + 모드 OFF (clean slate)
+- 진행 중 stroke (drag 중 토글 OFF) → 폐기
+
+### Rule
+
+- 새 도형 종류 추가 시 색은 `effectiveRingColor` 통과 필수
+- 두께/화살촉 변경 시 `Tokens.Drawing.*`만 수정 (call site 분산 금지)
+- 그리기는 **Active 효과** — Passive(좌클릭 ripple .white) 규칙 적용 안 됨
+
 ## Motion
 
 이 앱의 모션은 **이벤트 구두점**. spring은 클릭/드래그 같은 "물리적 사건"에, easeOut은 페이드/등장/소멸에 쓴다.
@@ -158,20 +198,37 @@ radial menu는 거리(distance)로 의도를 표현하는 컴포넌트라 별도
 
 ## Iconography
 
-radial menu sector icon은 emoji 단일 글리프 — 시스템 폰트 fallback 보장, 색상 일관성 유지.
+**Rule (v0.6.0 갱신):** UI 영구 표시 영역(Radial menu, PreferencesView)은 **SF Symbols 전용**. emoji는 transient 텍스트(키스트로크 알림)에만. SF Symbols는 일관 선화 두께·macOS HIG 정렬·다크모드 자동 대응.
 
-| Sector | Emoji | 의미 |
+### Radial Menu 메인 sector (8종 — SF Symbol)
+
+| Sector | SF Symbol | 의미 |
 |---|---|---|
-| 0 (12시) | 🔦 | Spotlight |
-| 1 (1:30) | 🔍 | Magnifier |
-| 2 (3시) | ✨ | Effects (Glow 그룹) |
-| 3 (4:30) | 🔘 | Ring size |
-| 4 (6시) | 🎨 | Color |
-| 5 (7:30) | ⭕ | Ring shape |
-| 6 (9시) | 📐 | Inspector (coordinates) |
-| 7 (10:30) | ⌨ | Keystroke |
+| 0 (12시) | `flashlight.on.fill` | Spotlight |
+| 1 (1:30) | `plus.magnifyingglass` | Magnifier |
+| 2 (3시) | `sparkles` | Effects (효과 묶음) |
+| 3 (4:30) | `circle.dashed` | Ring size |
+| 4 (6시) | `paintpalette.fill` | Color |
+| 5 (7:30) | `square.on.circle` | Ring shape |
+| 6 (9시) | `ruler.fill` | 좌표/각도 묶음 |
+| 7 (10:30) | `keyboard.fill` | Keystroke |
 
-**Rule:** 새 sector 추가 시 emoji가 단색 시스템 글리프인지 확인. 색상 있는 emoji(❤️ 류)는 ringColor 시스템 깨뜨림.
+### Radial Menu sub items (카테고리형만 — 값 선택형은 텍스트)
+
+| Sector | Sub | SF Symbol |
+|---|---|---|
+| 효과 | 글로우 | `lightbulb.fill` |
+| 효과 | 트레일 | `wind` |
+| 효과 | 정지펄스 | `target` |
+| 효과 | 코멧 | `sparkle` |
+| 좌표/각도 | 좌표 | `viewfinder` |
+| 좌표/각도 | 드래그각도 | `arrow.up.right` |
+
+값 선택형 sub(반경/줌/색/시간/링크기/모양)는 icon=nil 텍스트 단독.
+
+### 알림(Keystroke Overlay) — emoji 유지
+
+알림은 1초 미만 transient text 오버레이. SF Symbol 인라인 합성보다 emoji가 한 단계 가벼움. 단, **알림 emoji와 radial menu icon은 같은 의미를 가리킴** (✏️ 그리기·🔦 스포트라이트 등).
 
 ## Notification Format
 
@@ -192,3 +249,8 @@ radial menu 등 사용자 액션의 알림은 단일 포맷:
 | 2026-05-30 | Spring vs ease 명확 분리 | Spring=물리 이벤트(클릭/드래그), ease=상태전이(페이드/토글). 혼용하면 모션이 일관되지 않음 |
 | 2026-05-30 | 모든 강조 색은 ringColor follow | 사용자가 색을 정하면 시스템 전체가 그 색이어야 한다 — 효과별 색 분기 금지 |
 | 2026-05-30 | 모션 상한 0.5초 | 발표 시 화면 위 효과가 1초 가까이 머물면 시청자 attention drift |
+| 2026-05-31 | UI 영구 표시 영역 SF Symbols 전용 (v0.6.0) | radial menu emoji는 폰트별 렌더 차이·다크모드 부적합. SF Symbols는 macOS HIG 일관. 알림은 transient라 emoji 유지 |
+| 2026-05-31 | 그리기 도구 모디파이어 매핑 (Shift=직선, Opt=화살표) | Sketch/Figma 컨벤션. 별도 도구 선택 UI 없이 즉시 전환 — 발표 중 thought interruption 최소화 |
+| 2026-05-31 | 그리기 stroke 색 startShape 캡처 후 고정 | 진행 중 색 변경 따라가면 그라데이션 발생 — 의도 없는 시각 결과. 한 stroke = 한 색이 직관적 |
+| 2026-05-31 | `effectiveRingColor` 단일 source (DRY) | 색 따르는 효과 3+곳(클릭·radial·그리기) 추가하며 logic 중복 위험. `CursorSettings.effectiveRingColor` 통과 의무화 |
+| 2026-05-31 | 그리기 토큰화 (`Tokens.Drawing`) | DESIGN.md "토큰 외 하드코딩 금지" 정책 일관 적용. lineWidth/arrowHead 등 향후 조정 단일 지점 |
