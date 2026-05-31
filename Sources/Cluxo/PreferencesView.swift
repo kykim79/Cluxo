@@ -396,7 +396,7 @@ private struct MagnifierTab: View {
                     PrefSection(label: "권한") {
                         HStack(spacing: 8) {
                             Image(systemName: "info.circle").foregroundColor(.orange)
-                            Text(verbatim: "화면 녹화 권한 필요")
+                            Text(verbatim: "화면 녹화 권한 필요".loc)
                             Spacer()
                             Button("설정 열기") {
                                 (NSApp.delegate as? AppDelegate)?.requestScreenRecordingPermission()
@@ -434,7 +434,7 @@ private struct MagnifierTab: View {
                 PrefSection(label: "렌즈 크기") {
                     Picker("크기", selection: $settings.magnifierSize) {
                         ForEach(sizeOptions, id: \.0) { size, label in
-                            Text(label).tag(size)
+                            Text(verbatim: label.loc).tag(size)
                         }
                     }
                     .pickerStyle(.segmented).labelsHidden()
@@ -520,10 +520,10 @@ private struct ShortcutsTab: View {
 
                 PrefSection(label: "고정 단축키") {
                     VStack(alignment: .leading, spacing: 4) {
-                        Text(verbatim: "⌃⌥1~7 — 색상 즉시 변경 (노란/빨간/파란/초록/하늘/보라/흰)")
-                        Text(verbatim: "⌃⌥C — 다음 색상으로 순환")
-                        Text(verbatim: "⌃⌥H — 다음 모양으로 순환 (원형 → 둥근 사각형 → 마름모)")
-                        Text(verbatim: "⌃⌥= / ⌃⌥- — 돋보기 줌 in/out (0.5 step)")
+                        Text(verbatim: "⌃⌥1~7 — 색상 즉시 변경 (노란/빨간/파란/초록/하늘/보라/흰)".loc)
+                        Text(verbatim: "⌃⌥C — 다음 색상으로 순환".loc)
+                        Text(verbatim: "⌃⌥H — 다음 모양으로 순환 (원형 → 둥근 사각형 → 마름모)".loc)
+                        Text(verbatim: "⌃⌥= / ⌃⌥- — 돋보기 줌 in/out (0.5 step)".loc)
                     }
                     .font(.callout).foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
@@ -577,7 +577,7 @@ private struct InfoTab: View {
             Section("앱 정보") {
                 LabeledContent("버전", value: "v\(appVersion) (\(buildNumber))")
                 LabeledContent("개발자", value: "ktoy")
-                LabeledContent("최소 요구 사항", value: "macOS 13.0 이상")
+                LabeledContent("최소 요구 사항", value: "macOS 13.0 이상".loc)
             }
 
             Section("Motion Semantics") {
@@ -855,10 +855,10 @@ private struct ShortcutRow: View {
     let desc: String
     var body: some View {
         HStack {
-            Text(key)
+            Text(verbatim: key.loc)
                 .font(.system(.caption, design: .monospaced))
                 .frame(width: 90, alignment: .leading)
-            Text(desc).font(.caption).foregroundColor(.secondary)
+            Text(verbatim: desc.loc).font(.caption).foregroundColor(.secondary)
         }
     }
 }

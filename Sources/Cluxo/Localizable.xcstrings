@@ -2583,6 +2583,56 @@
           }
         }
       }
+    },
+    "화면 녹화 권한 필요": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Screen Recording permission required"
+          }
+        }
+      }
+    },
+    "⌃⌥1~7 — 색상 즉시 변경 (노란/빨간/파란/초록/하늘/보라/흰)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "⌃⌥1–7 — Switch ring color instantly (Yellow/Red/Blue/Green/Cyan/Purple/White)"
+          }
+        }
+      }
+    },
+    "⌃⌥C — 다음 색상으로 순환": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "⌃⌥C — Cycle to next color"
+          }
+        }
+      }
+    },
+    "⌃⌥H — 다음 모양으로 순환 (원형 → 둥근 사각형 → 마름모)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "⌃⌥H — Cycle ring shape (Circle → Squircle → Rhombus)"
+          }
+        }
+      }
+    },
+    "⌃⌥= / ⌃⌥- — 돋보기 줌 in/out (0.5 step)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "⌃⌥= / ⌃⌥- — Magnifier zoom in/out (0.5× step)"
+          }
+        }
+      }
     }
   }
 }
