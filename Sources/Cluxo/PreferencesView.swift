@@ -6,7 +6,7 @@ import AppKit
 /// 현재 선택된 탭 — NSToolbar(AppKit)와 SwiftUI 본문이 같은 source 공유.
 @MainActor
 final class PrefSelection: ObservableObject {
-    @Published var tab: PrefTab = .appearance
+    @Published var tab: PrefTab = .ring
 }
 
 class PreferencesWindowController: NSWindowController, NSToolbarDelegate {
@@ -41,7 +41,7 @@ class PreferencesWindowController: NSWindowController, NSToolbarDelegate {
         toolbar.displayMode = .iconAndLabel
         toolbar.allowsUserCustomization = false
         toolbar.autosavesConfiguration = false
-        toolbar.selectedItemIdentifier = NSToolbarItem.Identifier(PrefTab.appearance.rawValue)
+        toolbar.selectedItemIdentifier = NSToolbarItem.Identifier(PrefTab.ring.rawValue)
         window.toolbar = toolbar
     }
 
@@ -86,24 +86,24 @@ class PreferencesWindowController: NSWindowController, NSToolbarDelegate {
 /// reference(MonitorControl 환경설정)처럼 큰 SF Symbol + 라벨이 안 보임 →
 /// 자체 segmented tab bar로 직접 구현.
 enum PrefTab: String, CaseIterable, Identifiable {
-    case appearance, behavior, magnifier, shortcuts, info
+    case ring, effects, modes, shortcuts, general
     var id: String { rawValue }
     var label: String {
         switch self {
-        case .appearance: return "모양".loc
-        case .behavior:   return "동작".loc
-        case .magnifier:  return "돋보기".loc
-        case .shortcuts:  return "단축키".loc
-        case .info:       return "정보".loc
+        case .ring:      return "링".loc
+        case .effects:   return "효과".loc
+        case .modes:     return "모드".loc
+        case .shortcuts: return "단축키".loc
+        case .general:   return "일반".loc
         }
     }
     var icon: String {
         switch self {
-        case .appearance: return "paintpalette.fill"
-        case .behavior:   return "cursorarrow.motionlines"
-        case .magnifier:  return "plus.magnifyingglass"
-        case .shortcuts:  return "keyboard.fill"
-        case .info:       return "info.circle.fill"
+        case .ring:      return "circle.dashed"
+        case .effects:   return "sparkles"
+        case .modes:     return "wand.and.rays"
+        case .shortcuts: return "keyboard.fill"
+        case .general:   return "gearshape.fill"
         }
     }
 }
@@ -117,11 +117,11 @@ struct PreferencesView: View {
         // 상단 toolbar는 NSToolbar(PreferencesWindowController)가 처리. SwiftUI는 본문만.
         Group {
             switch selection.tab {
-            case .appearance: AppearanceTab(settings: settings)
-            case .behavior:   BehaviorTab(settings: settings)
-            case .magnifier:  MagnifierTab(settings: settings, runtime: runtime)
-            case .shortcuts:  ShortcutsTab(settings: settings)
-            case .info:       InfoTab(settings: settings)
+            case .ring:      RingTab(settings: settings)
+            case .effects:   EffectsTab(settings: settings)
+            case .modes:     ModesTab(settings: settings, runtime: runtime)
+            case .shortcuts: ShortcutsTab(settings: settings)
+            case .general:   GeneralTab(settings: settings)
             }
         }
         .frame(width: 620, height: 600)
@@ -156,7 +156,9 @@ private func desc(_ text: String) -> some View {
         .fixedSize(horizontal: false, vertical: true)
 }
 
-private struct AppearanceTab: View {
+// MARK: - Ring Tab
+
+private struct RingTab: View {
     @ObservedObject var settings: CursorSettings
 
     var body: some View {
@@ -224,28 +226,8 @@ private struct AppearanceTab: View {
                     Toggle("링 채우기 (반투명 도넛)", isOn: $settings.isRingFillEnabled)
                     desc("링 안쪽을 반투명 링 색으로 채워 도넛 형태로. 흰 배경에서도 잘 보입니다.")
 
-                    Toggle("글로우 효과", isOn: $settings.isGlowEnabled)
-                    desc("링 주변에 부드러운 빛 번짐. 시각 무게 ↑, 멀리서도 인지 쉬움.")
-
                     Toggle("원근 왜곡", isOn: $settings.isPerspectiveWarping)
                     desc("드래그 방향에 따라 링이 살짝 기울어지는 입체감 효과.")
-                }
-
-                PrefSection(label: "애니메이션 속도") {
-                    Picker("속도", selection: $settings.animationSpeed) {
-                        ForEach(CursorSettings.AnimationSpeed.allCases) { Text($0.label).tag($0) }
-                    }
-                    .pickerStyle(.segmented).labelsHidden()
-                    desc("클릭·드래그·정지 펄스 등 모든 모션 재생 속도. 발표 중엔 보통, 빠른 시연엔 빠름.")
-                }
-
-                PrefSection(label: "스포트라이트 반경") {
-                    HStack {
-                        Slider(value: $settings.spotlightRadius, in: 60...250, step: 10)
-                        Text("\(Int(settings.spotlightRadius))pt")
-                            .monospacedDigit().frame(width: 44, alignment: .trailing)
-                    }
-                    desc("⌃⌥S 스포트라이트가 비추는 원의 반지름. 코드 한 줄엔 작게(60~100), UI 영역엔 크게(180~220).")
                 }
             }
             .padding(24)
@@ -280,59 +262,31 @@ private struct ColorSwatch: View {
     }
 }
 
-// MARK: - Behavior Tab
+// MARK: - Effects Tab
 
-private struct BehaviorTab: View {
+private struct EffectsTab: View {
     @ObservedObject var settings: CursorSettings
-    @State private var launchAtLogin: Bool = false
-    @State private var externalMonitors: [ExternalMonitor] = []
 
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 22) {
-                PrefSection(label: "키스트로크") {
-                    HStack {
-                        Text(verbatim: "표시 시간".loc).frame(width: 100, alignment: .leading)
-                        Slider(value: $settings.keystrokeTimeout, in: 1...8, step: 0.5)
-                        Text(String(format: "%.1f초".loc, settings.keystrokeTimeout))
-                            .monospacedDigit().frame(width: 44, alignment: .trailing)
+                PrefSection(label: "애니메이션 속도") {
+                    Picker("속도", selection: $settings.animationSpeed) {
+                        ForEach(CursorSettings.AnimationSpeed.allCases) { Text($0.label).tag($0) }
                     }
-                    desc("키 입력 후 화면 하단 오버레이에 표시되는 시간. 빠른 시연엔 1~2초, 천천히 보여주는 발표엔 3~5초 권장.")
+                    .pickerStyle(.segmented).labelsHidden()
+                    desc("클릭·드래그·정지 펄스 등 모든 모션 재생 속도. 발표 중엔 보통, 빠른 시연엔 빠름.")
                 }
 
-                PrefSection(label: "자동 키스트로크") {
-                    Toggle("낯선 외장 모니터 연결 시 자동 표시", isOn: $settings.autoKeystrokeOnUnknownMonitor)
-                    desc("회의실·강의실처럼 처음 연결하는 외장 모니터에서 자동으로 키스트로크 표시가 켜집니다. 자주 쓰는 데스크탑 모니터는 아래에서 신뢰 등록해 제외하세요.")
+                PrefSection(label: "링 효과") {
+                    Toggle("글로우 효과", isOn: $settings.isGlowEnabled)
+                    desc("링 주변에 부드러운 빛 번짐. 시각 무게 ↑, 멀리서도 인지 쉬움.")
 
-                    if settings.autoKeystrokeOnUnknownMonitor {
-                        if externalMonitors.isEmpty {
-                            Text(verbatim: "연결된 외장 모니터 없음")
-                                .font(.callout).foregroundColor(.secondary)
-                        } else {
-                            ForEach(externalMonitors) { mon in
-                                Toggle(isOn: Binding(
-                                    get: { settings.isTrustedMonitor(mon.uuid) },
-                                    set: { settings.setTrusted(mon.uuid, trusted: $0) }
-                                )) {
-                                    VStack(alignment: .leading, spacing: 1) {
-                                        Text(verbatim: mon.name)
-                                        Text(verbatim: "신뢰 — 이 모니터에서는 자동 활성화 안 함")
-                                            .font(.caption2).foregroundColor(.secondary)
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
+                    Toggle("정지 시 펄스 강조", isOn: $settings.isIdlePulseEnabled)
+                    desc("1.5초 멈추면 1회 확장 표시. \"여기 보세요\" 자연스러운 강조.")
 
-                PrefSection(label: "커서 숨김") {
-                    HStack {
-                        Text(verbatim: "대기 시간".loc).frame(width: 100, alignment: .leading)
-                        Slider(value: $settings.idleTimeout, in: 1...10, step: 0.5)
-                        Text(String(format: "%.1f초".loc, settings.idleTimeout))
-                            .monospacedDigit().frame(width: 44, alignment: .trailing)
-                    }
-                    desc("마우스를 안 움직인 후 링이 페이드 아웃되기까지 대기 시간. 발표 중엔 길게(5초+) 권장.")
+                    Toggle("커서 트레일", isOn: $settings.isTrailEnabled)
+                    desc("커서 이동 자취를 잔상으로 남김. 빠른 움직임 인식 ↑.")
                 }
 
                 PrefSection(label: "드래그 효과") {
@@ -349,54 +303,49 @@ private struct BehaviorTab: View {
                     desc("기본 오렌지 우클릭 ripple을 링 색으로 통일.")
                 }
 
-                PrefSection(label: "기타 효과") {
-                    Toggle("정지 시 펄스 강조", isOn: $settings.isIdlePulseEnabled)
-                    desc("1.5초 멈추면 1회 확장 표시. \"여기 보세요\" 자연스러운 강조.")
-
+                PrefSection(label: "스크롤") {
                     Toggle("스크롤 인디케이터", isOn: $settings.isScrollIndicatorEnabled)
                     desc("스크롤 방향 화살표(↑↓←→) + 진폭 비례 크기 표시.")
-
-                    Toggle("커서 트레일", isOn: $settings.isTrailEnabled)
-                    desc("커서 이동 자취를 잔상으로 남김. 빠른 움직임 인식 ↑.")
-
-                    Toggle("트랙패드 제스처 효과 (실험적)", isOn: $settings.isTrackpadGesturesEnabled)
-                    desc("4핀치·3/4 스와이프 등 시스템 제스처에 시각 피드백. 비공식 API라 실험적.")
                 }
 
-                PrefSection(label: "시스템") {
-                    Toggle("녹화·발표·회의 앱 활성화 시 자동 활성화", isOn: $settings.autoEnableOnRecording)
-                    desc("OBS·Zoom·Keynote 등을 켤 때 Cluxo가 자동으로 활성화됩니다.")
-
-                    Toggle("로그인 시 자동 실행", isOn: $launchAtLogin)
-                        .onChange(of: launchAtLogin) { v in settings.setLaunchAtLogin(v) }
-                    desc("Mac 로그인 후 Cluxo가 자동으로 시작됩니다.")
+                PrefSection(label: "트랙패드") {
+                    Toggle("트랙패드 제스처 효과 (실험적)", isOn: $settings.isTrackpadGesturesEnabled)
+                    desc("4핀치·3/4 스와이프 등 시스템 제스처에 시각 피드백. 비공식 API라 실험적.")
                 }
             }
             .padding(24)
         }
-        .onAppear {
-            launchAtLogin = settings.launchAtLoginEnabled
-            externalMonitors = ExternalMonitor.current()
-        }
-        .onReceive(NotificationCenter.default.publisher(for: NSApplication.didChangeScreenParametersNotification)) { _ in
-            externalMonitors = ExternalMonitor.current()
-        }
     }
 }
 
-// MARK: - Magnifier Tab
+// MARK: - Modes Tab
 
-private struct MagnifierTab: View {
+/// 기능 모드 모음 — 스포트라이트·돋보기·키스트로크. 각 모드별 활성화/세부 설정.
+/// 라디얼 메뉴·그리기·인스펙터는 별도 토글 없이 단축키만 — Shortcuts 탭에서 안내.
+private struct ModesTab: View {
     @ObservedObject var settings: CursorSettings
     @ObservedObject var runtime: CursorRuntimeState
+    @State private var externalMonitors: [ExternalMonitor] = []
 
-    private let sizeOptions: [(CGFloat, String)] = [(160,"작게"), (200,"보통"), (260,"크게"), (320,"매우 크게")]
+    private let magSizeOptions: [(CGFloat, String)] = [(160,"작게"), (200,"보통"), (260,"크게"), (320,"매우 크게")]
 
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 22) {
+                // 스포트라이트
+                PrefSection(label: "스포트라이트") {
+                    HStack {
+                        Text(verbatim: "반경".loc).frame(width: 100, alignment: .leading)
+                        Slider(value: $settings.spotlightRadius, in: 60...250, step: 10)
+                        Text("\(Int(settings.spotlightRadius))pt")
+                            .monospacedDigit().frame(width: 44, alignment: .trailing)
+                    }
+                    desc("⌃⌥S 스포트라이트가 비추는 원의 반지름. 코드 한 줄엔 작게(60~100), UI 영역엔 크게(180~220).")
+                }
+
+                // 돋보기
                 if !runtime.hasScreenRecordingPermission {
-                    PrefSection(label: "권한") {
+                    PrefSection(label: "돋보기 권한") {
                         HStack(spacing: 8) {
                             Image(systemName: "info.circle").foregroundColor(.orange)
                             Text(verbatim: "화면 녹화 권한 필요".loc)
@@ -410,7 +359,7 @@ private struct MagnifierTab: View {
                     }
                 }
 
-                PrefSection(label: "활성화") {
+                PrefSection(label: "돋보기") {
                     Toggle("돋보기 활성화", isOn: Binding(
                         get: { runtime.isMagnifierActive },
                         set: { newValue in
@@ -422,29 +371,64 @@ private struct MagnifierTab: View {
                         }
                     ))
                     desc("⌃⌥M 단축키 또는 라디얼 메뉴(⌃⌥,)로도 토글 가능. 돋보기는 커서 주변 화면을 실시간 확대합니다.")
-                }
 
-                PrefSection(label: "배율") {
-                    HStack(spacing: 8) {
+                    HStack {
+                        Text(verbatim: "배율".loc).frame(width: 100, alignment: .leading)
                         Slider(value: $settings.magnifierZoom, in: 1.5...4.0, step: 0.5)
                         Text(String(format: "%.1f×", settings.magnifierZoom))
                             .font(.system(.body, design: .monospaced))
                             .frame(width: 44, alignment: .trailing)
                     }
                     desc("확대 배율 (1.5× ~ 4.0×). 발표 중 ⌃⌥= / ⌃⌥- 단축키로 0.5 step 빠르게 조절 가능.")
-                }
 
-                PrefSection(label: "렌즈 크기") {
-                    Picker("크기", selection: $settings.magnifierSize) {
-                        ForEach(sizeOptions, id: \.0) { size, label in
+                    Picker("렌즈 크기", selection: $settings.magnifierSize) {
+                        ForEach(magSizeOptions, id: \.0) { size, label in
                             Text(verbatim: label.loc).tag(size)
                         }
                     }
-                    .pickerStyle(.segmented).labelsHidden()
+                    .pickerStyle(.segmented)
                     desc("렌즈(원/링)의 직경. 코드 한 줄 강조엔 작게, 영역 강조엔 크게 권장.")
+                }
+
+                // 키스트로크
+                PrefSection(label: "키스트로크") {
+                    HStack {
+                        Text(verbatim: "표시 시간".loc).frame(width: 100, alignment: .leading)
+                        Slider(value: $settings.keystrokeTimeout, in: 1...8, step: 0.5)
+                        Text(String(format: "%.1f초".loc, settings.keystrokeTimeout))
+                            .monospacedDigit().frame(width: 44, alignment: .trailing)
+                    }
+                    desc("키 입력 후 화면 하단 오버레이에 표시되는 시간. 빠른 시연엔 1~2초, 천천히 보여주는 발표엔 3~5초 권장.")
+
+                    Toggle("낯선 외장 모니터 연결 시 자동 표시", isOn: $settings.autoKeystrokeOnUnknownMonitor)
+                    desc("회의실·강의실처럼 처음 연결하는 외장 모니터에서 자동으로 키스트로크 표시가 켜집니다. 자주 쓰는 데스크탑 모니터는 아래에서 신뢰 등록해 제외하세요.")
+
+                    if settings.autoKeystrokeOnUnknownMonitor {
+                        if externalMonitors.isEmpty {
+                            Text(verbatim: "연결된 외장 모니터 없음".loc)
+                                .font(.callout).foregroundColor(.secondary)
+                        } else {
+                            ForEach(externalMonitors) { mon in
+                                Toggle(isOn: Binding(
+                                    get: { settings.isTrustedMonitor(mon.uuid) },
+                                    set: { settings.setTrusted(mon.uuid, trusted: $0) }
+                                )) {
+                                    VStack(alignment: .leading, spacing: 1) {
+                                        Text(verbatim: mon.name)
+                                        Text(verbatim: "신뢰 — 이 모니터에서는 자동 활성화 안 함".loc)
+                                            .font(.caption2).foregroundColor(.secondary)
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
             .padding(24)
+        }
+        .onAppear { externalMonitors = ExternalMonitor.current() }
+        .onReceive(NotificationCenter.default.publisher(for: NSApplication.didChangeScreenParametersNotification)) { _ in
+            externalMonitors = ExternalMonitor.current()
         }
     }
 }
@@ -539,8 +523,11 @@ private struct ShortcutsTab: View {
 
 // MARK: - Info Tab
 
-private struct InfoTab: View {
+// MARK: - General Tab
+
+private struct GeneralTab: View {
     @ObservedObject var settings: CursorSettings
+    @State private var launchAtLogin: Bool = false
     @State private var updateMessage: String = ""
     @State private var checking: Bool = false
     @State private var newerVersion: String? = nil   // 최신 release tag (예: "0.1.2"). nil이면 업데이트 없음.
@@ -575,6 +562,34 @@ private struct InfoTab: View {
             }
             .onChange(of: settings.preferredLanguage) { _ in
                 promptRestartForLanguageChange()
+            }
+
+            Section("시작") {
+                Toggle("로그인 시 자동 실행", isOn: $launchAtLogin)
+                    .onChange(of: launchAtLogin) { v in settings.setLaunchAtLogin(v) }
+                Toggle("녹화·발표·회의 앱 활성화 시 자동 활성화", isOn: $settings.autoEnableOnRecording)
+                Text("Mac 로그인 후 자동 시작, 또는 OBS·Zoom·Keynote 등을 켤 때 Cluxo가 자동으로 활성화됩니다.")
+                    .font(.callout).foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+
+            Section("커서") {
+                HStack {
+                    Text(verbatim: "숨김 대기".loc).frame(width: 100, alignment: .leading)
+                    Slider(value: $settings.idleTimeout, in: 1...10, step: 0.5)
+                    Text(String(format: "%.1f초".loc, settings.idleTimeout))
+                        .monospacedDigit().frame(width: 44, alignment: .trailing)
+                }
+                Text("마우스를 안 움직인 후 링이 페이드 아웃되기까지 대기 시간. 발표 중엔 길게(5초+) 권장.")
+                    .font(.callout).foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+
+            Section("스크린샷 모드") {
+                Toggle("외부 캡처 허용 (앱 재시작 시 자동 OFF)", isOn: $settings.isScreenshotMode)
+                Text("평소엔 자체 돋보기가 자기 overlay를 재캡처하지 않게 외부 캡처에서 제외되지만, 발표 자료/데모 GIF 만들 땐 이 토글로 외부 screencapture·OBS에 잡히게 풀어줍니다.")
+                    .font(.callout).foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
             }
 
             Section("앱 정보") {
@@ -641,6 +656,9 @@ private struct InfoTab: View {
         }
         .formStyle(.grouped)
         .padding(.horizontal)
+        .onAppear {
+            launchAtLogin = settings.launchAtLoginEnabled
+        }
     }
 
     /// GitHub Releases API에서 latest tag 조회 후 appVersion과 비교.
