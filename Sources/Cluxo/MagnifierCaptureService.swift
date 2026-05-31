@@ -130,7 +130,7 @@ final class MagnifierCaptureService {
             config.width = display.width * Int(self.captureScreenScale)
             config.height = display.height * Int(self.captureScreenScale)
             config.pixelFormat = kCVPixelFormatType_32BGRA
-            config.minimumFrameInterval = CMTime(value: 1, timescale: 20)
+            config.minimumFrameInterval = CMTime(value: 1, timescale: 60)  // 60fps — 렌즈/이미지 갱신을 부드럽게(떨림 감소)
             config.queueDepth = 5
             // 캡처에서 시스템 커서 제외 — 렌즈는 cursor 위치 중심 crop이라 렌즈 정중앙 = cursor 지점이고,
             // 실제 시스템 커서가 렌즈 위(OS 최상단)에 그대로 떠 그 지점을 가리킨다. showsCursor=true면
@@ -188,6 +188,8 @@ final class MagnifierCaptureService {
 
             let zoom = settings.magnifierZoom
             let captureSizePx = (settings.magnifierSize / zoom) * scale
+            // 서브픽셀 crop 허용 — 정수 정렬(.integral)하면 cursor가 픽셀 경계를 넘을 때 crop이 1px씩
+            // 점프하고 zoom배로 확대돼 떨림으로 보인다. CIImage 보간이 부드럽게 처리한다.
             let cropRect = CGRect(
                 x: localX * scale - captureSizePx / 2,
                 y: localY * scale - captureSizePx / 2,
@@ -197,9 +199,31 @@ final class MagnifierCaptureService {
 
             let cropped = ciImage.cropped(to: cropRect)
             let extent = cropped.extent
-            guard !extent.isNull, !extent.isEmpty, !extent.isInfinite else { return }
-            guard let cgImage = self.ciContext.createCGImage(cropped, from: extent) else { return }
+            guard !extent.isNull, !extent.isEmpty, !extent.isInfinite, extent.width > 0 else { return }
+
+            // 화질 개선 파이프라인:
+            //  1) 표시 해상도(magnifierSize × scale)까지 Lanczos로 고품질 업스케일 — SwiftUI 기본
+            //     bilinear 업스케일보다 가장자리가 선명. (소스 픽셀 한계는 못 넘지만 blur는 줄어든다.)
+            //  2) 가벼운 sharpen으로 확대로 뭉개진 윤곽을 또렷하게.
+            let targetPx = settings.magnifierSize * scale
+            var output = cropped
+            let upscale = targetPx / extent.width
+            if upscale > 1.01 {
+                output = output.applyingFilter("CILanczosScaleTransform", parameters: [
+                    kCIInputScaleKey: upscale,
+                    kCIInputAspectRatioKey: 1.0,
+                ])
+            }
+            output = output.applyingFilter("CISharpenLuminance", parameters: [
+                kCIInputSharpnessKey: 0.4,
+            ])
+
+            let outExtent = output.extent
+            guard !outExtent.isNull, !outExtent.isEmpty, !outExtent.isInfinite else { return }
+            guard let cgImage = self.ciContext.createCGImage(output, from: outExtent) else { return }
+            // 이미지와 렌즈 위치를 함께 갱신 — 같은 시점의 cursor 좌표라 렌즈 안에서 내용이 밀리지 않는다.
             runtime.magnifierImage = cgImage
+            runtime.magnifierImageCenter = globalPos
         }
     }
 }

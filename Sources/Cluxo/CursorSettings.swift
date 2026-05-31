@@ -22,6 +22,7 @@ final class CursorSettings: ObservableObject {
     @Persisted("spotlightKeyCode", default: UInt16(1)) var spotlightKeyCode: UInt16
     @Persisted("keystrokeKeyCode", default: UInt16(40)) var keystrokeShortcutKeyCode: UInt16
     @Persisted("spotlightRadius", default: CGFloat(130), debounce: 0.3) var spotlightRadius: CGFloat
+    @Persisted("spotlightEdgeSoftness", default: CGFloat(0.4), debounce: 0.3) var spotlightEdgeSoftness: CGFloat  // 0=선명한 경계, 1=매우 부드러운 feather
     @Persisted("idleTimeout", default: 3.0, debounce: 0.3) var idleTimeout: TimeInterval
     @Persisted("scrollIndicator", default: true) var isScrollIndicatorEnabled: Bool
     @Persisted("rightClickUsesRingColor", default: false) var rightClickUsesRingColor: Bool
@@ -49,6 +50,8 @@ final class CursorSettings: ObservableObject {
     @Persisted("isDragAngleLabelEnabled", default: false) var isDragAngleLabelEnabled: Bool  // 드래그 중 각도 표시 (도면용 — default off)
     @Persisted("isIdlePulseEnabled", default: true) var isIdlePulseEnabled: Bool  // 1.5초 정지 시 1회 펄스 — "여기 보세요" 자연스러운 강조
     @Persisted("isTrackpadGesturesEnabled", default: false) var isTrackpadGesturesEnabled: Bool  // 4핀치/3·4 swipe 효과 — 비공식 API(MultitouchSupport), default off
+    @Persisted("isShakeEnabled", default: true) var isShakeEnabled: Bool  // 마우스 흔들어서 강조 (퍼지는 링) — "커서 어디 갔지?" 찾기용, default on
+    @Persisted("shakeSensitivity", default: ShakeSensitivity.normal) var shakeSensitivity: ShakeSensitivity  // 흔들기 감지 민감도 (방향 전환 횟수)
 
     // 앱 UI 언어 강제 — .system이면 macOS 시스템 언어 따름.
     // 실제 적용은 main.swift에서 NSApplication 생성 전 AppleLanguages override.
@@ -198,7 +201,7 @@ final class CursorSettings: ObservableObject {
             case .spotlight: return "스포트라이트".loc
             case .magnifier: return "돋보기".loc
             case .glow:      return "효과".loc
-            case .ringSize:  return "링 크기".loc
+            case .ringSize:  return "링 외형".loc
             case .color:     return "링 색".loc
             case .ringShape: return "링 모양".loc
             case .inspector: return "좌표/각도".loc
@@ -235,15 +238,9 @@ final class CursorSettings: ObservableObject {
         func isSubCurrent(at i: Int, settings: CursorSettings, runtime: CursorRuntimeState) -> Bool {
             switch self {
             case .spotlight:
-                if i == 0 { return runtime.isSpotlightActive }
-                let radii: [CGFloat] = [60, 100, 140, 180, 220]
-                guard i - 1 < radii.count else { return false }
-                return abs(settings.spotlightRadius - radii[i - 1]) < 0.5
+                return i == 0 ? runtime.isSpotlightActive : false   // sub 1·2는 branch(자식 강조는 isSubSubCurrent)
             case .magnifier:
-                if i == 0 { return runtime.isMagnifierActive }
-                let zooms: [Double] = [1.5, 2, 2.5, 3, 4]
-                guard i - 1 < zooms.count else { return false }
-                return abs(settings.magnifierZoom - zooms[i - 1]) < 0.05
+                return i == 0 ? runtime.isMagnifierActive : false
             case .glow:
                 switch i {
                 case 0: return settings.isGlowEnabled
@@ -253,8 +250,7 @@ final class CursorSettings: ObservableObject {
                 default: return false
                 }
             case .ringSize:
-                let cases = RingSize.allCases
-                return i < cases.count && cases[i] == settings.ringSize
+                return false   // 전부 branch(크기/투명도/두께/스타일) — 자식 강조는 isSubSubCurrent
             case .color:
                 let cases = RingColor.allCases.filter { $0 != .custom }
                 return i < cases.count && cases[i] == settings.ringColor
@@ -275,39 +271,112 @@ final class CursorSettings: ObservableObject {
             }
         }
 
-        /// 서브 fan이 차지하는 각도(°). 4개 이하면 메인 sector 영역(45°) 그대로,
-        /// 5개부터는 항목당 +12° 확장(최대 120°)해 라벨 겹침 방지 — 옆 sector 침범하지만
-        /// 활성 sector만 서브 표시라 시각 충돌 없음.
+        // branch sub의 자식 값들 — 데이터(children 라벨)·isSubSubCurrent·실행이 공유.
+        static let spotlightRadii: [CGFloat] = [60, 100, 140, 180, 220]
+        static let spotlightSoftnesses: [CGFloat] = [0, 0.4, 0.8]   // 또렷/보통/부드럽게
+        static let magnifierZooms: [Double] = [1.5, 2, 2.5, 3, 4]
+        static let magnifierSizes: [CGFloat] = [160, 200, 260, 320] // 작게/보통/크게/매우 크게
+        static let ringOpacities: [Double] = [1.0, 0.8, 0.6, 0.4, 0.2]  // 100/80/60/40/20%
+
+        /// branch sub의 자식 j가 현재 설정과 일치하는가 — subSub fan 강조용.
+        @MainActor
+        func isSubSubCurrent(sub: Int, subSub j: Int, settings: CursorSettings, runtime: CursorRuntimeState) -> Bool {
+            switch self {
+            case .spotlight:
+                if sub == 1 { return j < Self.spotlightRadii.count && abs(settings.spotlightRadius - Self.spotlightRadii[j]) < 0.5 }
+                if sub == 2 { return j < Self.spotlightSoftnesses.count && abs(settings.spotlightEdgeSoftness - Self.spotlightSoftnesses[j]) < 0.05 }
+                return false
+            case .magnifier:
+                if sub == 1 { return j < Self.magnifierZooms.count && abs(settings.magnifierZoom - Self.magnifierZooms[j]) < 0.05 }
+                if sub == 2 { return j < Self.magnifierSizes.count && abs(settings.magnifierSize - Self.magnifierSizes[j]) < 0.5 }
+                return false
+            case .ringSize:   // 링 외형: 크기/투명도/두께/스타일
+                switch sub {
+                case 0: let c = RingSize.allCases; return j < c.count && c[j] == settings.ringSize
+                case 1: return j < Self.ringOpacities.count && abs(settings.ringOpacity - Self.ringOpacities[j]) < 0.025
+                case 2: let c = BorderWeight.allCases; return j < c.count && c[j] == settings.borderWeight
+                case 3: let c = BorderStyle.allCases; return j < c.count && c[j] == settings.borderStyle
+                default: return false
+                }
+            default: return false
+            }
+        }
+
+        /// 서브 fan 각도(°) — 항목 개수가 아니라 **라벨 내용 폭**에 맞춘다. 긴 라벨("매우 크게"/"Extra Large")이면
+        /// 적은 개수라도 넓혀 라벨이 붙지 않게. 옆 sector 침범하지만 활성 sector만 표시라 시각 충돌 없음.
+        /// 렌더(이 값)와 hittest(주입)가 같은 함수를 쓰도록 RadialMenuItem이 단일 source.
         var subSpan: Double {
-            let n = subCount
-            return n <= 4 ? 45.0 : min(120.0, 45.0 + Double(n - 4) * 12.0)
+            Self.contentSpan(labels: subItems.map(\.label),
+                             radius: (Tokens.Radial.mainOuter + Tokens.Radial.subOuter) / 2)
+        }
+
+        /// branch sub의 자식 fan 각도 — 자식 라벨 내용 기반.
+        func subSubSpan(of subIndex: Int) -> Double {
+            guard subIndex < subItems.count, let kids = subItems[subIndex].children, !kids.isEmpty else { return 0 }
+            return Self.contentSpan(labels: kids.map(\.label),
+                                    radius: (Tokens.Radial.subOuter + Tokens.Radial.subSubOuter) / 2)
+        }
+
+        /// 라벨 폭(추정) × 개수를 반경에서 각도로 환산한 fan span. 각 항목이 자기 라벨을 담을 호 길이를
+        /// 갖도록 — maxWidth 기준 균등 분할. 50°~150° clamp.
+        static func contentSpan(labels: [String], radius: CGFloat) -> Double {
+            let n = labels.count
+            guard n > 0, radius > 1 else { return 50 }
+            let maxW = labels.map(estLabelWidth).max() ?? 20
+            let perItemDeg = (maxW + 14) / Double(radius) * 180 / .pi   // 호 길이(라벨폭+gap) → 각도
+            return min(150, max(50, perItemDeg * Double(n)))
+        }
+
+        /// 라벨 폭 추정(pt) — CJK(한글 등)는 wide(~12pt), 그 외(숫자·영문)는 narrow(~7pt). branch ▸ 여유 포함은 gap에서 흡수.
+        static func estLabelWidth(_ s: String) -> Double {
+            s.unicodeScalars.reduce(0) { acc, u in
+                let v = u.value
+                let wide = (0xAC00...0xD7A3).contains(v) || (0x3000...0x9FFF).contains(v) || (0xFF00...0xFFEF).contains(v)
+                return acc + (wide ? 12.0 : 7.0)
+            }
         }
 
         /// 서브 항목 — 아이콘(optional SF Symbol)이 있으면 라벨 앞에 렌더링.
         /// 값 선택형 sub(spotlight/magnifier/ringSize/color/ringShape/keystroke)는 icon=nil — 순수 텍스트.
         /// 카테고리형 sub(glow 효과 4종, inspector 좌표/각도 2종)은 SF Symbol로 시각 단서 제공.
+        ///
+        /// children이 있으면 branch(2단계) — 클릭 대신 더 바깥으로 drag하면 자식 값들이 3번째 ring에
+        /// fan으로 펼쳐진다. nil/빈 배열이면 leaf로, 클릭 시 즉시 액션(기존 1단계 동작).
         struct SubItem {
             let icon: String?
             let label: String
+            let children: [SubItem]?
+            var isBranch: Bool { children?.isEmpty == false }
+
+            init(icon: String? = nil, label: String, children: [SubItem]? = nil) {
+                self.icon = icon
+                self.label = label
+                self.children = children
+            }
         }
 
         var subItems: [SubItem] {
             switch self {
             case .spotlight: return [
-                SubItem(icon: nil, label: "토글".loc),
-                SubItem(icon: nil, label: "60pt"),
-                SubItem(icon: nil, label: "100pt"),
-                SubItem(icon: nil, label: "140pt"),
-                SubItem(icon: nil, label: "180pt"),
-                SubItem(icon: nil, label: "220pt"),
+                SubItem(label: "토글".loc),   // leaf — 클릭 즉시 토글
+                SubItem(label: "반경".loc, children: [
+                    SubItem(label: "60pt"), SubItem(label: "100pt"), SubItem(label: "140pt"),
+                    SubItem(label: "180pt"), SubItem(label: "220pt"),
+                ]),
+                SubItem(label: "경계".loc, children: [
+                    SubItem(label: "또렷".loc), SubItem(label: "보통".loc), SubItem(label: "부드럽게".loc),
+                ]),
             ]
             case .magnifier: return [
-                SubItem(icon: nil, label: "토글".loc),
-                SubItem(icon: nil, label: "1.5×"),
-                SubItem(icon: nil, label: "2×"),
-                SubItem(icon: nil, label: "2.5×"),
-                SubItem(icon: nil, label: "3×"),
-                SubItem(icon: nil, label: "4×"),
+                SubItem(label: "토글".loc),
+                SubItem(label: "배율".loc, children: [
+                    SubItem(label: "1.5×"), SubItem(label: "2×"), SubItem(label: "2.5×"),
+                    SubItem(label: "3×"), SubItem(label: "4×"),
+                ]),
+                SubItem(label: "크기".loc, children: [
+                    SubItem(label: "작게".loc), SubItem(label: "보통".loc),
+                    SubItem(label: "크게".loc), SubItem(label: "매우 크게".loc),
+                ]),
             ]
             case .glow: return [
                 SubItem(icon: "lightbulb.fill", label: "글로우".loc),
@@ -315,7 +384,12 @@ final class CursorSettings: ObservableObject {
                 SubItem(icon: "target",         label: "정지펄스".loc),
                 SubItem(icon: "sparkle",        label: "코멧".loc),
             ]
-            case .ringSize:  return RingSize.allCases.map { SubItem(icon: nil, label: $0.label) }
+            case .ringSize: return [   // "링 외형" — 4개 branch
+                SubItem(label: "크기".loc, children: RingSize.allCases.map { SubItem(label: $0.label) }),
+                SubItem(label: "투명도".loc, children: Self.ringOpacities.map { SubItem(label: "\(Int($0 * 100))%") }),
+                SubItem(label: "두께".loc, children: BorderWeight.allCases.map { SubItem(label: $0.label) }),
+                SubItem(label: "스타일".loc, children: BorderStyle.allCases.map { SubItem(label: $0.label) }),
+            ]
             case .color:     return RingColor.allCases.filter { $0 != .custom }.map { SubItem(icon: nil, label: $0.label) }
             case .ringShape: return RingShape.allCases.map { SubItem(icon: nil, label: $0.label) }
             case .inspector: return [
@@ -334,13 +408,14 @@ final class CursorSettings: ObservableObject {
     }
 
     enum RingShape: String, CaseIterable, Identifiable {
-        case circle, squircle, rhombus
+        case circle, squircle, rhombus, hexagon
         var id: String { rawValue }
         var label: String {
             switch self {
             case .circle:   return "원형".loc
             case .squircle: return "둥근 사각형".loc
-            case .rhombus:  return "마름모".loc
+            case .rhombus:  return "둥근 마름모".loc
+            case .hexagon:  return "둥근 육각형".loc
             }
         }
     }
@@ -383,6 +458,28 @@ final class CursorSettings: ObservableObject {
             case .slow:   return "느리게".loc
             case .normal: return "보통".loc
             case .fast:   return "빠르게".loc
+            }
+        }
+    }
+
+    /// 흔들기 감지 민감도 — 방향 전환 횟수로 매핑. 적을수록 살짝 흔들어도 발동(민감), 많을수록 둔감.
+    enum ShakeSensitivity: String, CaseIterable, Identifiable {
+        case sensitive, normal, insensitive
+        var id: String { rawValue }
+
+        /// 감지에 필요한 0.5초 내 방향 전환 횟수.
+        var requiredDirChanges: Int {
+            switch self {
+            case .sensitive:   return 3
+            case .normal:      return 5
+            case .insensitive: return 8
+            }
+        }
+        var label: String {
+            switch self {
+            case .sensitive:   return "민감".loc
+            case .normal:      return "보통".loc
+            case .insensitive: return "둔감".loc
             }
         }
     }

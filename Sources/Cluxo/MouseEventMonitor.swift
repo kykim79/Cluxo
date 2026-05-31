@@ -39,6 +39,11 @@ class MouseEventMonitor {
     // 흔들기 감지 — 알고리즘은 ShakeState.swift에 추출(테스트 가능).
     private var shakeState = ShakeState()
 
+    /// 흔들기 감지 민감도(방향 전환 횟수) — AppDelegate가 설정값으로 주입. 적을수록 민감.
+    var shakeRequiredDirChanges: Int = 5 {
+        didSet { shakeState.requiredDirChanges = shakeRequiredDirChanges }
+    }
+
     // 스크롤 디바운스
     private var lastScrollTime: TimeInterval = 0
     private var lastScrollKey: String = ""

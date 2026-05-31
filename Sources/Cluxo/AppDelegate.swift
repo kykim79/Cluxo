@@ -113,6 +113,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     // 트랙패드 제스처 (실험적, 비공식 API) — 토글 변화 구독.
     private var trackpadGestureCancellable: AnyCancellable?
     private var autoKeystrokeCancellable: AnyCancellable?
+    private var shakeSensitivityCancellable: AnyCancellable?
 
     // 가장 최근 트랙패드 swipe 발생 시점 (gesture detect 시점, fire 시점 아님).
     // polling이 자기 firedAt < latestSwipeFiredAt이면 stale (=더 새 swipe 이미 있음) → skip.
@@ -300,6 +301,14 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         autoKeystrokeCancellable = settings.objectWillChange
             .receive(on: RunLoop.main)
             .sink { [weak self] in self?.evaluateAutoKeystroke() }
+
+        // 흔들기 민감도 변경 시 monitor에 즉시 반영 (같은 세션에서 환경설정으로 바꿔도 적용).
+        shakeSensitivityCancellable = settings.objectWillChange
+            .receive(on: RunLoop.main)
+            .sink { [weak self] in
+                guard let self else { return }
+                self.monitor?.shakeRequiredDirChanges = self.settings.shakeSensitivity.requiredDirChanges
+            }
 
         // 레이저 포인터 활성 시 시스템 cursor 숨김 — 빨간 점만 보이게(자연스러운 레이저 느낌).
         // CGDisplayHideCursor는 "active context"를 가진 앱이 호출해야 시스템이 적용한다(Apple docs).
@@ -590,43 +599,37 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         if runtime.isRadialMenuActive {
             let dx = pos.x - runtime.radialMenuCenter.x
             let dy = pos.y - runtime.radialMenuCenter.y
-            let dist = sqrt(dx*dx + dy*dy)
-            let newSector: Int?
-            var newSubItem: Int? = nil
-            if dist < Tokens.Radial.deadRadius {
-                newSector = nil
-            } else if dist > Tokens.Radial.subOuter {
-                // 메뉴 바깥(서브 ring 너머) — 어떤 sub도 선택되지 않은 상태. 그 자리 클릭은 무효.
-                newSector = nil
-            } else {
-                let atan2Deg = atan2(dy, dx) * 180 / .pi
-                let cwFromTop = (90 - atan2Deg + 720).truncatingRemainder(dividingBy: 360)
-                if dist < Tokens.Radial.mainOuter {
-                    // 메인 영역 — sector를 angle로 자유 결정 (옆으로 가면 그쪽 sector로 전환).
-                    newSector = Int((cwFromTop + 22.5) / 45) % 8
-                } else {
-                    // 서브 영역 — 활성 sector "잠금". 이미 sector가 선택돼 있으면 그대로, 첫 진입이면 angle로.
-                    let lockedSec = runtime.radialMenuSelectedSector ?? Int((cwFromTop + 22.5) / 45) % 8
-                    newSector = lockedSec
-                    if let item = CursorSettings.RadialMenuItem(rawValue: lockedSec), item.subCount > 0 {
-                        let mainAngle = Double(lockedSec) * 45
-                        let subSpan = item.subSpan
-                        let step = subSpan / Double(item.subCount)
-                        // cwFromTop이 활성 sector 중심에서 벗어난 정도 (-180~+180으로 wrap)
-                        var diff = cwFromTop - mainAngle
-                        if diff > 180  { diff -= 360 }
-                        if diff < -180 { diff += 360 }
-                        let relAngle = diff + subSpan/2  // 0~subSpan 정규화
-                        let clamped = max(0, min(subSpan - 0.001, relAngle))
-                        newSubItem = Int(clamped / step)
-                    }
-                }
+            // 거리→sector/sub/subSub 분류는 순수 함수 RadialHitTest로 분리(테스트 가능). 트리 모양만 클로저로 주입.
+            let hit = RadialHitTest.classify(
+                dx: dx, dy: dy,
+                lockedSector: runtime.radialMenuSelectedSector,
+                lockedSub: runtime.radialMenuSelectedSubItem,
+                rings: RadialHitTest.Rings(dead: Tokens.Radial.deadRadius,
+                                           main: Tokens.Radial.mainOuter,
+                                           sub: Tokens.Radial.subOuter,
+                                           subSub: Tokens.Radial.subSubOuter),
+                subCountOf: { CursorSettings.RadialMenuItem(rawValue: $0)?.subCount ?? 0 },
+                subSpanOf: { CursorSettings.RadialMenuItem(rawValue: $0)?.subSpan ?? 50 },
+                isBranch: { sec, sub in
+                    guard let item = CursorSettings.RadialMenuItem(rawValue: sec) else { return false }
+                    let items = item.subItems
+                    return sub < items.count && items[sub].isBranch
+                },
+                subSubCountOf: { sec, sub in
+                    guard let item = CursorSettings.RadialMenuItem(rawValue: sec) else { return 0 }
+                    let items = item.subItems
+                    return sub < items.count ? (items[sub].children?.count ?? 0) : 0
+                },
+                subSubSpanOf: { sec, sub in CursorSettings.RadialMenuItem(rawValue: sec)?.subSubSpan(of: sub) ?? 50 }
+            )
+            if runtime.radialMenuSelectedSector != hit.sector {
+                runtime.radialMenuSelectedSector = hit.sector
             }
-            if runtime.radialMenuSelectedSector != newSector {
-                runtime.radialMenuSelectedSector = newSector
+            if runtime.radialMenuSelectedSubItem != hit.sub {
+                runtime.radialMenuSelectedSubItem = hit.sub
             }
-            if runtime.radialMenuSelectedSubItem != newSubItem {
-                runtime.radialMenuSelectedSubItem = newSubItem
+            if runtime.radialMenuSelectedSubSubItem != hit.subSub {
+                runtime.radialMenuSelectedSubSubItem = hit.subSub
             }
         }
 
@@ -691,6 +694,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private func startEventMonitoring() {
         if monitor == nil {
             monitor = MouseEventMonitor()
+            monitor?.shakeRequiredDirChanges = settings.shakeSensitivity.requiredDirChanges
 
             monitor?.onMouseMove = { [weak self] pos in
                 self?.handleMouseMove(pos)
@@ -789,6 +793,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             }
             monitor?.onShake = { [weak self] _ in
                 guard let self else { return }
+                guard self.settings.isShakeEnabled else { return }
                 self.lastMoveTime = Date()
                 self.runtime.isCursorVisible = true
                 self.effects.triggerShake(at: self.runtime.cursorPosition, animationSpeed: self.settings.animationSpeed.multiplier)

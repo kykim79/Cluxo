@@ -2984,6 +2984,182 @@
           }
         }
       }
+    },
+    "흔들어서 강조": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Shake to highlight"
+          }
+        }
+      }
+    },
+    "마우스를 빠르게 여러 번 흔들면 커서 위치에 퍼지는 링 표시. 커서를 놓쳤을 때 찾기 좋음.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quickly shake the mouse several times to show expanding rings at the cursor — handy when you lose track of the cursor."
+          }
+        }
+      }
+    },
+    "민감": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sensitive"
+          }
+        }
+      }
+    },
+    "둔감": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Insensitive"
+          }
+        }
+      }
+    },
+    "흔들기 민감도": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Shake sensitivity"
+          }
+        }
+      }
+    },
+    "민감하면 살짝 흔들어도 발동, 둔감하면 여러 번 빠르게 흔들어야 발동. 오발동이 잦으면 둔감 쪽으로.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sensitive triggers on a small shake; Insensitive requires several fast shakes. Move toward Insensitive if it triggers by accident."
+          }
+        }
+      }
+    },
+    "둥근 마름모": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rounded Diamond"
+          }
+        }
+      }
+    },
+    "둥근 육각형": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rounded Hexagon"
+          }
+        }
+      }
+    },
+    "경계 부드럽게": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Edge softness"
+          }
+        }
+      }
+    },
+    "경계의 부드러움. 0%는 또렷한 원, 100%는 중심부터 서서히 사라지는 깃털 같은 가장자리.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "How soft the edge is. 0% is a crisp circle; 100% fades from the center outward like a feathered edge."
+          }
+        }
+      }
+    },
+    "경계": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Edge"
+          }
+        }
+      }
+    },
+    "또렷": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sharp"
+          }
+        }
+      }
+    },
+    "부드럽게": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Soft"
+          }
+        }
+      }
+    },
+    "스포트라이트 경계": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spotlight Edge"
+          }
+        }
+      }
+    },
+    "돋보기 크기": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Magnifier Size"
+          }
+        }
+      }
+    },
+    "링 외형": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ring Look"
+          }
+        }
+      }
     }
   }
 }

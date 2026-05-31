@@ -4,6 +4,30 @@
 
 ## [Unreleased]
 
+## [1.2.0] — 2026-06-01
+
+### Added
+
+- **라디얼 메뉴 2단계(계층) 확장** — 환경설정 수준의 외형 설정을 라디얼에서도 조절. sub가 leaf면 클릭으로 즉시(1단계), branch면 더 바깥으로 drag하면 3번째 ring에 값이 펼쳐진다(2단계).
+  - 스포트라이트: 반경(60~220pt) / 경계 부드럽게(또렷·보통·부드럽게)
+  - 돋보기: 배율(1.5~4×) / 렌즈 크기(160~320pt)
+  - 링 외형: 크기 / 투명도(100~20%) / 테두리 두께 / 테두리 스타일
+  - 거리→sector/sub/subSub 분류를 순수 함수 `RadialHitTest`로 분리(`RadialHitTestTests`). fan 각도는 항목 수가 아니라 **라벨 내용 폭** 기반으로 계산해 긴 라벨도 안 붙음. branch는 바깥 방향 chevron으로 "더 drag" 암시.
+- **스포트라이트 경계 부드럽게(feather) 옵션** — 또렷한 원부터 깃털 같은 가장자리까지 슬라이더(환경설정)·라디얼로 조절. `spotlightEdgeSoftness`.
+- **흔들기 강조 on/off 토글 + 민감도 설정** — 환경설정 Effects 탭에서 끄거나 민감/보통/둔감 선택. `isShakeEnabled`/`shakeSensitivity`.
+- **링 모양 "둥근 육각형"** 추가, 마름모는 **둥근 마름모**로 변경 (공통 `roundedPolygonPath` 헬퍼).
+
+### Changed
+
+- **스포트라이트 ON/OFF가 Mousepose 스타일로** — 갑자기 나타나지 않고 dim이 서서히 어두워지며 원이 확장/수축(fade + scale). `Tokens.Motion.easeLong`. (Canvas의 withAnimation 보간 한계로 Timer 구동 `@State` 사용.)
+- **라디얼 메뉴 컴팩트화** — 메인 wedge는 아이콘만 표시하고 라벨은 중심 컨텍스트로 이동, 거리 토큰 축소(반경 ~236pt). sub 영역은 sector 선택 시에만 표시(미리 안 그림).
+- **흔들기 감지 둔감화** — 일반 이동 오발동을 줄이게 0.5초 내 방향 전환 **5회** 요구(기존 3회). 속도 임계는 유지(흔들기는 닿게).
+
+### Fixed
+
+- **돋보기 화질 흐림** — crop을 CILanczos로 표시 해상도까지 업스케일 + 가벼운 sharpen, `Image` scale을 실제 이미지 기준으로 정확히 + `.interpolation(.high)`.
+- **돋보기 이동 시 떨림** — 렌즈 위치를 이미지 캡처 시점 좌표(`magnifierImageCenter`)와 동기화하고 캡처 60fps로 — 렌즈(60Hz)와 내용(캡처 fps) 불일치로 밀리던 문제 해결. crop 정수 정렬(.integral)은 떨림 유발이라 제거.
+
 ## [1.1.4] — 2026-05-31
 
 ### Fixed

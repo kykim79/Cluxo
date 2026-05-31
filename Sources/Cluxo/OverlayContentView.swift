@@ -15,11 +15,11 @@ struct OverlayContentView: View {
 
     var body: some View {
         ZStack {
-            // 스포트라이트
-            if runtime.isSpotlightActive {
-                if cursorOnScreen { SpotlightView(position: localPos, radius: settings.spotlightRadius, ringShape: settings.ringShape) }
-                else              { Tokens.Surface.dim }
-            }
+            // 스포트라이트 — Mousepose 스타일. 항상 마운트하고 isActive로 dim 밝기·반경을 함께 보간:
+            // 켤 때 서서히 어두워지며 원이 확장, 끌 때 서서히 밝아지며 수축. (끌 때 애니를 보려면 항상 마운트)
+            SpotlightView(position: localPos, radius: settings.spotlightRadius,
+                          isActive: runtime.isSpotlightActive, cursorOnScreen: cursorOnScreen,
+                          edgeSoftness: settings.spotlightEdgeSoftness)
 
             // 커서 트레일 — 좌표 변환은 TrailView 내부에서 (body 재계산 시 매번 filter+map 회피)
             if settings.isTrailEnabled && !effects.trailPoints.isEmpty {
@@ -151,7 +151,8 @@ struct OverlayContentView: View {
             // 돋보기
             if runtime.isMagnifierActive && cursorOnScreen {
                 MagnifierView(
-                    position: localPos,
+                    // 렌즈를 이미지 캡처 시점 좌표에 그려 내용과 동기화(떨림 방지). 첫 프레임 전엔 cursor 위치.
+                    position: toLocal(runtime.magnifierImage != nil ? runtime.magnifierImageCenter : runtime.cursorPosition),
                     image: runtime.magnifierImage,
                     size: settings.magnifierSize,
                     color: effectiveColor,
@@ -169,12 +170,23 @@ struct OverlayContentView: View {
                         (0..<item.subCount).map { item.isSubCurrent(at: $0, settings: settings, runtime: runtime) }
                     }
                 }
+                // 활성 branch sub의 자식 강조 상태
+                let subSubActiveStates: [Bool]? = {
+                    guard let sec = runtime.radialMenuSelectedSector,
+                          let sub = runtime.radialMenuSelectedSubItem,
+                          let item = CursorSettings.RadialMenuItem(rawValue: sec),
+                          sub < item.subItems.count,
+                          let kids = item.subItems[sub].children else { return nil }
+                    return (0..<kids.count).map { item.isSubSubCurrent(sub: sub, subSub: $0, settings: settings, runtime: runtime) }
+                }()
                 RadialMenuView(
                     center: toLocal(runtime.radialMenuCenter),
                     selectedSector: runtime.radialMenuSelectedSector,
                     selectedSubItem: runtime.radialMenuSelectedSubItem,
+                    selectedSubSubItem: runtime.radialMenuSelectedSubSubItem,
                     currentValues: currentValues,
                     subActiveStates: subActiveStates,
+                    subSubActiveStates: subSubActiveStates,
                     showHelp: runtime.radialMenuShowHelp,
                     accentColor: effectiveColor
                 )
@@ -287,29 +299,68 @@ struct OverlayContentView: View {
 struct SpotlightView: View {
     let position: CGPoint
     let radius: CGFloat
-    let ringShape: CursorSettings.RingShape
+    let isActive: Bool
+    let cursorOnScreen: Bool
+    let edgeSoftness: CGFloat   // 0=선명한 경계, 1=중심부터 fade(매우 부드러움)
+
+    // Mousepose식 부드러운 등장/퇴장. phase(0…1)가 dim 밝기와 반경을 함께 스케일한다.
+    // Canvas는 withAnimation @State 보간을 매 프레임 redraw하지 않으므로, Timer로 phase @State를
+    // 직접 갱신한다. (TimelineView(paused:)는 정지 상태에서 경계·반경 등 prop 변경을 redraw하지
+    // 않아 "경계 슬라이더가 안 먹는" 문제가 있었다. @State 갱신 + prop 변경 모두 정상 redraw된다.)
+    @State private var phase: CGFloat = 0
+    @State private var animTimer: Timer?
+
+    private var duration: Double { Tokens.Motion.easeLongDuration }
 
     var body: some View {
         Canvas { context, size in
-            context.fill(Path(CGRect(origin: .zero, size: size)), with: .color(Tokens.Surface.dim))
-            context.blendMode = .clear
-            // 밝게 뚫리는 cutout이 ring shape를 따름. gradient는 radial 유지(중심→가장자리 fade).
-            let cutout = CGRect(x: position.x - radius, y: position.y - radius,
-                                width: radius * 2, height: radius * 2)
+            guard phase > 0.001 else { return }   // 꺼진 상태 — 아무것도 그리지 않음
+            let dimColor = Tokens.Surface.dim.opacity(Double(phase))
+            let full = Path(CGRect(origin: .zero, size: size))
+            guard cursorOnScreen else {           // 커서가 화면 밖이면 전체 dim만
+                context.fill(full, with: .color(dimColor))
+                return
+            }
+            // 어두운 영역을 radialGradient로 직접 그린다 — 중심(코어)은 투명(밝음), 바깥으로 갈수록 dim.
+            // 코어(radius)는 완전히 밝게 유지하고 edgeSoftness만큼 바깥으로 fade를 확장 → 경계가 깃털처럼
+            // 번진다. (.clear blendMode로 "뚫는" 방식은 Canvas에서 중간 알파가 부드럽게 안 나와서 직접 그림.)
+            let coreR = radius * phase
+            let featherR = radius * edgeSoftness * phase
+            let outerR = max(coreR + featherR, 0.1)
+            let coreLoc = max(0, min(0.999, coreR / outerR))   // 코어까지 완전 투명, 그 밖은 dim으로 fade
             context.fill(
-                ringShape.anyShape.path(in: cutout),
+                full,
                 with: .radialGradient(
                     Gradient(stops: [
-                        .init(color: .white, location: 0),
-                        .init(color: .white, location: 0.6),
-                        .init(color: .clear, location: 1.0)
+                        .init(color: .clear, location: 0),
+                        .init(color: .clear, location: coreLoc),
+                        .init(color: dimColor, location: 1.0)
                     ]),
-                    center: position, startRadius: 0, endRadius: radius
+                    center: position, startRadius: 0, endRadius: outerR
                 )
             )
+            // radialGradient는 endRadius 밖을 마지막 stop(dimColor)으로 채우므로 화면 전체가 어두워진다.
         }
-        .animation(.none, value: position)
-        .transition(.opacity)
+        .onAppear { phase = isActive ? 1 : 0 }
+        .onChange(of: isActive) { active in animate(to: active ? 1 : 0) }
+        .onDisappear { animTimer?.invalidate() }
+    }
+
+    /// phase를 target까지 easeInOut으로 보간. ~60fps Timer로 @State를 갱신해 Canvas를 redraw.
+    private func animate(to target: CGFloat) {
+        animTimer?.invalidate()
+        let start = phase
+        let begin = Date()
+        let dur = duration
+        let timer = Timer(timeInterval: 1.0 / 60.0, repeats: true) { t in
+            let p = min(1, Date().timeIntervalSince(begin) / dur)
+            let eased = p < 0.5 ? 2 * p * p : 1 - pow(-2 * p + 2, 2) / 2   // easeInOut
+            phase = start + (target - start) * CGFloat(eased)
+            if p >= 1 { phase = target; t.invalidate() }
+        }
+        // .common 모드 — 메뉴 트래킹·드래그 중에도 애니메이션이 멈추지 않게.
+        RunLoop.main.add(timer, forMode: .common)
+        animTimer = timer
     }
 }
 
@@ -446,20 +497,63 @@ struct DonutFillShape: Shape {
         case .rhombus:
             path.addPath(RhombusShape().path(in: rect))
             path.addPath(RhombusShape().path(in: innerRect))
+        case .hexagon:
+            path.addPath(RoundedHexagonShape().path(in: rect))
+            path.addPath(RoundedHexagonShape().path(in: innerRect))
         }
         return path
     }
 }
 
+private extension CGPoint {
+    /// self에서 p 방향으로 t(0~1) 비율만큼 이동한 점.
+    func lerp(to p: CGPoint, t: CGFloat) -> CGPoint {
+        CGPoint(x: x + (p.x - x) * t, y: y + (p.y - y) * t)
+    }
+}
+
+/// 다각형 꼭지점 배열을 모서리 라운딩한 닫힌 path. 각 꼭지점을 control point로 한 quadratic
+/// curve로 부드럽게 깎는다. cornerFraction은 인접 꼭지점까지 거리 대비 라운딩 비율(0~0.5).
+func roundedPolygonPath(_ verts: [CGPoint], cornerFraction: CGFloat) -> Path {
+    var path = Path()
+    let n = verts.count
+    guard n >= 3 else { return path }
+    for i in 0..<n {
+        let curr = verts[i]
+        let prev = verts[(i + n - 1) % n]
+        let next = verts[(i + 1) % n]
+        let start = curr.lerp(to: prev, t: cornerFraction)
+        let end = curr.lerp(to: next, t: cornerFraction)
+        if i == 0 { path.move(to: start) } else { path.addLine(to: start) }
+        path.addQuadCurve(to: end, control: curr)
+    }
+    path.closeSubpath()
+    return path
+}
+
+/// 둥근 마름모 — 4꼭지점을 모서리 라운딩. (이름은 호환 위해 유지; v1.1.5부터 둥근 형태)
 struct RhombusShape: Shape {
     func path(in rect: CGRect) -> Path {
-        var path = Path()
-        path.move(to: CGPoint(x: rect.midX, y: rect.minY))
-        path.addLine(to: CGPoint(x: rect.maxX, y: rect.midY))
-        path.addLine(to: CGPoint(x: rect.midX, y: rect.maxY))
-        path.addLine(to: CGPoint(x: rect.minX, y: rect.midY))
-        path.closeSubpath()
-        return path
+        let verts = [
+            CGPoint(x: rect.midX, y: rect.minY),   // 위
+            CGPoint(x: rect.maxX, y: rect.midY),   // 오른쪽
+            CGPoint(x: rect.midX, y: rect.maxY),   // 아래
+            CGPoint(x: rect.minX, y: rect.midY),   // 왼쪽
+        ]
+        return roundedPolygonPath(verts, cornerFraction: 0.2)
+    }
+}
+
+/// 둥근 육각형 — pointy-top(위·아래가 꼭지점). 정육각형을 rect에 맞춰 라운딩.
+struct RoundedHexagonShape: Shape {
+    func path(in rect: CGRect) -> Path {
+        let cx = rect.midX, cy = rect.midY
+        let r = min(rect.width, rect.height) / 2
+        let verts: [CGPoint] = (0..<6).map { i in
+            let angle = (-90.0 + 60.0 * Double(i)) * .pi / 180   // -90°(위)부터 시계방향 60°씩
+            return CGPoint(x: cx + r * CGFloat(cos(angle)), y: cy + r * CGFloat(sin(angle)))
+        }
+        return roundedPolygonPath(verts, cornerFraction: 0.28)
     }
 }
 
@@ -477,6 +571,7 @@ extension CursorSettings.RingShape {
         case .circle:   return AnyShape(Circle())
         case .squircle: return AnyShape(SquircleShape())
         case .rhombus:  return AnyShape(RhombusShape())
+        case .hexagon:  return AnyShape(RoundedHexagonShape())
         }
     }
 }
@@ -567,6 +662,10 @@ struct CursorRingView: View {
             RhombusShape()
                 .stroke(appearance.color.opacity(ringOpacity), style: style)
                 .frame(width: diameter, height: diameter)
+        case .hexagon:
+            RoundedHexagonShape()
+                .stroke(appearance.color.opacity(ringOpacity), style: style)
+                .frame(width: diameter, height: diameter)
         }
     }
 
@@ -642,8 +741,11 @@ struct MagnifierView: View {
     var body: some View {
         ZStack {
             if let image {
-                let scale = NSScreen.main?.backingScaleFactor ?? 1.0
-                Image(decorative: image, scale: scale)
+                // 이미지가 이미 표시 해상도(magnifierSize × captureScale)로 업스케일돼 있으므로,
+                // scale을 이미지 px ÷ 표시 pt로 정확히 맞춰 SwiftUI의 추가 리샘플을 최소화한다.
+                let imgScale = size > 0 ? CGFloat(image.width) / size : 1
+                Image(decorative: image, scale: imgScale)
+                    .interpolation(.high)
                     .resizable()
                     .scaledToFill()
                     .frame(width: size, height: size)
@@ -950,8 +1052,10 @@ struct RadialMenuView: View {
     let center: CGPoint           // overlay 내 위치(toLocal 변환됨)
     let selectedSector: Int?
     let selectedSubItem: Int?
+    let selectedSubSubItem: Int?  // 3번째 ring(branch 자식)
     let currentValues: [String]   // 각 sector의 현재 값 (8개) — 중심 컨텍스트에 표시
     let subActiveStates: [Bool]?  // 활성 sector sub들의 현재 활성 상태 — sub 라벨 강조
+    let subSubActiveStates: [Bool]?  // 활성 branch의 자식 강조
     let showHelp: Bool            // 처음 5회 동안만 하단에 사용법 한 줄 표시 (학습성)
     let accentColor: Color
 
@@ -963,18 +1067,16 @@ struct RadialMenuView: View {
     private let deadRadius = Tokens.Radial.deadRadius
     private let mainOuter = Tokens.Radial.mainOuter
     private let subOuter = Tokens.Radial.subOuter
+    private let subSubOuter = Tokens.Radial.subSubOuter
 
     private var canvasSize: CGFloat { Tokens.Radial.canvasSize }
 
     var body: some View {
         ZStack {
-            // 시각 가이드 ring — 메인/서브 경계와 외곽 경계를 옅게 표시 (사용자가 영역 인지)
+            // 메인 영역 경계만 옅게 표시. sub 영역은 sector 선택 시에만 나타나므로 미리 안 그린다.
             Circle()
                 .stroke(Tokens.Stroke.guideMedium, lineWidth: 1)
                 .frame(width: mainOuter * 2, height: mainOuter * 2)
-            Circle()
-                .stroke(Tokens.Stroke.guideWeak, lineWidth: 1)
-                .frame(width: subOuter * 2, height: subOuter * 2)
 
             // 8개 메인 wedge (pie slice)
             ForEach(0..<8, id: \.self) { i in
@@ -995,39 +1097,25 @@ struct RadialMenuView: View {
                     .animation(Tokens.Motion.select, value: isMainSelected)
             }
 
-            // 메인 wedge 위에 아이콘 + 라벨 (SF Symbol)
+            // 메인 wedge 위에 아이콘만 (라벨은 중심 컨텍스트에 표시 — 반경 축소 + "텍스트는 가운데서 인지")
             ForEach(0..<8, id: \.self) { i in
                 let centerAngleDeg = Double(i) * 45 - 90
                 let r = (deadRadius + mainOuter) / 2
                 let rad = centerAngleDeg * .pi / 180
-                VStack(spacing: 4) {
-                    Image(systemName: items[i].icon)
-                        .font(.system(size: 22, weight: .medium))
-                        .foregroundColor(.white)
-                    Text(items[i].label)
-                        .font(Tokens.Text.captionSmall)
-                        .foregroundColor(.white)
-                        .multilineTextAlignment(.center)
-                        .lineLimit(2)
-                        .minimumScaleFactor(Tokens.Radial.labelScale)
-                        .frame(maxWidth: Tokens.Radial.mainLabelWidth)
-                }
-                .offset(x: cos(rad) * r, y: sin(rad) * r)
+                Image(systemName: items[i].icon)
+                    .font(.system(size: 22, weight: .medium))
+                    .foregroundColor(.white)
+                    .offset(x: cos(rad) * r, y: sin(rad) * r)
             }
 
-            // 서브 있는 sector의 외곽 호(arc) — 활성 sector는 진한 accent로, 비활성은 옅은 흰색으로 위계 차이.
-            ForEach(0..<8, id: \.self) { i in
-                let hasSub = (CursorSettings.RadialMenuItem(rawValue: i)?.subCount ?? 0) > 0
-                if hasSub {
-                    let centerAngleDeg = Double(i) * 45 - 90
-                    let start = Angle.degrees(centerAngleDeg - 22.5)
-                    let end = Angle.degrees(centerAngleDeg + 22.5)
-                    let isActive = selectedSector == i
-                    ArcStroke(startAngle: start, endAngle: end, radius: mainOuter - 1.5)
-                        .stroke(isActive ? accentColor.opacity(0.95) : Tokens.Stroke.guideStrong,
-                                lineWidth: isActive ? 3.0 : 1.5)
-                        .animation(Tokens.Motion.easeShort, value: isActive)
-                }
+            // 활성 sector의 외곽 호(arc)만 — sub fan 경계 강조. 비활성은 그리지 않아 sub 영역을 미리 노출 안 함.
+            if let sec = selectedSector,
+               (CursorSettings.RadialMenuItem(rawValue: sec)?.subCount ?? 0) > 0 {
+                let centerAngleDeg = Double(sec) * 45 - 90
+                let start = Angle.degrees(centerAngleDeg - 22.5)
+                let end = Angle.degrees(centerAngleDeg + 22.5)
+                ArcStroke(startAngle: start, endAngle: end, radius: mainOuter - 1.5)
+                    .stroke(accentColor.opacity(0.95), lineWidth: 3.0)
             }
 
             // 서브 wedge들 — 활성 sector에 서브가 있을 때 메인 sector 안에 균등 분할로 외부 확장
@@ -1078,6 +1166,59 @@ struct RadialMenuView: View {
                     .foregroundColor(.white)
                     .frame(maxWidth: Tokens.Radial.subLabelWidth)
                     .offset(x: cos(radSub) * rSub, y: sin(radSub) * rSub)
+                    // branch면 바깥(subSub가 펼쳐질 방향)으로 chevron — "더 drag하면 값이 나온다" 암시.
+                    if subItem.isBranch {
+                        Image(systemName: "chevron.right")
+                            .font(.system(size: 9, weight: .bold))
+                            .foregroundColor(.white.opacity(0.85))
+                            .rotationEffect(.degrees(subCenterDeg))   // 방사 외향으로 회전
+                            .offset(x: cos(radSub) * (subOuter - 9), y: sin(radSub) * (subOuter - 9))
+                    }
+                }
+            }
+
+            // 3번째 ring — 활성 branch sub의 자식 fan (sub의 중심각을 기준으로 펼침)
+            if let sec = selectedSector,
+               let subI = selectedSubItem,
+               let item = CursorSettings.RadialMenuItem(rawValue: sec),
+               subI < item.subItems.count, item.subItems[subI].isBranch,
+               let kids = item.subItems[subI].children {
+                let mainCenterDeg = Double(sec) * 45 - 90
+                let subSpan = item.subSpan
+                let subStep = subSpan / Double(item.subCount)
+                let subStart = mainCenterDeg - subSpan/2
+                let subCenterDeg = subStart + subStep * (Double(subI) + 0.5)   // 이 branch sub의 중심각
+                let ssSpan = item.subSubSpan(of: subI)
+                let ssStep = ssSpan / Double(kids.count)
+                let ssStart = subCenterDeg - ssSpan/2
+                ForEach(0..<kids.count, id: \.self) { j in
+                    let s = Angle.degrees(ssStart + ssStep * Double(j))
+                    let e = Angle.degrees(ssStart + ssStep * Double(j + 1))
+                    let isSel = selectedSubSubItem == j
+                    let isCur = subSubActiveStates?[j] ?? false
+                    let fill: Color = isSel
+                        ? accentColor.opacity(0.9)
+                        : (isCur ? accentColor.opacity(0.40) : Tokens.Surface.subtle)
+                    PieWedge(startAngle: s, endAngle: e, innerRadius: subOuter, outerRadius: subSubOuter)
+                        .fill(fill)
+                        .overlay(
+                            PieWedge(startAngle: s, endAngle: e, innerRadius: subOuter, outerRadius: subSubOuter)
+                                .stroke(Tokens.Stroke.guideMedium, lineWidth: 1)
+                        )
+                        .animation(Tokens.Motion.select, value: isSel)
+                        .animation(Tokens.Motion.easeShort, value: isCur)
+                    let ssCenterDeg = ssStart + ssStep * (Double(j) + 0.5)
+                    let rSS = (subOuter + subSubOuter) / 2
+                    let radSS = ssCenterDeg * .pi / 180
+                    Text(kids[j].label)
+                        .font(.system(size: 11, weight: .semibold))
+                        .foregroundColor(.white)
+                        .multilineTextAlignment(.center)
+                        .lineLimit(2)
+                        .minimumScaleFactor(Tokens.Radial.labelScale)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .frame(maxWidth: Tokens.Radial.subSubLabelWidth)
+                        .offset(x: cos(radSS) * rSS, y: sin(radSS) * rSS)
                 }
             }
 
@@ -1085,6 +1226,19 @@ struct RadialMenuView: View {
             // dead zone release는 원래도 cancel(80pt 안전선 미달)이지만, 명시 표시 없으면 사용자가 알기 어려움.
             // ESC/modifier release와 별개의 시각적 cancel 단서.
             if let sec = selectedSector {
+                // 메인 wedge에 라벨이 없으므로 중심에서 컨텍스트를 보여준다:
+                //   sub hover → sub 라벨("반경"), subSub hover → "반경 · 140pt", 아니면 sector 현재값.
+                let detail: String = {
+                    guard let item = CursorSettings.RadialMenuItem(rawValue: sec) else { return currentValues[sec] }
+                    if let sub = selectedSubItem, sub < item.subItems.count {
+                        let subItem = item.subItems[sub]
+                        if let ss = selectedSubSubItem, let kids = subItem.children, ss < kids.count {
+                            return "\(subItem.label) · \(kids[ss].label)"
+                        }
+                        return subItem.label
+                    }
+                    return currentValues[sec]
+                }()
                 VStack(spacing: 3) {
                     Image(systemName: items[sec].icon)
                         .font(.system(size: 20, weight: .medium))
@@ -1096,8 +1250,8 @@ struct RadialMenuView: View {
                         .lineLimit(2)
                         .minimumScaleFactor(Tokens.Radial.labelScale)
                         .frame(maxWidth: Tokens.Radial.centerLabelWidth)
-                    Text(currentValues[sec])
-                        .font(.system(size: 8, weight: .medium))
+                    Text(detail)
+                        .font(.system(size: 9, weight: .medium))
                         .foregroundColor(Tokens.Stroke.textMuted)
                         .lineLimit(1)
                         .minimumScaleFactor(Tokens.Radial.labelScale)

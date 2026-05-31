@@ -238,6 +238,7 @@ final class KeyboardHotkeyHandler {
         runtime.radialMenuCenter = center
         runtime.radialMenuSelectedSector = nil
         runtime.radialMenuSelectedSubItem = nil
+        runtime.radialMenuSelectedSubSubItem = nil
         radialMenuActiveFlag = true
         mouseMonitor?.shouldConsumeLeftClick = true
         withAnimation(Tokens.Motion.easeMicro) { runtime.isRadialMenuVisible = true }
@@ -254,6 +255,7 @@ final class KeyboardHotkeyHandler {
         runtime.radialMenuShowHelp = false
         runtime.radialMenuSelectedSector = nil
         runtime.radialMenuSelectedSubItem = nil
+        runtime.radialMenuSelectedSubSubItem = nil
         radialMenuActiveFlag = false
         mouseMonitor?.shouldConsumeLeftClick = false
     }
@@ -270,10 +272,17 @@ final class KeyboardHotkeyHandler {
             cancelRadialMenuIfActive()
             return
         }
-        // sub 위 클릭 → 실행, 메뉴 유지
+        // sub/subSub 위 클릭 → 실행, 메뉴 유지
         guard let sector = runtime.radialMenuSelectedSector else { return }
         if let sub = runtime.radialMenuSelectedSubItem {
-            executeRadialSubAction(sector: sector, sub: sub)
+            if let subSub = runtime.radialMenuSelectedSubSubItem {
+                executeRadialSubSubAction(sector: sector, sub: sub, subSub: subSub)   // 2단계: 자식 값
+            } else if let item = CursorSettings.RadialMenuItem(rawValue: sector),
+                      sub < item.subItems.count, item.subItems[sub].isBranch {
+                return  // branch를 subSub 미진입 상태로 클릭 → 무효(더 drag해 자식 선택 유도, 메뉴 유지)
+            } else {
+                executeRadialSubAction(sector: sector, sub: sub)   // 1단계: leaf 즉시 실행
+            }
         } else if let item = CursorSettings.RadialMenuItem(rawValue: sector), item.subCount == 0 {
             // 서브 없는 sector (현재 없음)만 메인 클릭으로 실행
             executeRadialMenuAction(sector)
@@ -304,32 +313,18 @@ final class KeyboardHotkeyHandler {
         guard let runtime, let settings, let keystrokeOverlay else { return }
         switch sector {
         case 0:
+            // spotlight: sub 0=토글(leaf). sub 1·2(반경/경계)는 branch → executeRadialSubSubAction.
             if sub == 0 {
                 withAnimation(.easeInOut(duration: 0.35)) { runtime.isSpotlightActive.toggle() }
                 keystrokeOverlay.showStatusNotification(statusText("🔦", "스포트라이트", on: runtime.isSpotlightActive))
-            } else {
-                let radii: [CGFloat] = [60, 100, 140, 180, 220]
-                let idx = sub - 1
-                guard idx < radii.count else { return }
-                settings.spotlightRadius = radii[idx]
-                keystrokeOverlay.showStatusNotification(valueText("🔦", "스포트라이트 반경", "\(Int(radii[idx]))pt"))
             }
         case 1:
+            // magnifier: sub 0=토글(leaf). sub 1·2(배율/크기)는 branch.
             if sub == 0 {
                 runtime.isMagnifierActive.toggle()
                 keystrokeOverlay.showStatusNotification(statusText("🔍", "돋보기", on: runtime.isMagnifierActive))
-            } else {
-                let zooms: [Double] = [1.5, 2.0, 2.5, 3.0, 4.0]
-                let idx = sub - 1
-                guard idx < zooms.count else { return }
-                settings.magnifierZoom = zooms[idx]
-                keystrokeOverlay.showStatusNotification(valueText("🔍", "돋보기 줌", "\(String(format: "%.1f", zooms[idx]))×"))
             }
-        case 3:
-            let sizes = CursorSettings.RingSize.allCases
-            guard sub < sizes.count else { return }
-            settings.ringSize = sizes[sub]
-            keystrokeOverlay.showStatusNotification(valueText("🔘", "링 크기", sizes[sub].label))
+        // case 3(ringSize→"링 외형")은 전부 branch라 leaf 클릭 경로로 안 옴 → executeRadialSubSubAction.
         case 4:
             let colors = CursorSettings.RingColor.allCases.filter { $0 != .custom }
             guard sub < colors.count else { return }
@@ -375,6 +370,54 @@ final class KeyboardHotkeyHandler {
             case 1:
                 settings.isDragAngleLabelEnabled.toggle()
                 keystrokeOverlay.showStatusNotification(statusText("🧭", "드래그각도", on: settings.isDragAngleLabelEnabled))
+            default: break
+            }
+        default: break
+        }
+    }
+
+    /// 3번째 ring(branch sub의 자식) 실행 — 값 배열은 RadialMenuItem의 공유 상수 사용.
+    private func executeRadialSubSubAction(sector: Int, sub: Int, subSub: Int) {
+        guard let settings, let keystrokeOverlay else { return }
+        typealias Item = CursorSettings.RadialMenuItem
+        switch sector {
+        case 0:  // spotlight
+            if sub == 1, subSub < Item.spotlightRadii.count {           // 반경
+                settings.spotlightRadius = Item.spotlightRadii[subSub]
+                keystrokeOverlay.showStatusNotification(valueText("🔦", "스포트라이트 반경", "\(Int(Item.spotlightRadii[subSub]))pt"))
+            } else if sub == 2, subSub < Item.spotlightSoftnesses.count {  // 경계
+                settings.spotlightEdgeSoftness = Item.spotlightSoftnesses[subSub]
+                keystrokeOverlay.showStatusNotification(valueText("🔦", "스포트라이트 경계", "\(Int(Item.spotlightSoftnesses[subSub] * 100))%"))
+            }
+        case 1:  // magnifier
+            if sub == 1, subSub < Item.magnifierZooms.count {           // 배율
+                settings.magnifierZoom = Item.magnifierZooms[subSub]
+                keystrokeOverlay.showStatusNotification(valueText("🔍", "돋보기 줌", "\(String(format: "%.1f", Item.magnifierZooms[subSub]))×"))
+            } else if sub == 2, subSub < Item.magnifierSizes.count {      // 크기
+                settings.magnifierSize = Item.magnifierSizes[subSub]
+                keystrokeOverlay.showStatusNotification(valueText("🔍", "돋보기 크기", "\(Int(Item.magnifierSizes[subSub]))pt"))
+            }
+        case 3:  // 링 외형: 크기 / 투명도 / 두께 / 스타일
+            switch sub {
+            case 0:
+                let c = CursorSettings.RingSize.allCases
+                guard subSub < c.count else { return }
+                settings.ringSize = c[subSub]
+                keystrokeOverlay.showStatusNotification(valueText("🔘", "링 크기", c[subSub].label))
+            case 1:
+                guard subSub < Item.ringOpacities.count else { return }
+                settings.ringOpacity = Item.ringOpacities[subSub]
+                keystrokeOverlay.showStatusNotification(valueText("🔘", "투명도", "\(Int(Item.ringOpacities[subSub] * 100))%"))
+            case 2:
+                let c = CursorSettings.BorderWeight.allCases
+                guard subSub < c.count else { return }
+                settings.borderWeight = c[subSub]
+                keystrokeOverlay.showStatusNotification(valueText("🔲", "테두리 두께", c[subSub].label))
+            case 3:
+                let c = CursorSettings.BorderStyle.allCases
+                guard subSub < c.count else { return }
+                settings.borderStyle = c[subSub]
+                keystrokeOverlay.showStatusNotification(valueText("🔲", "테두리 스타일", c[subSub].label))
             default: break
             }
         default: break
@@ -541,6 +584,7 @@ final class KeyboardHotkeyHandler {
                 case .circle:   icon = "⭕"
                 case .squircle: icon = "🟦"
                 case .rhombus:  icon = "🔶"
+                case .hexagon:  icon = "⬡"
                 }
                 keystrokeOverlay.showStatusNotification("\(icon) \(next.label)")
                 return

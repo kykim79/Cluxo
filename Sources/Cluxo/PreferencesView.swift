@@ -351,6 +351,19 @@ private struct EffectsTab: View {
 
                     Toggle("커서 트레일", isOn: $settings.isTrailEnabled)
                     desc("커서 이동 자취를 잔상으로 남김. 빠른 움직임 인식 ↑.")
+
+                    Toggle("흔들어서 강조", isOn: $settings.isShakeEnabled)
+                    desc("마우스를 빠르게 여러 번 흔들면 커서 위치에 퍼지는 링 표시. 커서를 놓쳤을 때 찾기 좋음.")
+
+                    if settings.isShakeEnabled {
+                        Picker("흔들기 민감도", selection: $settings.shakeSensitivity) {
+                            ForEach(CursorSettings.ShakeSensitivity.allCases) { s in
+                                Text(s.label).tag(s)
+                            }
+                        }
+                        .pickerStyle(.segmented).labelsHidden()
+                        desc("민감하면 살짝 흔들어도 발동, 둔감하면 여러 번 빠르게 흔들어야 발동. 오발동이 잦으면 둔감 쪽으로.")
+                    }
                 }
 
                 PrefSection(label: "드래그 효과") {
@@ -404,6 +417,14 @@ private struct ModesTab: View {
                             .monospacedDigit().frame(width: 44, alignment: .trailing)
                     }
                     desc("⌃⌥S 스포트라이트가 비추는 원의 반지름. 코드 한 줄엔 작게(60~100), UI 영역엔 크게(180~220).")
+
+                    HStack {
+                        Text(verbatim: "경계 부드럽게".loc).frame(width: 100, alignment: .leading)
+                        Slider(value: $settings.spotlightEdgeSoftness, in: 0...1, step: 0.05)
+                        Text("\(Int(settings.spotlightEdgeSoftness * 100))%")
+                            .monospacedDigit().frame(width: 44, alignment: .trailing)
+                    }
+                    desc("경계의 부드러움. 0%는 또렷한 원, 100%는 중심부터 서서히 사라지는 깃털 같은 가장자리.")
                 }
 
                 // 돋보기

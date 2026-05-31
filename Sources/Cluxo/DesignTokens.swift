@@ -89,18 +89,20 @@ enum Tokens {
     // MARK: Radial — radial menu 거리 스케일
 
     enum Radial {
-        /// dead zone — 안쪽이면 nil (cancel)
+        /// dead zone — 안쪽이면 nil (cancel). 중심 컨텍스트 라벨 공간.
         static let deadRadius: CGFloat = 50
-        /// 메인 영역 바깥 경계 — 여기까지 sector 자유 회전
-        static let mainOuter: CGFloat = 150
-        /// 서브 영역 바깥 경계 — sector lock 활성
-        static let subOuter: CGFloat = 230
+        /// 메인 영역 바깥 경계 — 여기까지 sector 자유 회전. 메인은 아이콘만이라 폭을 좁게(반경 압축).
+        static let mainOuter: CGFloat = 102
+        /// 서브 영역 바깥 경계 — sector lock 활성 (2번째 ring, sub 값). 메인이 좁아진 만큼 폭을 넉넉히.
+        static let subOuter: CGFloat = 174
+        /// 서브-서브 영역 바깥 경계 — branch sub 선택 후 더 drag하면 자식 값이 펼쳐지는 3번째 ring
+        static let subSubOuter: CGFloat = 236
         /// 떼었을 때 이 이상 끌어야 액션 발화 (오발 방지)
         static let releaseSafety: CGFloat = 80
         /// 화면 가장자리에서 중심까지 최소 거리 (메뉴 잘림 방지)
-        static let edgeClamp: CGFloat = 240
-        /// 캔버스 전체 크기 (subOuter*2 + padding)
-        static var canvasSize: CGFloat { subOuter * 2 + 40 }
+        static let edgeClamp: CGFloat = 256
+        /// 캔버스 전체 크기 (subSubOuter*2 + padding)
+        static var canvasSize: CGFloat { subSubOuter * 2 + 40 }
         /// 좌클릭 hold로 라디얼 메뉴 열리는 시간 임계 — 일반 클릭과 구분되는 최소 시간
         static let longPressDuration: TimeInterval = 0.5
         /// hold 중 허용되는 cursor 이동 거리 — 초과 시 드래그로 간주, long-press cancel
@@ -112,6 +114,8 @@ enum Tokens {
         static let mainLabelWidth: CGFloat = 88
         /// 서브 항목 라벨 최대 폭 (r=190 부채꼴, 인접 항목 겹침 방지)
         static let subLabelWidth: CGFloat = 84
+        /// 서브-서브 항목 라벨 최대 폭 (3번째 ring 부채꼴)
+        static let subSubLabelWidth: CGFloat = 76
         /// 중심 컨텍스트 라벨 최대 폭 (dead zone 지름 100pt 안)
         static let centerLabelWidth: CGFloat = 92
         /// 라벨이 폭을 넘을 때 허용하는 최소 축소 배율

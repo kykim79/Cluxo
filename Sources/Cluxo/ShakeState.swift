@@ -9,7 +9,7 @@ import CoreGraphics
 // 감지 방식 — 각 축 독립 추적 + dedup:
 //   - vx와 vy를 별도 카운터로 추적 (lastVx/lastVy, dirChangesX/dirChangesY)
 //   - 각 축에서: |v| > 150 + 이전 |v| > 150 + 부호 반대일 때 방향 전환 카운트
-//   - 0.5초 안에 한 축에서 방향 전환 3회 누적되면 detect 후보
+//   - 0.5초 안에 한 축에서 방향 전환 requiredDirChanges회(민감도 설정, default 5) 누적되면 detect 후보
 //   - dedup: 직전 detect로부터 0.5초 안에는 다시 발화 X (같은 흔들기에서 두 축 동시 trigger 회피)
 //
 // 이전 dominant-axis 방식의 비대칭 문제 해결:
@@ -30,8 +30,8 @@ struct ShakeState {
         var dirChanges: Int = 0
         var lastChangeTime: TimeInterval = 0
 
-        /// 새 속도를 기록. 3회 방향 전환 누적 시 true 반환.
-        mutating func update(v: CGFloat, now: TimeInterval) -> Bool {
+        /// 새 속도를 기록. `required`회 방향 전환 누적 시 true 반환.
+        mutating func update(v: CGFloat, now: TimeInterval, required: Int) -> Bool {
             var detected = false
             if abs(v) > ShakeState.velocityThreshold,
                abs(lastV) > ShakeState.velocityThreshold,
@@ -39,7 +39,7 @@ struct ShakeState {
             {
                 if now - lastChangeTime < 0.5 { dirChanges += 1 } else { dirChanges = 1 }
                 lastChangeTime = now
-                if dirChanges >= 3 {
+                if dirChanges >= required {
                     detected = true
                 }
             }
@@ -53,7 +53,12 @@ struct ShakeState {
     var axisY = AxisState()
     var lastDetectionTime: TimeInterval = -1  // dedup용 (-1 = 아직 detect 없음)
 
-    fileprivate static let velocityThreshold: CGFloat = 150  // 손목 흔들기 (60Hz 기준 5pt/sample = 167pt/s) 커버
+    /// 감지에 필요한 방향 전환 횟수 — 민감도 설정으로 주입(적을수록 민감). default는 "보통".
+    var requiredDirChanges: Int = 5
+
+    // 일반 마우스 이동과 흔들기 구분 — 속도가 아니라 "방향 전환 횟수"가 주된 신호다.
+    // (속도를 높이면 흔들기 자체가 안 닿는다. 일반 이동은 한 방향이라 같은 축 부호 전환이 드물다.)
+    fileprivate static let velocityThreshold: CGFloat = 150  // 움직임으로 인정하는 최소 속도 (잡음 배제)
     fileprivate static let lastVThreshold: CGFloat = 50      // lastV 업데이트 임계 (잡음 무시)
     fileprivate static let dedupWindow: TimeInterval = 0.5   // detect 후 다음 detect까지 최소 간격
 
@@ -74,9 +79,9 @@ struct ShakeState {
         let vx = (curr.x - prev.x) / dt
         let vy = (curr.y - prev.y) / dt
 
-        // 각 축 독립 detect — 한 축이라도 3회 방향 전환이면 후보
-        let xDetected = axisX.update(v: vx, now: now)
-        let yDetected = axisY.update(v: vy, now: now)
+        // 각 축 독립 detect — 한 축이라도 requiredDirChanges회 방향 전환이면 후보
+        let xDetected = axisX.update(v: vx, now: now, required: requiredDirChanges)
+        let yDetected = axisY.update(v: vy, now: now, required: requiredDirChanges)
 
         guard xDetected || yDetected else { return false }
 
