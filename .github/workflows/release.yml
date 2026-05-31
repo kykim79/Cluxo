@@ -8,7 +8,7 @@ name: Release
 #   2. Cluxo.app을 ditto로 .zip 압축 (HFS+ metadata 보존)
 #   3. SHA256 계산
 #   4. GitHub Releases에 .zip 자동 업로드
-#   5. kykim79/homebrew-tap repo의 Casks/cursorhighlight.rb에 version + sha256 자동 commit
+#   5. kykim79/homebrew-tap repo의 Casks/cluxo.rb에 version + sha256 자동 commit
 #
 # 요구:
 #   - kykim79/homebrew-tap repo가 미리 존재
@@ -99,7 +99,7 @@ jobs:
 
           ### 설치
           \`\`\`
-          brew install --cask kykim79/tap/cursorhighlight
+          brew install --cask kykim79/tap/cluxo
           \`\`\`
 
           ### SHA256
@@ -127,8 +127,8 @@ jobs:
           SHA256: ${{ steps.package.outputs.sha256 }}
         run: |
           mkdir -p homebrew-tap/Casks
-          cat > homebrew-tap/Casks/cursorhighlight.rb <<EOF
-          cask "cursorhighlight" do
+          cat > homebrew-tap/Casks/cluxo.rb <<EOF
+          cask "cluxo" do
             version "$VERSION"
             sha256 "$SHA256"
 
@@ -161,10 +161,10 @@ jobs:
           cd homebrew-tap
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add Casks/cursorhighlight.rb
+          git add Casks/cluxo.rb
           if git diff --cached --quiet; then
             echo "No cask changes to commit"
           else
-            git commit -m "cursorhighlight: bump to $VERSION"
+            git commit -m "cluxo: bump to $VERSION"
             git push
           fi
