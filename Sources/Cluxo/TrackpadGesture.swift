@@ -38,18 +38,18 @@ enum TrackpadGesture: String, Equatable, CaseIterable {
     /// 사람이 읽기 좋은 설명 (디버그·툴팁용)
     var label: String {
         switch self {
-        case .threeFingerSwipeUp:    return "3손가락 ↑"
-        case .threeFingerSwipeDown:  return "3손가락 ↓"
-        case .threeFingerSwipeLeft:  return "3손가락 ←"
-        case .threeFingerSwipeRight: return "3손가락 →"
-        case .fourFingerSwipeUp:     return "4손가락 ↑"
-        case .fourFingerSwipeDown:   return "4손가락 ↓"
-        case .fourFingerSwipeLeft:   return "4손가락 ←"
-        case .fourFingerSwipeRight:  return "4손가락 →"
-        case .fourFingerPinchIn:     return "4손가락 핀치 인"
-        case .fourFingerPinchOut:    return "4손가락 핀치 아웃"
-        case .fiveFingerPinchIn:     return "5손가락 핀치 인"
-        case .fiveFingerPinchOut:    return "5손가락 핀치 아웃"
+        case .threeFingerSwipeUp:    return "3손가락 ↑".loc
+        case .threeFingerSwipeDown:  return "3손가락 ↓".loc
+        case .threeFingerSwipeLeft:  return "3손가락 ←".loc
+        case .threeFingerSwipeRight: return "3손가락 →".loc
+        case .fourFingerSwipeUp:     return "4손가락 ↑".loc
+        case .fourFingerSwipeDown:   return "4손가락 ↓".loc
+        case .fourFingerSwipeLeft:   return "4손가락 ←".loc
+        case .fourFingerSwipeRight:  return "4손가락 →".loc
+        case .fourFingerPinchIn:     return "4손가락 핀치 인".loc
+        case .fourFingerPinchOut:    return "4손가락 핀치 아웃".loc
+        case .fiveFingerPinchIn:     return "5손가락 핀치 인".loc
+        case .fiveFingerPinchOut:    return "5손가락 핀치 아웃".loc
         }
     }
 }

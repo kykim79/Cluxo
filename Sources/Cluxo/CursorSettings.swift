@@ -149,14 +149,14 @@ final class CursorSettings: ObservableObject {
         }
         var label: String {
             switch self {
-            case .yellow: return "노란색"
-            case .red:    return "빨간색"
-            case .blue:   return "파란색"
-            case .green:  return "초록색"
-            case .white:  return "흰색"
-            case .cyan:   return "하늘색"
-            case .purple: return "보라색"
-            case .custom: return "커스텀"
+            case .yellow: return "노란색".loc
+            case .red:    return "빨간색".loc
+            case .blue:   return "파란색".loc
+            case .green:  return "초록색".loc
+            case .white:  return "흰색".loc
+            case .cyan:   return "하늘색".loc
+            case .purple: return "보라색".loc
+            case .custom: return "커스텀".loc
             }
         }
 
@@ -195,14 +195,14 @@ final class CursorSettings: ObservableObject {
         /// 메인 sector 한글 라벨.
         var label: String {
             switch self {
-            case .spotlight: return "스포트라이트"
-            case .magnifier: return "돋보기"
-            case .glow:      return "효과"
-            case .ringSize:  return "링 크기"
-            case .color:     return "링 색"
-            case .ringShape: return "링 모양"
-            case .inspector: return "좌표/각도"
-            case .keystroke: return "키 입력"
+            case .spotlight: return "스포트라이트".loc
+            case .magnifier: return "돋보기".loc
+            case .glow:      return "효과".loc
+            case .ringSize:  return "링 크기".loc
+            case .color:     return "링 색".loc
+            case .ringShape: return "링 모양".loc
+            case .inspector: return "좌표/각도".loc
+            case .keystroke: return "키 입력".loc
             }
         }
 
@@ -294,7 +294,7 @@ final class CursorSettings: ObservableObject {
         var subItems: [SubItem] {
             switch self {
             case .spotlight: return [
-                SubItem(icon: nil, label: "토글"),
+                SubItem(icon: nil, label: "토글".loc),
                 SubItem(icon: nil, label: "60pt"),
                 SubItem(icon: nil, label: "100pt"),
                 SubItem(icon: nil, label: "140pt"),
@@ -302,7 +302,7 @@ final class CursorSettings: ObservableObject {
                 SubItem(icon: nil, label: "220pt"),
             ]
             case .magnifier: return [
-                SubItem(icon: nil, label: "토글"),
+                SubItem(icon: nil, label: "토글".loc),
                 SubItem(icon: nil, label: "1.5×"),
                 SubItem(icon: nil, label: "2×"),
                 SubItem(icon: nil, label: "2.5×"),
@@ -310,24 +310,24 @@ final class CursorSettings: ObservableObject {
                 SubItem(icon: nil, label: "4×"),
             ]
             case .glow: return [
-                SubItem(icon: "lightbulb.fill", label: "글로우"),
-                SubItem(icon: "wind",           label: "트레일"),
-                SubItem(icon: "target",         label: "정지펄스"),
-                SubItem(icon: "sparkle",        label: "코멧"),
+                SubItem(icon: "lightbulb.fill", label: "글로우".loc),
+                SubItem(icon: "wind",           label: "트레일".loc),
+                SubItem(icon: "target",         label: "정지펄스".loc),
+                SubItem(icon: "sparkle",        label: "코멧".loc),
             ]
             case .ringSize:  return RingSize.allCases.map { SubItem(icon: nil, label: $0.label) }
             case .color:     return RingColor.allCases.filter { $0 != .custom }.map { SubItem(icon: nil, label: $0.label) }
             case .ringShape: return RingShape.allCases.map { SubItem(icon: nil, label: $0.label) }
             case .inspector: return [
-                SubItem(icon: "viewfinder",     label: "좌표"),
-                SubItem(icon: "arrow.up.right", label: "드래그각도"),
+                SubItem(icon: "viewfinder",     label: "좌표".loc),
+                SubItem(icon: "arrow.up.right", label: "드래그각도".loc),
             ]
             case .keystroke: return [
-                SubItem(icon: nil, label: "토글"),
-                SubItem(icon: nil, label: "1초"),
-                SubItem(icon: nil, label: "2초"),
-                SubItem(icon: nil, label: "4초"),
-                SubItem(icon: nil, label: "8초"),
+                SubItem(icon: nil, label: "토글".loc),
+                SubItem(icon: nil, label: "1초".loc),
+                SubItem(icon: nil, label: "2초".loc),
+                SubItem(icon: nil, label: "4초".loc),
+                SubItem(icon: nil, label: "8초".loc),
             ]
             }
         }
@@ -338,9 +338,9 @@ final class CursorSettings: ObservableObject {
         var id: String { rawValue }
         var label: String {
             switch self {
-            case .circle:   return "원형"
-            case .squircle: return "둥근 사각형"
-            case .rhombus:  return "마름모"
+            case .circle:   return "원형".loc
+            case .squircle: return "둥근 사각형".loc
+            case .rhombus:  return "마름모".loc
             }
         }
     }
@@ -359,10 +359,10 @@ final class CursorSettings: ObservableObject {
         }
         var label: String {
             switch self {
-            case .small:  return "작게 (36pt)"
-            case .medium: return "보통 (54pt)"
-            case .large:  return "크게 (72pt)"
-            case .xlarge: return "매우 크게 (96pt)"
+            case .small:  return "작게 (36pt)".loc
+            case .medium: return "보통 (54pt)".loc
+            case .large:  return "크게 (72pt)".loc
+            case .xlarge: return "매우 크게 (96pt)".loc
             }
         }
     }
@@ -380,9 +380,9 @@ final class CursorSettings: ObservableObject {
         }
         var label: String {
             switch self {
-            case .slow:   return "느리게"
-            case .normal: return "보통"
-            case .fast:   return "빠르게"
+            case .slow:   return "느리게".loc
+            case .normal: return "보통".loc
+            case .fast:   return "빠르게".loc
             }
         }
     }
@@ -400,10 +400,10 @@ final class CursorSettings: ObservableObject {
         }
         var label: String {
             switch self {
-            case .thin:   return "얇게"
-            case .normal: return "보통"
-            case .bold:   return "굵게"
-            case .heavy:  return "두껍게"
+            case .thin:   return "얇게".loc
+            case .normal: return "보통".loc
+            case .bold:   return "굵게".loc
+            case .heavy:  return "두껍게".loc
             }
         }
     }
@@ -413,8 +413,8 @@ final class CursorSettings: ObservableObject {
         var id: String { rawValue }
         var label: String {
             switch self {
-            case .solid:  return "실선"
-            case .dashed: return "대시"
+            case .solid:  return "실선".loc
+            case .dashed: return "대시".loc
             }
         }
     }

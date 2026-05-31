@@ -22,7 +22,7 @@ class PreferencesWindowController: NSWindowController, NSToolbarDelegate {
             backing: .buffered,
             defer: false
         )
-        window.title = "Cluxo 환경설정"
+        window.title = "Cluxo 환경설정".loc
         window.contentView = hosting
         window.center()
         window.isReleasedWhenClosed = false
@@ -87,11 +87,11 @@ enum PrefTab: String, CaseIterable, Identifiable {
     var id: String { rawValue }
     var label: String {
         switch self {
-        case .appearance: return "모양"
-        case .behavior:   return "동작"
-        case .magnifier:  return "돋보기"
-        case .shortcuts:  return "단축키"
-        case .info:       return "정보"
+        case .appearance: return "모양".loc
+        case .behavior:   return "동작".loc
+        case .magnifier:  return "돋보기".loc
+        case .shortcuts:  return "단축키".loc
+        case .info:       return "정보".loc
         }
     }
     var icon: String {
@@ -134,7 +134,7 @@ private struct PrefSection<Content: View>: View {
 
     var body: some View {
         HStack(alignment: .top, spacing: 14) {
-            Text(verbatim: "\(label):")
+            Text(verbatim: "\(label.loc):")
                 .frame(width: 100, alignment: .trailing)
                 .foregroundStyle(.secondary)
             VStack(alignment: .leading, spacing: 6) {
@@ -147,7 +147,7 @@ private struct PrefSection<Content: View>: View {
 
 /// 설명 텍스트 — 옵션 아래 secondary, callout(12pt). verbatim으로 markdown 회피.
 private func desc(_ text: String) -> some View {
-    Text(verbatim: text)
+    Text(verbatim: text.loc)
         .font(.callout)
         .foregroundStyle(.secondary)
         .fixedSize(horizontal: false, vertical: true)
@@ -166,7 +166,7 @@ private struct AppearanceTab: View {
                                 settings.ringColor = c
                             }
                         }
-                        ColorSwatch(color: settings.customRingColor, label: "커스텀", isSelected: settings.ringColor == .custom) {
+                        ColorSwatch(color: settings.customRingColor, label: "커스텀".loc, isSelected: settings.ringColor == .custom) {
                             settings.ringColor = .custom
                         }
                     }
