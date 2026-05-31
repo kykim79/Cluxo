@@ -4,6 +4,27 @@
 
 ## [Unreleased]
 
+## [1.1.0] — 2026-05-31
+
+### Added
+
+- **UI 언어 선택** — 메뉴바 우클릭 메뉴와 환경설정 "정보" 탭에서 시스템 기본 / 한국어 / English 즉시 선택. 변경 시 alert로 "지금 재시작 / 나중에" 안내. 새 인스턴스로 자동 재시작(`open -n`).
+  - 구현: `CursorSettings.PreferredLanguage` enum + `@Persisted("preferredLanguage")`. `main.swift`에서 `NSApplication` 인스턴스 생성 전 `AppleLanguages` 키 override. `.system` 선택 시 키 자체 삭제로 macOS 시스템 언어 fallback.
+
+### Changed
+
+- **i18n 대대적 영어 번역 보강** — 기존엔 영어 모드에서도 환경설정·라디얼 메뉴·notification 대부분이 한국어로 표시되던 문제 해결.
+  - 원인: SwiftUI `LocalizedStringKey` 자동 추출은 정적 리터럴만 인식. `Text(enum.label)`처럼 String 변수는 fixed로 표시되어 catalog matching 자체가 일어나지 않았음.
+  - `Localization.swift` 새 helper — `extension String { var loc: String { NSLocalizedString(self, comment: "") } }`. 한 줄로 동적 String을 catalog lookup.
+  - `CursorSettings`의 `RingColor`/`RingShape`/`RingSize`/`AnimationSpeed`/`BorderWeight`/`BorderStyle`/`RadialMenuItem`/`SubItem` label 모든 case에 `.loc`.
+  - `TrackpadGesture.label`, `PrefSection.label`, `desc()`, `PrefTab.label`, `window.title`, `ColorSwatch`, `ShortcutRow`, Lens Size Picker, `String(format: "%.1f초", …)` format string 등에 `.loc` 적용.
+  - `Localizable.xcstrings`에 새 source key + en 번역 약 180개 추가 (총 83 → 약 260 keys). enum 토큰부터 환경설정 긴 설명문까지 UI 노출 모든 한국어 문자열 포함.
+- **환경설정 창 폭 확장** — 영어 라벨 길이 수용. 창 520×580 → 620×600, `PrefSection` label 폭 100 → 140, sub-row 라벨 폭 70 → 100.
+
+### Known Limitations
+
+- 라디얼 메뉴·notification의 String interpolation 포함 동적 문자열(예: "켜짐 · 130pt")은 일부 component만 영어로 변환되어 부분 한국어가 남을 수 있음. 후속 PR에서 component 분리 예정.
+
 ## [1.0.0] — 2026-05-31
 
 ### Changed (BREAKING)
