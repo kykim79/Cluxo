@@ -688,7 +688,7 @@ private struct InfoTab: View {
     /// 성공 시 자동 재시작. 실패 시 brew 출력 표시 + Terminal fallback 버튼 노출.
     private func runHomebrewUpgrade() {
         upgrading = true
-        upgradeStage = "업데이트 시작..."
+        upgradeStage = "업데이트 시작...".loc
         upgradeError = nil
         upgradeOutput = ""
         Task {
@@ -697,26 +697,26 @@ private struct InfoTab: View {
             let brewPaths = ["/opt/homebrew/bin/brew", "/usr/local/bin/brew"]
             guard let brewPath = brewPaths.first(where: { FileManager.default.fileExists(atPath: $0) }) else {
                 upgrading = false
-                upgradeError = "Homebrew를 찾을 수 없습니다 (/opt/homebrew/bin/brew 또는 /usr/local/bin/brew). Release 페이지에서 zip을 직접 다운로드하세요."
+                upgradeError = "Homebrew를 찾을 수 없습니다 (/opt/homebrew/bin/brew 또는 /usr/local/bin/brew). Release 페이지에서 zip을 직접 다운로드하세요.".loc
                 return
             }
             do {
                 let result = try await runBrewUpgrade(brewPath: brewPath)
                 upgrading = false
                 if result.exitCode == 0 {
-                    upgradeStage = "✓ v\(newerVersion ?? "") 설치 완료. 곧 재시작됩니다..."
+                    upgradeStage = String(format: "✓ v%@ 설치 완료. 곧 재시작됩니다...".loc, newerVersion ?? "")
                     // re-enable spinner 영역에 success 메시지 잠깐 표시
                     upgrading = true
                     try? await Task.sleep(for: .milliseconds(1500))
                     relaunchApp()
                 } else {
-                    upgradeError = "업데이트 실패 (exit \(result.exitCode))"
+                    upgradeError = String(format: "업데이트 실패 (exit %d)".loc, result.exitCode)
                     // brew 출력은 길 수 있어 마지막 부분만 잘라 표시
                     upgradeOutput = String(result.output.suffix(800))
                 }
             } catch {
                 upgrading = false
-                upgradeError = "실행 실패: \(error.localizedDescription)"
+                upgradeError = String(format: "실행 실패: %@".loc, error.localizedDescription)
             }
         }
     }
@@ -768,12 +768,12 @@ private struct InfoTab: View {
 
     /// brew 출력에서 진행 stage 추정 — 한국어 사용자용 친화 라벨.
     private static func inferStage(from chunk: String) -> String? {
-        if chunk.contains("Auto-updating Homebrew") || chunk.contains("Updated") && chunk.contains("tap") { return "Homebrew 갱신 중..." }
-        if chunk.contains("Fetching") { return "다운로드 중..." }
-        if chunk.contains("Verified") { return "검증 중..." }
-        if chunk.contains("Uninstalling") || chunk.contains("Removing") { return "이전 버전 제거 중..." }
-        if chunk.contains("Moving") || chunk.contains("Installing") { return "설치 중..." }
-        if chunk.contains("successfully upgraded") || chunk.contains("successfully installed") { return "마무리 중..." }
+        if chunk.contains("Auto-updating Homebrew") || chunk.contains("Updated") && chunk.contains("tap") { return "Homebrew 갱신 중...".loc }
+        if chunk.contains("Fetching") { return "다운로드 중...".loc }
+        if chunk.contains("Verified") { return "검증 중...".loc }
+        if chunk.contains("Uninstalling") || chunk.contains("Removing") { return "이전 버전 제거 중...".loc }
+        if chunk.contains("Moving") || chunk.contains("Installing") { return "설치 중...".loc }
+        if chunk.contains("successfully upgraded") || chunk.contains("successfully installed") { return "마무리 중...".loc }
         return nil
     }
 
@@ -791,7 +791,7 @@ private struct InfoTab: View {
             }
         } catch {
             upgrading = false
-            upgradeError = "재시작 실패: \(error.localizedDescription)"
+            upgradeError = String(format: "재시작 실패: %@".loc, error.localizedDescription)
         }
     }
 
@@ -828,7 +828,7 @@ private struct InfoTab: View {
             proc.arguments = ["-a", "Terminal", scriptPath]
             try proc.run()
         } catch {
-            upgradeError = "Terminal 실행 실패: \(error.localizedDescription)"
+            upgradeError = String(format: "Terminal 실행 실패: %@".loc, error.localizedDescription)
         }
     }
 

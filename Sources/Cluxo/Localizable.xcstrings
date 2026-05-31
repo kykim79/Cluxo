@@ -2673,6 +2673,56 @@
           }
         }
       }
+    },
+    "업데이트 실패 (exit %d)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Update failed (exit %d)"
+          }
+        }
+      }
+    },
+    "실행 실패: %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Execution failed: %@"
+          }
+        }
+      }
+    },
+    "재시작 실패: %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restart failed: %@"
+          }
+        }
+      }
+    },
+    "Terminal 실행 실패: %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Terminal launch failed: %@"
+          }
+        }
+      }
+    },
+    "✓ v%@ 설치 완료. 곧 재시작됩니다...": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "✓ v%@ installed. Restarting shortly..."
+          }
+        }
+      }
     }
   }
 }

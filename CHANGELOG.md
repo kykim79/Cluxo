@@ -4,6 +4,16 @@
 
 ## [Unreleased]
 
+## [1.1.3] — 2026-05-31
+
+### Fixed
+
+- **In-app 업그레이드 흐름의 진행/오류 메시지가 영어 모드에서도 한국어로 표시** — `upgradeStage`/`upgradeError` 8곳이 `String` 변수에 동적 String을 그대로 대입해 `.loc` 적용이 누락됐었음.
+  - 진행 라벨(`업데이트 시작…`, `Homebrew 갱신 중…`, `다운로드 중…`, `검증 중…`, `이전 버전 제거 중…`, `설치 중…`, `마무리 중…`)에 `.loc`.
+  - 오류 메시지 4종은 `String(format: "...".loc, args…)` 패턴으로 분리: `업데이트 실패 (exit %d)`, `실행 실패: %@`, `재시작 실패: %@`, `Terminal 실행 실패: %@`.
+  - 성공 메시지 `✓ v%@ 설치 완료. 곧 재시작됩니다...`도 format으로 분리.
+  - catalog에 새 source key 5개 추가 + 죽은 interpolation entry 정리.
+
 ## [1.1.2] — 2026-05-31
 
 ### Fixed
