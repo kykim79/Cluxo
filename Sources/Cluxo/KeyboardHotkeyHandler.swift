@@ -235,6 +235,7 @@ final class KeyboardHotkeyHandler {
             center = raw
         }
         runtime.isRadialMenuActive = true
+        runtime.radialMenuDismissing = false   // 닫는 중이었다면 취소(재열기)
         runtime.radialMenuCenter = center
         runtime.radialMenuSelectedSector = nil
         runtime.radialMenuSelectedSubItem = nil
@@ -248,16 +249,25 @@ final class KeyboardHotkeyHandler {
     }
 
     /// Radial Menu cancel — ⌃⌥, 토글 close 또는 handleEscape에서 호출. 액션 실행 X.
+    /// 입력은 즉시 차단하되, 시각은 wedge가 역순으로 빙 둘러 사라진 뒤 제거(dismissing 단계).
     func cancelRadialMenuIfActive() {
         guard let runtime, runtime.isRadialMenuActive else { return }
-        runtime.isRadialMenuActive = false
-        runtime.isRadialMenuVisible = false
-        runtime.radialMenuShowHelp = false
-        runtime.radialMenuSelectedSector = nil
-        runtime.radialMenuSelectedSubItem = nil
-        runtime.radialMenuSelectedSubSubItem = nil
+        runtime.isRadialMenuActive = false        // 입력 즉시 차단
         radialMenuActiveFlag = false
         mouseMonitor?.shouldConsumeLeftClick = false
+        runtime.radialMenuShowHelp = false
+
+        // 이미 닫는 중이면 중복 예약 안 함
+        guard !runtime.radialMenuDismissing else { return }
+        runtime.radialMenuDismissing = true       // RadialMenuView가 역순 fade-out 시작
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.45) { [weak self] in
+            guard let runtime = self?.runtime, runtime.radialMenuDismissing else { return }  // 재열렸으면 skip
+            runtime.isRadialMenuVisible = false
+            runtime.radialMenuDismissing = false
+            runtime.radialMenuSelectedSector = nil
+            runtime.radialMenuSelectedSubItem = nil
+            runtime.radialMenuSelectedSubSubItem = nil
+        }
     }
 
     /// Radial Menu 좌클릭 — sub 위에서 클릭 시 실행, dead zone에서 클릭 시 close.

@@ -21,7 +21,8 @@ final class CursorRuntimeState: ObservableObject {
     @Published var radialMenuCenter: CGPoint = .zero  // hold 시작 시 cursor 위치 고정 (Cocoa)
     @Published var radialMenuSelectedSector: Int? = nil  // 0~7 강조된 sector, nil=dead zone(cancel)
     @Published var radialMenuSelectedSubItem: Int? = nil
-    @Published var radialMenuSelectedSubSubItem: Int? = nil  // 3번째 ring(branch 자식). nil이면 subSub 미진입  // 서브 ring(≥150pt) 도달 시 활성, 메인 영역이면 nil
+    @Published var radialMenuSelectedSubSubItem: Int? = nil  // 3번째 ring(branch 자식). nil이면 subSub 미진입
+    @Published var radialMenuDismissing: Bool = false  // 닫는 중 — wedge가 역순으로 사라진 뒤 실제 제거  // 서브 ring(≥150pt) 도달 시 활성, 메인 영역이면 nil
     @Published var isRadialMenuVisible: Bool = false  // 150ms hold 후만 true (marking mode — 빠른 release면 시각 안 띄우고 실행)
     @Published var radialMenuShowHelp: Bool = false  // 첫 5회 hold 동안만 메뉴 하단에 사용법 한 줄 표시
     @Published var magnifierImage: CGImage?

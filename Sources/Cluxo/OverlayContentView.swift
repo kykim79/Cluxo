@@ -161,7 +161,8 @@ struct OverlayContentView: View {
             }
 
             // Radial Menu (⌃⌥, toggle) — effects/돋보기 위에 표시. 사용자가 메뉴 활성 중 돋보기 토글해도 메뉴 가려지지 않음.
-            if runtime.isRadialMenuActive && runtime.isRadialMenuVisible && screenFrame.contains(runtime.radialMenuCenter) {
+            // isRadialMenuVisible 기준 — 닫는 중(dismissing, isRadialMenuActive=false)에도 사라짐 애니를 위해 유지.
+            if runtime.isRadialMenuVisible && screenFrame.contains(runtime.radialMenuCenter) {
                 let currentValues: [String] = (0..<8).map { i in
                     CursorSettings.RadialMenuItem(rawValue: i)?.currentValue(settings: settings, runtime: runtime) ?? ""
                 }
@@ -188,7 +189,8 @@ struct OverlayContentView: View {
                     subActiveStates: subActiveStates,
                     subSubActiveStates: subSubActiveStates,
                     showHelp: runtime.radialMenuShowHelp,
-                    accentColor: effectiveColor
+                    accentColor: effectiveColor,
+                    dismissing: runtime.radialMenuDismissing
                 )
                 // 메뉴 활성 동안 cursor 위치에 작은 흰 ring — 사용자가 자기 cursor 위치 인지 단서
                 if cursorOnScreen {
@@ -1058,6 +1060,7 @@ struct RadialMenuView: View {
     let subSubActiveStates: [Bool]?  // 활성 branch의 자식 강조
     let showHelp: Bool            // 처음 5회 동안만 하단에 사용법 한 줄 표시 (학습성)
     let accentColor: Color
+    let dismissing: Bool          // 닫는 중 — true가 되면 wedge가 역순으로 빙 둘러 사라진다
 
     // 메인 sector 8종 — RadialMenuItem이 icon(SF Symbol)/label 단일 source.
     private var items: [(icon: String, label: String)] {
@@ -1071,12 +1074,24 @@ struct RadialMenuView: View {
 
     private var canvasSize: CGFloat { Tokens.Radial.canvasSize }
 
+    // 등장/퇴장 연출 — wedge가 빙 둘러 순차로 나타나고(12시→시계방향), 닫을 땐 역순으로 사라진다.
+    @State private var appeared = false
+    @State private var subAppeared = false      // sector 선택 시 sub fan 순차 등장
+    @State private var subSubAppeared = false   // branch 선택 시 subSub fan 순차 등장
+    private let appearStep = 0.035       // sector당 지연
+    private func appearAnim(_ i: Int) -> Animation {
+        let order = appeared ? i : (7 - i)   // 등장 12시부터, 퇴장 역순
+        return .easeOut(duration: 0.22).delay(Double(order) * appearStep)
+    }
+
     var body: some View {
         ZStack {
-            // 메인 영역 경계만 옅게 표시. sub 영역은 sector 선택 시에만 나타나므로 미리 안 그린다.
+            // 메인 영역 경계 — wedge가 다 등장한 뒤(마지막 순서) 나타나게 해서 외곽 원을 미리 그리지 않는다.
             Circle()
                 .stroke(Tokens.Stroke.guideMedium, lineWidth: 1)
                 .frame(width: mainOuter * 2, height: mainOuter * 2)
+                .opacity(appeared ? 1 : 0)
+                .animation(appearAnim(7), value: appeared)
 
             // 8개 메인 wedge (pie slice)
             ForEach(0..<8, id: \.self) { i in
@@ -1094,6 +1109,9 @@ struct RadialMenuView: View {
                         PieWedge(startAngle: start, endAngle: end, innerRadius: deadRadius, outerRadius: mainOuter)
                             .stroke(Tokens.Stroke.guideMedium, lineWidth: 1)
                     )
+                    .opacity(appeared ? 1 : 0)
+                    .scaleEffect(appeared ? 1 : 0.85)
+                    .animation(appearAnim(i), value: appeared)        // 순차 등장
                     .animation(Tokens.Motion.select, value: isMainSelected)
             }
 
@@ -1105,6 +1123,8 @@ struct RadialMenuView: View {
                 Image(systemName: items[i].icon)
                     .font(.system(size: 22, weight: .medium))
                     .foregroundColor(.white)
+                    .opacity(appeared ? 1 : 0)
+                    .animation(appearAnim(i), value: appeared)
                     .offset(x: cos(rad) * r, y: sin(rad) * r)
             }
 
@@ -1147,6 +1167,9 @@ struct RadialMenuView: View {
                         )
                         .animation(Tokens.Motion.select, value: isSubSelected)
                         .animation(Tokens.Motion.easeShort, value: isCurrentSub)
+                        .opacity(subAppeared ? 1 : 0)
+                        .scaleEffect(subAppeared ? 1 : 0.7, anchor: .center)   // 메인과 같은 scale+fade. 좁은 fan이라 stagger를 더 크게.
+                        .animation(.easeOut(duration: 0.24).delay(Double(i) * 0.06), value: subAppeared)
                     let subCenterDeg = subStart + step * (Double(i) + 0.5)
                     let rSub = (mainOuter + subOuter) / 2
                     let radSub = subCenterDeg * .pi / 180
@@ -1165,7 +1188,9 @@ struct RadialMenuView: View {
                     }
                     .foregroundColor(.white)
                     .frame(maxWidth: Tokens.Radial.subLabelWidth)
+                    .opacity(subAppeared ? 1 : 0)
                     .offset(x: cos(radSub) * rSub, y: sin(radSub) * rSub)
+                    .animation(.easeOut(duration: 0.24).delay(Double(i) * 0.06), value: subAppeared)
                     // branch면 바깥(subSub가 펼쳐질 방향)으로 chevron — "더 drag하면 값이 나온다" 암시.
                     if subItem.isBranch {
                         Image(systemName: "chevron.right")
@@ -1207,6 +1232,9 @@ struct RadialMenuView: View {
                         )
                         .animation(Tokens.Motion.select, value: isSel)
                         .animation(Tokens.Motion.easeShort, value: isCur)
+                        .opacity(subSubAppeared ? 1 : 0)
+                        .scaleEffect(subSubAppeared ? 1 : 0.7, anchor: .center)
+                        .animation(.easeOut(duration: 0.24).delay(Double(j) * 0.06), value: subSubAppeared)
                     let ssCenterDeg = ssStart + ssStep * (Double(j) + 0.5)
                     let rSS = (subOuter + subSubOuter) / 2
                     let radSS = ssCenterDeg * .pi / 180
@@ -1218,7 +1246,9 @@ struct RadialMenuView: View {
                         .minimumScaleFactor(Tokens.Radial.labelScale)
                         .fixedSize(horizontal: false, vertical: true)
                         .frame(maxWidth: Tokens.Radial.subSubLabelWidth)
+                        .opacity(subSubAppeared ? 1 : 0)
                         .offset(x: cos(radSS) * rSS, y: sin(radSS) * rSS)
+                        .animation(.easeOut(duration: 0.24).delay(Double(j) * 0.06), value: subSubAppeared)
                 }
             }
 
@@ -1244,14 +1274,14 @@ struct RadialMenuView: View {
                         .font(.system(size: 20, weight: .medium))
                         .foregroundColor(Tokens.Stroke.textActive)
                     Text(items[sec].label)
-                        .font(Tokens.Text.labelTiny)
+                        .font(.system(size: 13, weight: .semibold))
                         .foregroundColor(Tokens.Stroke.textActive)
                         .multilineTextAlignment(.center)
                         .lineLimit(2)
                         .minimumScaleFactor(Tokens.Radial.labelScale)
                         .frame(maxWidth: Tokens.Radial.centerLabelWidth)
                     Text(detail)
-                        .font(.system(size: 9, weight: .medium))
+                        .font(.system(size: 10, weight: .medium))
                         .foregroundColor(Tokens.Stroke.textMuted)
                         .lineLimit(1)
                         .minimumScaleFactor(Tokens.Radial.labelScale)
@@ -1286,6 +1316,17 @@ struct RadialMenuView: View {
         .position(center)
         .allowsHitTesting(false)
         .transition(.opacity)  // cursor 위치에서 그 자리 페이드인 (scale은 frame 중심 anchor 때문에 화면 가운데에서 이동하는 느낌)
+        .onAppear { appeared = true }                          // wedge 순차 등장 시작
+        .onChange(of: dismissing) { appeared = !$0 }           // 닫는 중이면 역순 사라짐, 재열기면 다시 등장
+        // sector/sub 선택 시 sub·subSub fan을 다시 순차로 슬라이딩 등장 (한 프레임 리셋 후 트리거)
+        .onChange(of: selectedSector) { sec in
+            subAppeared = false
+            if sec != nil { DispatchQueue.main.async { subAppeared = true } }
+        }
+        .onChange(of: selectedSubItem) { sub in
+            subSubAppeared = false
+            if sub != nil { DispatchQueue.main.async { subSubAppeared = true } }
+        }
     }
 }
 
