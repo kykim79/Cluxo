@@ -26,6 +26,9 @@ class PreferencesWindowController: NSWindowController, NSToolbarDelegate {
         window.contentView = hosting
         window.center()
         window.isReleasedWhenClosed = false
+        // NSPanel의 기본 hidesOnDeactivate=true 때문에 다른 앱으로 포커스 옮기면
+        // 환경설정 창이 사라짐 — 사용자가 다른 창과 비교/참고하며 설정 못 함. 끔.
+        window.hidesOnDeactivate = false
         // macOS System Settings 표준 toolbar — 큰 SF Symbol + 작은 라벨, 선택 시 accent 강조.
         if #available(macOS 11.0, *) {
             window.toolbarStyle = .preference
