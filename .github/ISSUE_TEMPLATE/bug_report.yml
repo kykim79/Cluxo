@@ -1,0 +1,96 @@
+name: 버그 리포트 / Bug report
+description: 동작이 예상과 다르거나 충돌이 발생한 경우 / Report unexpected behavior or a crash
+title: "[Bug] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Cluxo 사용 중 문제를 알려주셔서 감사합니다. 아래 항목을 채워 주시면 빠르게 재현·수정할 수 있습니다.
+
+        Thanks for reporting an issue. The more detail you provide, the faster we can reproduce and fix it.
+
+  - type: input
+    id: version
+    attributes:
+      label: Cluxo 버전 / Version
+      description: 메뉴바 → Cluxo 정보 또는 `mdls -name kMDItemVersion /Applications/Cluxo.app` / Menu bar → About Cluxo
+      placeholder: "예: 1.0.0"
+    validations:
+      required: true
+
+  - type: input
+    id: macos
+    attributes:
+      label: macOS 버전 / macOS version
+      description: 시스템 설정 → 일반 → 정보 / System Settings → General → About
+      placeholder: "예: macOS 14.5 (Sonoma)"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: arch
+    attributes:
+      label: 칩 / Chip
+      options:
+        - Apple Silicon (M1/M2/M3/M4)
+        - Intel
+    validations:
+      required: true
+
+  - type: dropdown
+    id: install
+    attributes:
+      label: 설치 방법 / Install method
+      options:
+        - Homebrew Cask (`brew install --cask kykim79/tap/cluxo`)
+        - Manual (Release zip)
+        - Built from source
+    validations:
+      required: true
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: 무슨 일이 일어났나요 / What happened?
+      description: 현재 동작과 기대 동작을 모두 적어 주세요 / Describe both actual and expected behavior.
+      placeholder: |
+        현재: ...
+        기대: ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: 재현 절차 / Steps to reproduce
+      description: 가능하면 새 macOS 사용자 계정에서도 동일하게 재현되는 절차를 적어 주세요 / Minimal steps that reproduce the issue.
+      placeholder: |
+        1. ...
+        2. ...
+        3. ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: 스크린샷·영상 / Screenshots or video
+      description: 시각적인 이슈(링·효과·오버레이 위치 등)는 캡처가 큰 도움이 됩니다 / Attach a screenshot or short screen recording if relevant.
+
+  - type: checkboxes
+    id: permissions
+    attributes:
+      label: 권한 확인 / Permissions granted
+      description: 시스템 설정 → 개인정보 보호 및 보안 / System Settings → Privacy & Security
+      options:
+        - label: 손쉬운 사용 / Accessibility
+        - label: 입력 모니터링 / Input Monitoring
+        - label: 화면 기록 / Screen Recording (돋보기·스크린샷 모드용)
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: 콘솔 로그 / Console logs
+      description: 충돌이면 `~/Library/Logs/DiagnosticReports/`의 Cluxo-* 파일 일부 / Crash log excerpt from `~/Library/Logs/DiagnosticReports/`
+      render: shell

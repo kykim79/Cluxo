@@ -1,0 +1,57 @@
+name: 기능 제안 / Feature request
+description: 새 기능 또는 개선 아이디어 / Suggest a new feature or improvement
+title: "[Feature] "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        아이디어를 공유해 주셔서 감사합니다. 작은 개선부터 큰 기능까지 모두 환영합니다.
+
+        Thanks for sharing an idea — both small polishes and big features are welcome.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: 어떤 문제를 해결하나요 / What problem does this solve?
+      description: 새 기능이 필요한 사용 상황(발표·페어 프로그래밍·녹화 등)을 설명해 주세요 / Describe the use case (presentations, screencasts, pair programming, etc.)
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: 제안 / Proposal
+      description: 어떻게 동작하면 좋을지 구체적으로 적어 주세요. UX(단축키·라디얼 메뉴 위치 등)도 함께 / Describe the behavior and UX (shortcuts, radial menu placement, etc.).
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: 다른 대안 / Alternatives considered
+      description: 비슷한 기능을 제공하는 다른 앱 또는 우회 방법이 있나요? / Existing apps or workarounds you've considered.
+
+  - type: dropdown
+    id: category
+    attributes:
+      label: 분류 / Category
+      options:
+        - 커서 링·효과 / Cursor ring & effects
+        - 그리기 도구 / Drawing tools
+        - 라디얼 메뉴 / Radial menu
+        - 키스트로크 표시 / Keystroke display
+        - 돋보기·스포트라이트 / Magnifier & spotlight
+        - 단축키 / Shortcuts
+        - 환경설정 UI / Preferences UI
+        - 다국어 / Localization
+        - 기타 / Other
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: contribute
+    attributes:
+      label: 기여 의사 / Contribution
+      options:
+        - label: PR로 직접 구현하고 싶습니다 / I'd like to implement this in a PR
