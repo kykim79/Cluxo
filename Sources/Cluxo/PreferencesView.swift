@@ -580,17 +580,6 @@ private struct InfoTab: View {
                 LabeledContent("최소 요구 사항", value: "macOS 13.0 이상".loc)
             }
 
-            Section("Motion Semantics") {
-                VStack(alignment: .leading, spacing: 6) {
-                    ShortcutRow(key: "Breathing", desc: "링이 맥박처럼 숨쉼 — 대기 중")
-                    ShortcutRow(key: "수축+반동", desc: "클릭 확인됨")
-                    ShortcutRow(key: "방향 늘어남", desc: "드래그 진행 중")
-                    ShortcutRow(key: "Glow 강화", desc: "1.5초 이상 정지 — 주목 포인트")
-                    ShortcutRow(key: "SOS 링", desc: "흔들기 — 커서 위치 알림")
-                }
-                .padding(.vertical, 2)
-            }
-
             Section("업데이트") {
                 if upgrading {
                     HStack(spacing: 8) {
@@ -847,19 +836,6 @@ private struct InfoTab: View {
             task.arguments = ["-n", url.path]
             try? task.run()
             NSApp.terminate(nil)
-        }
-    }
-}
-
-private struct ShortcutRow: View {
-    let key: String
-    let desc: String
-    var body: some View {
-        HStack {
-            Text(verbatim: key.loc)
-                .font(.system(.callout, design: .monospaced))
-                .frame(width: 110, alignment: .leading)
-            Text(verbatim: desc.loc).font(.callout).foregroundColor(.secondary)
         }
     }
 }
