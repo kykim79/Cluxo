@@ -25,8 +25,10 @@ macOS menu bar app for presentations and screencasts. Visually emphasizes the mo
 - **Keystroke Display** — show pressed shortcuts as bottom overlay. Optional auto-enable when an unknown external monitor (meeting room, etc.) connects (trusted monitors excluded)
 - **Shake Detection** — wave the mouse to flash SOS ring at the cursor
 - **Screenshot Mode** — menu bar toggle. Normally overlay window has `sharingType = .none` (so the magnifier doesn't re-capture itself), but you can flip it to `.readOnly` temporarily for external `screencapture`/OBS. Auto-OFF on app restart.
-- **Radial Menu (⌃⌥,)** — 8-sector menu at cursor position. Click to toggle effects/color/size/shape/magnifier/spotlight; menu stays open for quick multi-adjustments during a presentation. Currently active settings show with a faint accent background.
+- **Radial Menu (⌃⌥, or long-press)** — 8-sector menu at cursor position. Click to toggle effects/color/size/shape/magnifier/spotlight; menu stays open for quick multi-adjustments during a presentation. Currently active settings show with a faint accent background.
+  - **Also opens on a long-press (0.5s) of the left mouse button — or a long-press on the trackpad** — handy on laptops or whenever your hand is on the trackpad and reaching for the keyboard would break flow. A 5pt deadband prevents conflict with normal drag/click.
 - **Drawing Mode (⌃⌥D)** — on-screen annotation for presentations/screencasts. 7 tools: free pen, line (Shift), arrow (Opt), rectangle (Cmd), ellipse (Cmd+Shift), highlighter (Cmd+Opt), numbered badge (Shift+Opt click). While active: Cmd+Z to undo last shape, `[` / `]` to adjust thickness (5 steps). Stroke color follows the ring color.
+- **Trackpad gesture feedback (experimental)** — visual labels/effects for system gestures: 4-finger pinch in/out, 3- and 4-finger swipes (↑↓←→), 5-finger pinch. Useful for showing your gestures to the audience during a presentation. Relies on the private MultitouchSupport API, so it's OFF by default — enable it in the Behavior tab of Preferences.
 
 ## Shortcuts
 
@@ -49,7 +51,7 @@ All shortcuts use `⌃⌥` (Control + Option):
 | `⌃⌥C` | Cycle to next ring color |
 | `⌃⌥H` | Cycle to next ring shape (circle ↔ squircle ↔ rhombus) |
 | `⌃⌥I` | Inspector — show (x, y) system coordinates next to the cursor |
-| `⌃⌥,` | **Radial Menu** — 8-sector mouse menu. Click to toggle effects/color/size/shape/magnifier/spotlight instantly; menu stays open for multi-adjustments. ESC to close |
+| `⌃⌥,` | **Radial Menu** — 8-sector mouse menu. Click to toggle effects/color/size/shape/magnifier/spotlight instantly; menu stays open for multi-adjustments. ESC to close. **Also opens on long-press (0.5s) of the left mouse button — or a long-press on the trackpad** |
 | `⌃⌥D` | **Toggle Drawing Mode** — on-screen annotation. While active: Drag=pen / **Shift**+drag=line / **Opt**+drag=arrow / **Cmd**+drag=rectangle / **Cmd+Shift**+drag=ellipse / **Cmd+Opt**+drag=highlighter / **Shift+Opt**+click=numbered badge. While active: **Cmd+Z**=undo last shape, **`[`** / **`]`**=adjust thickness, **ESC**=clear+exit. Color follows current ring color |
 
 Some shortcuts are configurable in Preferences (menu bar → Preferences).
