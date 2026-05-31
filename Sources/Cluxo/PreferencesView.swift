@@ -607,8 +607,8 @@ private struct GeneralTab: View {
     }
 
     var body: some View {
-        Form {
-            Section("표시 언어") {
+        VStack(alignment: .leading, spacing: 16) {
+            PrefSection(label: "표시 언어") {
                 Picker(selection: $settings.preferredLanguage) {
                     ForEach(CursorSettings.PreferredLanguage.allCases) { lang in
                         Text(verbatim: lang.label).tag(lang)
@@ -617,61 +617,52 @@ private struct GeneralTab: View {
                     Text("UI 언어")
                 }
                 .pickerStyle(.menu)
-
-                Text("앱 UI에 표시할 언어. 변경 후 Cluxo를 재시작해야 적용됩니다. ‘시스템 기본’은 macOS 시스템 언어를 따릅니다.")
-                    .font(.callout).foregroundStyle(.secondary)
-                    .fixedSize(horizontal: false, vertical: true)
+                desc("앱 UI에 표시할 언어. 변경 후 Cluxo를 재시작해야 적용됩니다. ‘시스템 기본’은 macOS 시스템 언어를 따릅니다.")
             }
             .onChange(of: settings.preferredLanguage) { _ in
                 promptRestartForLanguageChange()
             }
 
-            Section("시작") {
+            PrefSection(label: "시작") {
                 Toggle("로그인 시 자동 실행", isOn: $launchAtLogin)
                     .onChange(of: launchAtLogin) { v in settings.setLaunchAtLogin(v) }
                 Toggle("녹화·발표·회의 앱 활성화 시 자동 활성화", isOn: $settings.autoEnableOnRecording)
-                Text("Mac 로그인 후 자동 시작, 또는 OBS·Zoom·Keynote 등을 켤 때 Cluxo가 자동으로 활성화됩니다.")
-                    .font(.callout).foregroundStyle(.secondary)
-                    .fixedSize(horizontal: false, vertical: true)
+                desc("Mac 로그인 후 자동 시작, 또는 OBS·Zoom·Keynote 등을 켤 때 Cluxo가 자동으로 활성화됩니다.")
             }
 
-            Section("커서") {
+            PrefSection(label: "커서") {
                 HStack {
                     Text(verbatim: "숨김 대기".loc).frame(width: 100, alignment: .leading)
                     Slider(value: $settings.idleTimeout, in: 1...10, step: 0.5)
                     Text(String(format: "%.1f초".loc, settings.idleTimeout))
                         .monospacedDigit().frame(width: 44, alignment: .trailing)
                 }
-                Text("마우스를 안 움직인 후 링이 페이드 아웃되기까지 대기 시간. 발표 중엔 길게(5초+) 권장.")
-                    .font(.callout).foregroundStyle(.secondary)
-                    .fixedSize(horizontal: false, vertical: true)
+                desc("마우스를 안 움직인 후 링이 페이드 아웃되기까지 대기 시간. 발표 중엔 길게(5초+) 권장.")
             }
 
-            Section("스크린샷 모드") {
+            PrefSection(label: "스크린샷 모드") {
                 Toggle("외부 캡처 허용 (앱 재시작 시 자동 OFF)", isOn: $settings.isScreenshotMode)
-                Text("평소엔 자체 돋보기가 자기 overlay를 재캡처하지 않게 외부 캡처에서 제외되지만, 발표 자료/데모 GIF 만들 땐 이 토글로 외부 screencapture·OBS에 잡히게 풀어줍니다.")
-                    .font(.callout).foregroundStyle(.secondary)
-                    .fixedSize(horizontal: false, vertical: true)
+                desc("평소엔 자체 돋보기가 자기 overlay를 재캡처하지 않게 외부 캡처에서 제외되지만, 발표 자료/데모 GIF 만들 땐 이 토글로 외부 screencapture·OBS에 잡히게 풀어줍니다.")
             }
 
-            Section("앱 정보") {
-                LabeledContent("버전", value: "v\(appVersion) (\(buildNumber))")
-                LabeledContent("개발자", value: "ktoy")
-                LabeledContent("최소 요구 사항", value: "macOS 13.0 이상".loc)
+            PrefSection(label: "앱 정보") {
+                infoRow(label: "버전", value: "v\(appVersion) (\(buildNumber))")
+                infoRow(label: "개발자", value: "ktoy")
+                infoRow(label: "최소 요구 사항", value: "macOS 13.0 이상".loc)
             }
 
-            Section("업데이트") {
+            PrefSection(label: "업데이트") {
                 if upgrading {
                     HStack(spacing: 8) {
                         ProgressView().controlSize(.small)
-                        Text(upgradeStage).font(.caption).foregroundColor(.secondary)
+                        Text(verbatim: upgradeStage).font(.callout).foregroundColor(.secondary)
                     }
                 } else if let error = upgradeError {
                     VStack(alignment: .leading, spacing: 6) {
-                        Text(error).font(.caption).foregroundColor(.red)
+                        Text(verbatim: error).font(.callout).foregroundColor(.red)
                         if !upgradeOutput.isEmpty {
                             ScrollView {
-                                Text(upgradeOutput)
+                                Text(verbatim: upgradeOutput)
                                     .font(.system(.caption2, design: .monospaced))
                                     .textSelection(.enabled)
                                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -696,7 +687,7 @@ private struct GeneralTab: View {
                     }
                 } else {
                     if !updateMessage.isEmpty {
-                        Text(updateMessage).font(.caption).foregroundColor(.secondary)
+                        Text(verbatim: updateMessage).font(.callout).foregroundColor(.secondary)
                     }
                     HStack(spacing: 8) {
                         Button(checking ? "확인 중..." : "업데이트 확인") {
@@ -716,11 +707,19 @@ private struct GeneralTab: View {
                 }
             }
         }
-        .formStyle(.grouped)
-        .padding(.horizontal)
+        .padding(20)
         .measureContentHeight()
         .onAppear {
             launchAtLogin = settings.launchAtLoginEnabled
+        }
+    }
+
+    /// 앱 정보 한 줄 — secondary 라벨 + 우측 값. LabeledContent 대신 단순 HStack.
+    private func infoRow(label: String, value: String) -> some View {
+        HStack {
+            Text(verbatim: label.loc).foregroundStyle(.secondary)
+            Spacer()
+            Text(verbatim: value)
         }
     }
 
