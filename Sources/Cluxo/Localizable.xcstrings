@@ -2554,16 +2554,6 @@
         }
       }
     },
-    "✓ 최신 버전입니다 (v\\(appVersion))": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "✓ You're on the latest version (v\\(appVersion))"
-          }
-        }
-      }
-    },
     "대기 시간": {
       "localizations": {
         "en": {
@@ -2630,6 +2620,56 @@
           "stringUnit": {
             "state": "translated",
             "value": "Pulses once when idle for 1.5s — a natural \"look here\" cue."
+          }
+        }
+      }
+    },
+    "확인 실패: 서버 응답 %d": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Check failed: server response %d"
+          }
+        }
+      }
+    },
+    "✓ 최신 버전입니다 (v%@)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "✓ You're on the latest version (v%@)"
+          }
+        }
+      }
+    },
+    "📥 새 버전 v%@ 사용 가능 (현재 v%@)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "📥 New version v%@ available (current v%@)"
+          }
+        }
+      }
+    },
+    "⚠️ 로컬 버전(v%@)이 최신 release(v%@)보다 높습니다 — 개발 빌드": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "⚠️ Local version (v%@) is ahead of the latest release (v%@) — development build"
+          }
+        }
+      }
+    },
+    "확인 실패: %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Check failed: %@"
           }
         }
       }

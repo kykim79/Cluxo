@@ -663,7 +663,8 @@ private struct InfoTab: View {
             request.setValue("application/vnd.github+json", forHTTPHeaderField: "Accept")
             let (data, response) = try await URLSession.shared.data(for: request)
             guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
-                updateMessage = "확인 실패: 서버 응답 \((response as? HTTPURLResponse)?.statusCode ?? -1)"
+                let code = (response as? HTTPURLResponse)?.statusCode ?? -1
+                updateMessage = String(format: "확인 실패: 서버 응답 %d".loc, code)
                 return
             }
             struct Release: Decodable { let tag_name: String }
@@ -671,15 +672,15 @@ private struct InfoTab: View {
             let latestVersion = release.tag_name.hasPrefix("v") ? String(release.tag_name.dropFirst()) : release.tag_name
             switch appVersion.compare(latestVersion, options: .numeric) {
             case .orderedSame:
-                updateMessage = "✓ 최신 버전입니다 (v\(appVersion))"
+                updateMessage = String(format: "✓ 최신 버전입니다 (v%@)".loc, appVersion)
             case .orderedAscending:
                 newerVersion = latestVersion
-                updateMessage = "📥 새 버전 v\(latestVersion) 사용 가능 (현재 v\(appVersion))"
+                updateMessage = String(format: "📥 새 버전 v%@ 사용 가능 (현재 v%@)".loc, latestVersion, appVersion)
             case .orderedDescending:
-                updateMessage = "⚠️ 로컬 버전(v\(appVersion))이 최신 release(v\(latestVersion))보다 높습니다 — 개발 빌드"
+                updateMessage = String(format: "⚠️ 로컬 버전(v%@)이 최신 release(v%@)보다 높습니다 — 개발 빌드".loc, appVersion, latestVersion)
             }
         } catch {
-            updateMessage = "확인 실패: \(error.localizedDescription)"
+            updateMessage = String(format: "확인 실패: %@".loc, error.localizedDescription)
         }
     }
 
