@@ -291,7 +291,7 @@ private struct BehaviorTab: View {
                     HStack {
                         Text(verbatim: "표시 시간".loc).frame(width: 100, alignment: .leading)
                         Slider(value: $settings.keystrokeTimeout, in: 1...8, step: 0.5)
-                        Text(String(format: "%.1f초", settings.keystrokeTimeout))
+                        Text(String(format: "%.1f초".loc, settings.keystrokeTimeout))
                             .monospacedDigit().frame(width: 44, alignment: .trailing)
                     }
                     desc("키 입력 후 화면 하단 오버레이에 표시되는 시간. 빠른 시연엔 1~2초, 천천히 보여주는 발표엔 3~5초 권장.")
@@ -326,7 +326,7 @@ private struct BehaviorTab: View {
                     HStack {
                         Text(verbatim: "대기 시간".loc).frame(width: 100, alignment: .leading)
                         Slider(value: $settings.idleTimeout, in: 1...10, step: 0.5)
-                        Text(String(format: "%.1f초", settings.idleTimeout))
+                        Text(String(format: "%.1f초".loc, settings.idleTimeout))
                             .monospacedDigit().frame(width: 44, alignment: .trailing)
                     }
                     desc("마우스를 안 움직인 후 링이 페이드 아웃되기까지 대기 시간. 발표 중엔 길게(5초+) 권장.")

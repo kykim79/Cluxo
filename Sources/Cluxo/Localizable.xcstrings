@@ -2244,16 +2244,6 @@
         }
       }
     },
-    "1.5초 멈추면 1회 확장 표시. \\\"여기 보세요\\\" 자연스러운 강조.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Pulses once when idle for 1.5s — a natural \\\"look here\\\" cue."
-          }
-        }
-      }
-    },
     "누른 키를 화면 하단에 오버레이로 표시. 발표·녹화 중 단축키 시연용.": {
       "localizations": {
         "en": {
@@ -2630,6 +2620,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "⌃⌥= / ⌃⌥- — Magnifier zoom in/out (0.5× step)"
+          }
+        }
+      }
+    },
+    "1.5초 멈추면 1회 확장 표시. \"여기 보세요\" 자연스러운 강조.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pulses once when idle for 1.5s — a natural \"look here\" cue."
           }
         }
       }
