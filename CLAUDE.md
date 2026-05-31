@@ -38,17 +38,18 @@ xcodebuild ... test -only-testing:CluxoTests/ShakeDetectionTests/test_horizontal
 
 `@MainActor AppDelegate`(`AppDelegate.swift`)가 중앙 코디네이터: 4개 상태 객체 + 4개 서비스를 owning하고, 마우스 이벤트를 라우팅하며 오버레이 lifecycle을 관리한다. 원래의 God object를 책임별로 분할한 구조다.
 
-**상태 (4 ObservableObject)** — `CursorSettings`(영구 설정), `CursorRuntimeState`(커서 위치·motion·드래그), `EffectsState`(클릭/스크롤/트레일/흔들기 효과 큐), `KeystrokeOverlayState`(키스트로크 알림 큐).
+**상태 (5 ObservableObject)** — `CursorSettings`(영구 설정), `CursorRuntimeState`(커서 위치·motion·드래그), `EffectsState`(클릭/스크롤/트레일/흔들기 효과 큐), `KeystrokeOverlayState`(키스트로크 알림 큐), `DrawingState`(⌃⌥D 그리기 모드 — 발표용 annotation 도형).
 
-**서비스** — `PermissionsManager`(TCC 권한 4종), `AppActivationDetector`(NSWorkspace로 발표·녹화 앱 감지), `MagnifierCaptureService`(ScreenCaptureKit SCStream 돋보기), `KeyboardHotkeyHandler`(전역 단축키 + 키스트로크), `MouseEventMonitor`(CGEventTap).
+**서비스** — `PermissionsManager`(TCC 권한 4종), `AppActivationDetector`(NSWorkspace로 발표·녹화 앱 감지), `MagnifierCaptureService`(ScreenCaptureKit SCStream 돋보기), `KeyboardHotkeyHandler`(전역 단축키 + 키스트로크), `MouseEventMonitor`(CGEventTap). `MultitouchService`는 AppDelegate가 owning하지 않는 `.shared` 싱글톤 — **비공식 `MultitouchSupport.framework`를 `dlopen`/`dlsym`으로 brige해** 시스템이 일반 앱에 안 넘기는 멀티핑거 트랙패드 제스처 raw 터치 frame을 읽는다(BetterTouchTool류 표준 우회로). symbol 누락 시 graceful no-op, App Store 제출 불가(Homebrew 배포라 무관). raw trace 분류는 순수 함수 `TrackpadGestureClassifier`(`TrackpadGesture.swift`)로 분리해 unit test.
 
-**뷰** — `OverlayWindowController`(전체화면 투명 NSWindow), `OverlayContentView`(SwiftUI 링·효과·트레일), `PreferencesView`(환경설정).
+**뷰** — `OverlayWindowController`(전체화면 투명 NSWindow), `OverlayContentView`(SwiftUI 링·효과·트레일·그리기), `PreferencesView`(환경설정 콘텐츠) + `PreferencesWindowController`(창 lifecycle).
 
 핵심 설계 결정:
 - **CGEventTap은 백그라운드 스레드**에서 돈다 — 메인 RunLoop와 격리되어 NSMenu 트래킹/앱 활성화 변화에 영향받지 않음.
 - **이벤트 기반 커서 추적** — 폴링 Timer 없음. `onMouseMove` push, idle 감지는 `DispatchWorkItem`. `handleMouseMove`는 ~60Hz hotpath라 매번 NSScreen 쿼리를 피하고 `primaryScreenHeight`를 캐싱 (`screensChanged()`에서만 갱신).
 - **좌표계 변환** — CGEvent의 Quartz 좌표(top-left) → Cocoa 좌표(bottom-left)로 변환 후 저장.
 - **멀티 모니터** — `NSScreen`마다 별도 오버레이 윈도우. `screenFrame.contains(point)` 필터로 효과 중복 렌더링 방지.
+- **모니터 신뢰(발표 안전)** — `MonitorIdentity.swift`의 `NSScreen.stableUUID`(`CGDisplayCreateUUIDFromDisplayID`, EDID 기반 안정 식별)로 외장 모니터를 식별. 자주 쓰는 데스크탑 모니터는 `CursorSettings.trustedMonitorUUIDs`에 등록해 제외하고, "낯선 모니터"(미등록/내장 아님)가 붙으면 키스트로크 표시를 켜는 쪽으로 동작 — 발표 환경에선 안전한 방향.
 - **돋보기 + 스크린샷 모드** — 오버레이의 `sharingType`이 평소 `.none`이라야 자체 돋보기가 자기 overlay를 재캡처하지 않는다. 메뉴바 "스크린샷 모드" ON 시 `.readOnly`로 풀어 외부 `screencapture`/OBS가 잡게 함 (앱 재시작 시 자동 OFF).
 
 ## @Persisted PropertyWrapper
@@ -59,10 +60,12 @@ xcodebuild ... test -only-testing:CluxoTests/ShakeDetectionTests/test_horizontal
 
 `Localizable.xcstrings` String Catalog 사용. `sourceLanguage: ko` — 코드의 hardcoded 한국어가 source key, `en`은 번역. SwiftUI의 `Text`/`Toggle`/`Section`/`Label`은 `LocalizedStringKey`를 자동으로 받으므로, 새 UI 문자열 번역은 **코드 변경 없이** `Localizable.xcstrings`에 key + en 번역만 추가하면 된다. `project.yml`의 `LOCALIZATION_PREFERS_STRING_CATALOGS: YES`로 번역 누락 시 base(ko)로 fallback.
 
+**자동 추출은 정적 리터럴만** 인식한다 — `Text(enum.label)`처럼 String 변수를 넘기면 번역되지 않고 fixed로 표시된다. enum `label`/동적 desc/메뉴·알림 텍스트는 `String.loc`(`Localization.swift`, `NSLocalizedString` 래퍼)로 명시적으로 catalog lookup한다 (예: `"노란색".loc`). 이때도 한국어 source key가 `Localizable.xcstrings`에 그대로 들어 있어야 한다.
+
 ## 릴리스
 
 `v*.*.*` (또는 `v*.*`) 태그 push → `.github/workflows/release.yml`이 macOS runner에서 `xcodegen` + `xcodebuild Release`(ad-hoc 사이닝) → `ditto`로 zip → GitHub Release 업로드 → `kykim79/homebrew-tap`의 Cask에 version + sha256 자동 commit. 버전은 태그에서 추출해 `MARKETING_VERSION`/`CURRENT_PROJECT_VERSION`으로 주입(로컬 빌드는 `project.yml`의 기본값). 릴리스 시 `CHANGELOG.md`(Keep a Changelog 형식)와 `project.yml`의 `MARKETING_VERSION`을 함께 갱신한다.
 
 ## Design System
 
-UI 효과·오버레이 시각 결정은 항상 `DESIGN.md`를 먼저 읽고 따른다. 색·spacing·corner radius·motion duration·spring 파라미터·radial menu 거리·notification 포맷이 거기에 토큰화되어 있다. 새 효과 추가 시 토큰 외 값을 하드코딩하지 말 것 — 시스템 일관성이 깨진다. 이탈이 필요하면 명시적으로 사용자 승인 + Decisions Log 갱신.
+UI 효과·오버레이 시각 결정은 항상 `DESIGN.md`를 먼저 읽고 따른다. 색·spacing·corner radius·motion duration·spring 파라미터·radial menu 거리·notification 포맷이 거기에 토큰화되어 있고, 코드에서는 `DesignTokens.swift`의 `Tokens` enum으로 구현돼 있다. 새 효과 추가 시 토큰 외 값을 하드코딩하지 말 것 — `Tokens`에 없으면 먼저 토큰을 추가한다. 시스템 일관성이 깨진다. 이탈이 필요하면 명시적으로 사용자 승인 + Decisions Log 갱신.
