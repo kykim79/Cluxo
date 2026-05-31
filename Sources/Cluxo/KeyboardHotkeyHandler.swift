@@ -274,16 +274,13 @@ final class KeyboardHotkeyHandler {
     /// 일반 sub 실행은 메뉴 유지 (사용자가 여러 효과 연속 토글 가능).
     func handleRadialMenuClick() {
         guard let runtime, runtime.isRadialMenuActive else { return }
-        let dx = runtime.cursorPosition.x - runtime.radialMenuCenter.x
-        let dy = runtime.cursorPosition.y - runtime.radialMenuCenter.y
-        let dist = sqrt(dx*dx + dy*dy)
-        // dead zone(✕ 닫기) 클릭 → close
-        if dist < Tokens.Radial.deadRadius {
+        // 선택 없음(중심 dead zone ✕ 또는 메뉴 바깥) 클릭 → 닫기. 둘 다 중심에 ✕가 보이므로 일관.
+        // (바깥에서 ✕ 보고 클릭해도 안 닫혀 클릭 소비가 안 풀리던 버그 수정.)
+        guard let sector = runtime.radialMenuSelectedSector else {
             cancelRadialMenuIfActive()
             return
         }
         // sub/subSub 위 클릭 → 실행, 메뉴 유지
-        guard let sector = runtime.radialMenuSelectedSector else { return }
         if let sub = runtime.radialMenuSelectedSubItem {
             if let subSub = runtime.radialMenuSelectedSubSubItem {
                 executeRadialSubSubAction(sector: sector, sub: sub, subSub: subSub)   // 2단계: 자식 값
