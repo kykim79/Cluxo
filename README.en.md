@@ -54,6 +54,14 @@ All shortcuts use `⌃⌥` (Control + Option):
 
 Some shortcuts are configurable in Preferences (menu bar → Preferences).
 
+## Preferences
+
+8 color slots (incl. custom), 3 ring shapes, 4 sizes, plus opacity / speed / effect toggles — all in one place. UI language (System Default / Korean / English) is selectable from the **Info** tab.
+
+![Preferences — Appearance tab](docs/screenshots/02-preferences.png)
+
+![Preferences — Behavior tab](docs/screenshots/03-preferences-behavior.png)
+
 ## System Requirements
 
 - macOS 13.0 or later
