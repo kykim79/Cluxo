@@ -11,7 +11,9 @@ import ServiceManagement
 @MainActor
 final class CursorSettings: ObservableObject {
     // MARK: - Persisted Settings
-    @Persisted("ringColor", default: RingColor.yellow) var ringColor: RingColor
+    // v1.0.0: 첫 실행 default는 minimalist preset — 효과 절제, ring 자체로 강조.
+    // 발견 가능한 옵션은 환경설정에서 ON. (글로우·정지펄스·앵커라인 등 default OFF로 변경)
+    @Persisted("ringColor", default: RingColor.cyan) var ringColor: RingColor
     @Persisted("ringShape", default: RingShape.circle) var ringShape: RingShape
     @Persisted("ringSize", default: RingSize.medium) var ringSize: RingSize
     @Persisted("ringOpacity", default: 1.0, debounce: 0.3) var ringOpacity: Double
@@ -34,15 +36,15 @@ final class CursorSettings: ObservableObject {
     // 그리기 toolbar 위치 (좌측 padding / 하단 padding, pt). 사용자가 drag로 이동 가능.
     @Persisted("drawingToolbarLeading", default: CGFloat(28)) var drawingToolbarLeading: CGFloat
     @Persisted("drawingToolbarBottom", default: CGFloat(110)) var drawingToolbarBottom: CGFloat
-    @Persisted("borderWeight", default: BorderWeight.normal) var borderWeight: BorderWeight
+    @Persisted("borderWeight", default: BorderWeight.thin) var borderWeight: BorderWeight
     @Persisted("borderStyle", default: BorderStyle.solid) var borderStyle: BorderStyle
     @Persisted("perspectiveWarping", default: false) var isPerspectiveWarping: Bool
     @Persisted("hasInnerRing", default: false) var hasInnerRing: Bool
-    @Persisted("isRingFillEnabled", default: false) var isRingFillEnabled: Bool
-    @Persisted("isGlowEnabled", default: true) var isGlowEnabled: Bool
+    @Persisted("isRingFillEnabled", default: true) var isRingFillEnabled: Bool
+    @Persisted("isGlowEnabled", default: false) var isGlowEnabled: Bool
     @Persisted("isKeystrokeEnabled", default: false) var isKeystrokeEnabled: Bool
     @Persisted("isTrailEnabled", default: false) var isTrailEnabled: Bool
-    @Persisted("isAnchoredLineEnabled", default: true) var isAnchoredLineEnabled: Bool  // #17 — 자동 임계 기반, 평소 비-intrusive
+    @Persisted("isAnchoredLineEnabled", default: false) var isAnchoredLineEnabled: Bool  // #17 — 자동 임계 기반, 평소 비-intrusive
     @Persisted("isCometTailEnabled", default: false) var isCometTailEnabled: Bool  // #18 — 드래그 streak, 임팩트 커서 default off
     @Persisted("isDragAngleLabelEnabled", default: false) var isDragAngleLabelEnabled: Bool  // 드래그 중 각도 표시 (도면용 — default off)
     @Persisted("isIdlePulseEnabled", default: true) var isIdlePulseEnabled: Bool  // 1.5초 정지 시 1회 펄스 — "여기 보세요" 자연스러운 강조

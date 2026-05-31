@@ -3,13 +3,21 @@ import AppKit
 
 // MARK: - Preferences Window Controller
 
-class PreferencesWindowController: NSWindowController {
+/// 현재 선택된 탭 — NSToolbar(AppKit)와 SwiftUI 본문이 같은 source 공유.
+@MainActor
+final class PrefSelection: ObservableObject {
+    @Published var tab: PrefTab = .appearance
+}
+
+class PreferencesWindowController: NSWindowController, NSToolbarDelegate {
+    let selection = PrefSelection()
+
     init(settings: CursorSettings, runtime: CursorRuntimeState) {
-        let view = PreferencesView(settings: settings, runtime: runtime)
+        let view = PreferencesView(settings: settings, runtime: runtime, selection: selection)
         let hosting = NSHostingView(rootView: view)
-        hosting.frame = NSRect(x: 0, y: 0, width: 480, height: 500)
+        hosting.frame = NSRect(x: 0, y: 0, width: 520, height: 580)
         let window = NSPanel(
-            contentRect: NSRect(x: 0, y: 0, width: 480, height: 500),
+            contentRect: NSRect(x: 0, y: 0, width: 520, height: 580),
             styleMask: [.titled, .closable],
             backing: .buffered,
             defer: false
@@ -18,139 +26,227 @@ class PreferencesWindowController: NSWindowController {
         window.contentView = hosting
         window.center()
         window.isReleasedWhenClosed = false
+        // macOS System Settings 표준 toolbar — 큰 SF Symbol + 작은 라벨, 선택 시 accent 강조.
+        if #available(macOS 11.0, *) {
+            window.toolbarStyle = .preference
+        }
+
         super.init(window: window)
+
+        let toolbar = NSToolbar(identifier: "ClixPrefToolbar")
+        toolbar.delegate = self
+        toolbar.displayMode = .iconAndLabel
+        toolbar.allowsUserCustomization = false
+        toolbar.autosavesConfiguration = false
+        toolbar.selectedItemIdentifier = NSToolbarItem.Identifier(PrefTab.appearance.rawValue)
+        window.toolbar = toolbar
     }
 
     required init?(coder: NSCoder) { fatalError() }
+
+    // MARK: - NSToolbarDelegate
+
+    func toolbarDefaultItemIdentifiers(_ toolbar: NSToolbar) -> [NSToolbarItem.Identifier] {
+        PrefTab.allCases.map { NSToolbarItem.Identifier($0.rawValue) }
+    }
+
+    func toolbarAllowedItemIdentifiers(_ toolbar: NSToolbar) -> [NSToolbarItem.Identifier] {
+        toolbarDefaultItemIdentifiers(toolbar)
+    }
+
+    func toolbarSelectableItemIdentifiers(_ toolbar: NSToolbar) -> [NSToolbarItem.Identifier] {
+        toolbarDefaultItemIdentifiers(toolbar)
+    }
+
+    func toolbar(_ toolbar: NSToolbar,
+                 itemForItemIdentifier itemIdentifier: NSToolbarItem.Identifier,
+                 willBeInsertedIntoToolbar flag: Bool) -> NSToolbarItem? {
+        guard let tab = PrefTab(rawValue: itemIdentifier.rawValue) else { return nil }
+        let item = NSToolbarItem(itemIdentifier: itemIdentifier)
+        item.label = tab.label
+        item.paletteLabel = tab.label
+        item.image = NSImage(systemSymbolName: tab.icon, accessibilityDescription: tab.label)
+        item.target = self
+        item.action = #selector(selectTab(_:))
+        return item
+    }
+
+    @objc private func selectTab(_ sender: NSToolbarItem) {
+        guard let tab = PrefTab(rawValue: sender.itemIdentifier.rawValue) else { return }
+        selection.tab = tab
+    }
 }
 
 // MARK: - Preferences View
 
+/// 환경설정 탭. SwiftUI TabView가 macOS에서 자동으로 NSToolbar를 만들지 않아
+/// reference(MonitorControl 환경설정)처럼 큰 SF Symbol + 라벨이 안 보임 →
+/// 자체 segmented tab bar로 직접 구현.
+enum PrefTab: String, CaseIterable, Identifiable {
+    case appearance, behavior, magnifier, shortcuts, info
+    var id: String { rawValue }
+    var label: String {
+        switch self {
+        case .appearance: return "모양"
+        case .behavior:   return "동작"
+        case .magnifier:  return "돋보기"
+        case .shortcuts:  return "단축키"
+        case .info:       return "정보"
+        }
+    }
+    var icon: String {
+        switch self {
+        case .appearance: return "paintpalette.fill"
+        case .behavior:   return "cursorarrow.motionlines"
+        case .magnifier:  return "plus.magnifyingglass"
+        case .shortcuts:  return "keyboard.fill"
+        case .info:       return "info.circle.fill"
+        }
+    }
+}
+
 struct PreferencesView: View {
     @ObservedObject var settings: CursorSettings
     @ObservedObject var runtime: CursorRuntimeState
+    @ObservedObject var selection: PrefSelection
 
     var body: some View {
-        TabView {
-            AppearanceTab(settings: settings)
-                .tabItem { Label("모양", systemImage: "circle.dashed") }
-
-            BehaviorTab(settings: settings)
-                .tabItem { Label("동작", systemImage: "cursorarrow") }
-
-            MagnifierTab(settings: settings, runtime: runtime)
-                .tabItem { Label("돋보기", systemImage: "magnifyingglass.circle") }
-
-            ShortcutsTab(settings: settings)
-                .tabItem { Label("단축키", systemImage: "keyboard") }
-
-            InfoTab()
-                .tabItem { Label("정보", systemImage: "info.circle") }
+        // 상단 toolbar는 NSToolbar(PreferencesWindowController)가 처리. SwiftUI는 본문만.
+        Group {
+            switch selection.tab {
+            case .appearance: AppearanceTab(settings: settings)
+            case .behavior:   BehaviorTab(settings: settings)
+            case .magnifier:  MagnifierTab(settings: settings, runtime: runtime)
+            case .shortcuts:  ShortcutsTab(settings: settings)
+            case .info:       InfoTab()
+            }
         }
-        .frame(width: 480, height: 500)
+        .frame(width: 520, height: 580)
     }
 }
 
 // MARK: - Appearance Tab
 
+/// Tailscale 패턴 — 좌측 라벨 + 우측 옵션 그룹. 카드 박스 없이 깔끔.
+private struct PrefSection<Content: View>: View {
+    let label: String
+    @ViewBuilder var content: () -> Content
+
+    var body: some View {
+        HStack(alignment: .top, spacing: 14) {
+            Text(verbatim: "\(label):")
+                .frame(width: 100, alignment: .trailing)
+                .foregroundStyle(.secondary)
+            VStack(alignment: .leading, spacing: 6) {
+                content()
+            }
+            Spacer(minLength: 0)
+        }
+    }
+}
+
+/// 설명 텍스트 — 옵션 아래 secondary, callout(12pt). verbatim으로 markdown 회피.
+private func desc(_ text: String) -> some View {
+    Text(verbatim: text)
+        .font(.callout)
+        .foregroundStyle(.secondary)
+        .fixedSize(horizontal: false, vertical: true)
+}
+
 private struct AppearanceTab: View {
     @ObservedObject var settings: CursorSettings
 
     var body: some View {
-        Form {
-            Section("커서 링 색상") {
-                // 7개 표준 색 + 커스텀 = 8슬롯, 4×2 grid 깔끔하게 채움.
-                LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 4), spacing: 10) {
-                    ForEach(CursorSettings.RingColor.allCases.filter { $0 != .custom }) { c in
-                        ColorSwatch(
-                            color: c.color,
-                            label: c.label,
-                            isSelected: settings.ringColor == c
-                        ) { settings.ringColor = c }
+        ScrollView {
+            VStack(alignment: .leading, spacing: 22) {
+                PrefSection(label: "색상") {
+                    LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 12), count: 4), spacing: 10) {
+                        ForEach(CursorSettings.RingColor.allCases.filter { $0 != .custom }) { c in
+                            ColorSwatch(color: c.color, label: c.label, isSelected: settings.ringColor == c) {
+                                settings.ringColor = c
+                            }
+                        }
+                        ColorSwatch(color: settings.customRingColor, label: "커스텀", isSelected: settings.ringColor == .custom) {
+                            settings.ringColor = .custom
+                        }
                     }
-                    // 커스텀 swatch — 다른 swatch와 동일한 시각, 현재 customRingColor 미리보기
-                    ColorSwatch(
-                        color: settings.customRingColor,
-                        label: "커스텀",
-                        isSelected: settings.ringColor == .custom
-                    ) { settings.ringColor = .custom }
-                }
-                .padding(.vertical, 4)
-
-                // 커스텀 선택 시만 ColorPicker 노출 — clutter 줄이고 의도 명확
-                if settings.ringColor == .custom {
-                    ColorPicker("커스텀 색상", selection: $settings.customRingColor)
-                }
-            }
-
-            Section("링 모양") {
-                Picker("모양", selection: $settings.ringShape) {
-                    ForEach(CursorSettings.RingShape.allCases) { s in
-                        Text(s.label).tag(s)
+                    if settings.ringColor == .custom {
+                        ColorPicker("커스텀 색상", selection: $settings.customRingColor)
                     }
+                    desc("마우스 커서 주변 링의 기본 색. ⌃⌥1~6 단축키 또는 라디얼 메뉴(⌃⌥,)로 빠르게 전환. 클릭/드래그/그리기 등 모든 강조 효과가 이 색을 따릅니다.")
                 }
-                .pickerStyle(.segmented)
-                .labelsHidden()
-            }
 
-            Section("링 크기") {
-                Picker("크기", selection: $settings.ringSize) {
-                    ForEach(CursorSettings.RingSize.allCases) { s in
-                        Text(s.label).tag(s)
+                PrefSection(label: "모양") {
+                    Picker("모양", selection: $settings.ringShape) {
+                        ForEach(CursorSettings.RingShape.allCases) { Text($0.label).tag($0) }
                     }
+                    .pickerStyle(.segmented).labelsHidden()
+                    desc("원형이 가장 자연스럽습니다. 둥근 사각형은 코드 영역 강조, 마름모는 시선 집중도가 가장 높습니다.")
                 }
-                .pickerStyle(.segmented)
-                .labelsHidden()
-            }
 
-            Section("링 투명도") {
-                LabeledContent("투명도") {
+                PrefSection(label: "크기") {
+                    Picker("크기", selection: $settings.ringSize) {
+                        ForEach(CursorSettings.RingSize.allCases) { Text($0.label).tag($0) }
+                    }
+                    .pickerStyle(.segmented).labelsHidden()
+                    desc("발표 화면 크기와 시청자 거리에 맞춰 선택. 4K·대형 디스플레이일수록 큰 크기 권장.")
+                }
+
+                PrefSection(label: "투명도") {
                     HStack {
                         Slider(value: $settings.ringOpacity, in: 0.2...1.0, step: 0.05)
                         Text(String(format: "%.0f%%", settings.ringOpacity * 100))
                             .monospacedDigit().frame(width: 44, alignment: .trailing)
                     }
+                    desc("100%는 명확하지만 아래 콘텐츠를 가립니다. 80~90% 정도면 콘텐츠도 보이면서 강조 효과 유지.")
                 }
-            }
 
-            Section("테두리 두께") {
-                Picker("두께", selection: $settings.borderWeight) {
-                    ForEach(CursorSettings.BorderWeight.allCases) { w in Text(w.label).tag(w) }
+                PrefSection(label: "테두리 두께") {
+                    Picker("두께", selection: $settings.borderWeight) {
+                        ForEach(CursorSettings.BorderWeight.allCases) { Text($0.label).tag($0) }
+                    }
+                    .pickerStyle(.segmented).labelsHidden()
+                    desc("얇은 테두리는 미니멀한 인상, 굵은 테두리는 멀리서도 잘 보입니다.")
                 }
-                .pickerStyle(.segmented).labelsHidden()
-            }
 
-            Section("테두리 스타일") {
-                Picker("스타일", selection: $settings.borderStyle) {
-                    ForEach(CursorSettings.BorderStyle.allCases) { s in Text(s.label).tag(s) }
+                PrefSection(label: "테두리 스타일") {
+                    Picker("스타일", selection: $settings.borderStyle) {
+                        ForEach(CursorSettings.BorderStyle.allCases) { Text($0.label).tag($0) }
+                    }
+                    .pickerStyle(.segmented).labelsHidden()
+
+                    Toggle("이중 링", isOn: $settings.hasInnerRing)
+                    desc("메인 링 안쪽에 반투명 보조 선을 추가해 두께감 보강.")
+
+                    Toggle("링 채우기 (반투명 도넛)", isOn: $settings.isRingFillEnabled)
+                    desc("링 안쪽을 반투명 링 색으로 채워 도넛 형태로. 흰 배경에서도 잘 보입니다.")
+
+                    Toggle("글로우 효과", isOn: $settings.isGlowEnabled)
+                    desc("링 주변에 부드러운 빛 번짐. 시각 무게 ↑, 멀리서도 인지 쉬움.")
+
+                    Toggle("원근 왜곡", isOn: $settings.isPerspectiveWarping)
+                    desc("드래그 방향에 따라 링이 살짝 기울어지는 입체감 효과.")
                 }
-                .pickerStyle(.segmented).labelsHidden()
 
-                Toggle("이중 링 (안쪽 반투명 선)", isOn: $settings.hasInnerRing)
-                Toggle("링 채우기 (반투명 도넛)", isOn: $settings.isRingFillEnabled)
-                Toggle("글로우 효과", isOn: $settings.isGlowEnabled)
-                Toggle("원근 왜곡 (Perspective Warping)", isOn: $settings.isPerspectiveWarping)
-            }
-
-            Section("애니메이션 속도") {
-                Picker("속도", selection: $settings.animationSpeed) {
-                    ForEach(CursorSettings.AnimationSpeed.allCases) { s in Text(s.label).tag(s) }
+                PrefSection(label: "애니메이션 속도") {
+                    Picker("속도", selection: $settings.animationSpeed) {
+                        ForEach(CursorSettings.AnimationSpeed.allCases) { Text($0.label).tag($0) }
+                    }
+                    .pickerStyle(.segmented).labelsHidden()
+                    desc("클릭·드래그·정지 펄스 등 모든 모션 재생 속도. 발표 중엔 보통, 빠른 시연엔 빠름.")
                 }
-                .pickerStyle(.segmented).labelsHidden()
-            }
 
-            Section("스포트라이트 반경") {
-                LabeledContent("반경") {
+                PrefSection(label: "스포트라이트 반경") {
                     HStack {
                         Slider(value: $settings.spotlightRadius, in: 60...250, step: 10)
                         Text("\(Int(settings.spotlightRadius))pt")
                             .monospacedDigit().frame(width: 44, alignment: .trailing)
                     }
+                    desc("⌃⌥S 스포트라이트가 비추는 원의 반지름. 코드 한 줄엔 작게(60~100), UI 영역엔 크게(180~220).")
                 }
             }
+            .padding(24)
         }
-        .formStyle(.grouped)
-        .padding(.horizontal)
     }
 }
 
@@ -166,8 +262,13 @@ private struct ColorSwatch: View {
                 Circle()
                     .fill(color)
                     .frame(width: 28, height: 28)
-                    .overlay(Circle().stroke(Color.white, lineWidth: isSelected ? 3 : 0)
-                        .shadow(color: .black.opacity(0.4), radius: 2))
+                    // 항상 얇은 회색 외곽선 — 흰색 swatch도 배경(흰색 환경설정)과 구분되게.
+                    .overlay(Circle().stroke(Color.secondary.opacity(0.35), lineWidth: 1))
+                    // 선택 시 더 두꺼운 accent 외곽선으로 강조
+                    .overlay(
+                        Circle()
+                            .stroke(Color.accentColor, lineWidth: isSelected ? 3 : 0)
+                    )
                     .shadow(color: color.opacity(0.6), radius: 4)
                 Text(label).font(.caption2).foregroundColor(.primary)
             }
@@ -184,64 +285,92 @@ private struct BehaviorTab: View {
     @State private var externalMonitors: [ExternalMonitor] = []
 
     var body: some View {
-        Form {
-            Section("키스트로크") {
-                LabeledContent("표시 시간") {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 22) {
+                PrefSection(label: "키스트로크") {
                     HStack {
+                        Text(verbatim: "표시 시간").frame(width: 70, alignment: .leading)
                         Slider(value: $settings.keystrokeTimeout, in: 1...8, step: 0.5)
                         Text(String(format: "%.1f초", settings.keystrokeTimeout))
                             .monospacedDigit().frame(width: 44, alignment: .trailing)
                     }
+                    desc("키 입력 후 화면 하단 오버레이에 표시되는 시간. 빠른 시연엔 1~2초, 천천히 보여주는 발표엔 3~5초 권장.")
                 }
-            }
 
-            Section("낯선 모니터 자동 키스트로크") {
-                Toggle("낯선 외장 모니터 연결 시 키스트로크 자동 표시", isOn: $settings.autoKeystrokeOnUnknownMonitor)
-                Text("회의실·강의실처럼 처음 연결하는 외장 모니터에서 자동으로 키스트로크 표시가 켜집니다. 자주 쓰는 데스크탑 모니터는 아래에서 신뢰 등록해 제외하세요.")
-                    .font(.caption2).foregroundColor(.secondary)
+                PrefSection(label: "자동 키스트로크") {
+                    Toggle("낯선 외장 모니터 연결 시 자동 표시", isOn: $settings.autoKeystrokeOnUnknownMonitor)
+                    desc("회의실·강의실처럼 처음 연결하는 외장 모니터에서 자동으로 키스트로크 표시가 켜집니다. 자주 쓰는 데스크탑 모니터는 아래에서 신뢰 등록해 제외하세요.")
 
-                if settings.autoKeystrokeOnUnknownMonitor {
-                    if externalMonitors.isEmpty {
-                        Text("연결된 외장 모니터 없음").font(.caption).foregroundColor(.secondary)
-                    } else {
-                        ForEach(externalMonitors) { mon in
-                            Toggle(isOn: Binding(
-                                get: { settings.isTrustedMonitor(mon.uuid) },
-                                set: { settings.setTrusted(mon.uuid, trusted: $0) }
-                            )) {
-                                VStack(alignment: .leading, spacing: 1) {
-                                    Text(mon.name)
-                                    Text("신뢰 — 이 모니터에서는 자동 활성화 안 함").font(.caption2).foregroundColor(.secondary)
+                    if settings.autoKeystrokeOnUnknownMonitor {
+                        if externalMonitors.isEmpty {
+                            Text(verbatim: "연결된 외장 모니터 없음")
+                                .font(.callout).foregroundColor(.secondary)
+                        } else {
+                            ForEach(externalMonitors) { mon in
+                                Toggle(isOn: Binding(
+                                    get: { settings.isTrustedMonitor(mon.uuid) },
+                                    set: { settings.setTrusted(mon.uuid, trusted: $0) }
+                                )) {
+                                    VStack(alignment: .leading, spacing: 1) {
+                                        Text(verbatim: mon.name)
+                                        Text(verbatim: "신뢰 — 이 모니터에서는 자동 활성화 안 함")
+                                            .font(.caption2).foregroundColor(.secondary)
+                                    }
                                 }
                             }
                         }
                     }
                 }
-            }
 
-            Section("기타") {
-                LabeledContent("커서 숨김 대기") {
+                PrefSection(label: "커서 숨김") {
                     HStack {
+                        Text(verbatim: "대기 시간").frame(width: 70, alignment: .leading)
                         Slider(value: $settings.idleTimeout, in: 1...10, step: 0.5)
                         Text(String(format: "%.1f초", settings.idleTimeout))
                             .monospacedDigit().frame(width: 44, alignment: .trailing)
                     }
+                    desc("마우스를 안 움직인 후 링이 페이드 아웃되기까지 대기 시간. 발표 중엔 길게(5초+) 권장.")
                 }
-                Toggle("정지 시 펄스 강조 (1.5초 멈추면 1회 확장 표시)", isOn: $settings.isIdlePulseEnabled)
-                Toggle("스크롤 인디케이터", isOn: $settings.isScrollIndicatorEnabled)
-                Toggle("커서 트레일", isOn: $settings.isTrailEnabled)
-                Toggle("드래그 앵커 라인 (100pt 또는 1초 이상 드래그 시 자동 표시)", isOn: $settings.isAnchoredLineEnabled)
-                Toggle("드래그 코멧 테일 (드래그 중 cursor 뒤 streak)", isOn: $settings.isCometTailEnabled)
-                Toggle("드래그 각도 라벨 (도면·일러스트레이션용)", isOn: $settings.isDragAngleLabelEnabled)
-                Toggle("우클릭에 링 색상 적용", isOn: $settings.rightClickUsesRingColor)
-                Toggle("트랙패드 제스처 효과 (4핀치/3·4 스와이프 — 실험적)", isOn: $settings.isTrackpadGesturesEnabled)
-                Toggle("녹화·발표·회의 앱 활성화 시 자동 활성화", isOn: $settings.autoEnableOnRecording)
-                Toggle("로그인 시 자동 실행", isOn: $launchAtLogin)
-                    .onChange(of: launchAtLogin) { v in settings.setLaunchAtLogin(v) }
+
+                PrefSection(label: "드래그 효과") {
+                    Toggle("드래그 앵커 라인", isOn: $settings.isAnchoredLineEnabled)
+                    desc("100pt 또는 1초 이상 드래그 시 시작점에서 cursor까지 점선 표시. 영역 선택 시연에 유용.")
+
+                    Toggle("코멧 테일", isOn: $settings.isCometTailEnabled)
+                    desc("드래그 중 cursor 뒤로 streak. 빠른 드래그 방향이 시각적으로 잘 보임.")
+
+                    Toggle("각도 라벨", isOn: $settings.isDragAngleLabelEnabled)
+                    desc("드래그 중 cursor 옆에 회전 각도(°) 표시. 도면·일러스트레이션 작업용.")
+
+                    Toggle("우클릭에 링 색상 적용", isOn: $settings.rightClickUsesRingColor)
+                    desc("기본 오렌지 우클릭 ripple을 링 색으로 통일.")
+                }
+
+                PrefSection(label: "기타 효과") {
+                    Toggle("정지 시 펄스 강조", isOn: $settings.isIdlePulseEnabled)
+                    desc("1.5초 멈추면 1회 확장 표시. \"여기 보세요\" 자연스러운 강조.")
+
+                    Toggle("스크롤 인디케이터", isOn: $settings.isScrollIndicatorEnabled)
+                    desc("스크롤 방향 화살표(↑↓←→) + 진폭 비례 크기 표시.")
+
+                    Toggle("커서 트레일", isOn: $settings.isTrailEnabled)
+                    desc("커서 이동 자취를 잔상으로 남김. 빠른 움직임 인식 ↑.")
+
+                    Toggle("트랙패드 제스처 효과 (실험적)", isOn: $settings.isTrackpadGesturesEnabled)
+                    desc("4핀치·3/4 스와이프 등 시스템 제스처에 시각 피드백. 비공식 API라 실험적.")
+                }
+
+                PrefSection(label: "시스템") {
+                    Toggle("녹화·발표·회의 앱 활성화 시 자동 활성화", isOn: $settings.autoEnableOnRecording)
+                    desc("OBS·Zoom·Keynote 등을 켤 때 Cluxo가 자동으로 활성화됩니다.")
+
+                    Toggle("로그인 시 자동 실행", isOn: $launchAtLogin)
+                        .onChange(of: launchAtLogin) { v in settings.setLaunchAtLogin(v) }
+                    desc("Mac 로그인 후 Cluxo가 자동으로 시작됩니다.")
+                }
             }
+            .padding(24)
         }
-        .formStyle(.grouped)
-        .padding(.horizontal)
         .onAppear {
             launchAtLogin = settings.launchAtLoginEnabled
             externalMonitors = ExternalMonitor.current()
@@ -258,72 +387,62 @@ private struct MagnifierTab: View {
     @ObservedObject var settings: CursorSettings
     @ObservedObject var runtime: CursorRuntimeState
 
-    // zoomOptions 제거 — Slider로 대체 (단축키 ⌃⌥= / ⌃⌥-의 0.5 step과 일관)
     private let sizeOptions: [(CGFloat, String)] = [(160,"작게"), (200,"보통"), (260,"크게"), (320,"매우 크게")]
 
     var body: some View {
-        Form {
-            // 권한 안내 — 손쉬운 사용처럼 launch 시 자동 등록되므로 큰 배너 불필요.
-            // 한 줄 hint + Settings 링크만.
-            if !runtime.hasScreenRecordingPermission {
-                Section {
-                    HStack(spacing: 6) {
-                        Image(systemName: "info.circle")
-                            .foregroundColor(.secondary)
-                            .font(.caption)
-                        Text("화면 녹화 권한 필요 — 시스템 설정에서 활성화")
-                            .font(.caption).foregroundColor(.secondary)
-                        Spacer()
-                        Button("설정 열기") {
-                            (NSApp.delegate as? AppDelegate)?.requestScreenRecordingPermission()
+        ScrollView {
+            VStack(alignment: .leading, spacing: 22) {
+                if !runtime.hasScreenRecordingPermission {
+                    PrefSection(label: "권한") {
+                        HStack(spacing: 8) {
+                            Image(systemName: "info.circle").foregroundColor(.orange)
+                            Text(verbatim: "화면 녹화 권한 필요")
+                            Spacer()
+                            Button("설정 열기") {
+                                (NSApp.delegate as? AppDelegate)?.requestScreenRecordingPermission()
+                            }
+                            .controlSize(.small)
                         }
-                        .controlSize(.small)
+                        desc("돋보기 기능이 커서 주변 화면을 캡처하려면 화면 녹화 권한이 필요합니다. 시스템 설정 → 개인정보 보호 및 보안 → 화면 녹화에서 Cluxo 활성화.")
                     }
                 }
-            }
 
-            Section("돋보기 설정") {
-                Toggle("돋보기 활성화", isOn: Binding(
-                    get: { runtime.isMagnifierActive },
-                    set: { newValue in
-                        if newValue && !runtime.hasScreenRecordingPermission {
-                            NSWorkspace.shared.open(URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_ScreenCapture")!)
-                        } else {
-                            runtime.isMagnifierActive = newValue
+                PrefSection(label: "활성화") {
+                    Toggle("돋보기 활성화", isOn: Binding(
+                        get: { runtime.isMagnifierActive },
+                        set: { newValue in
+                            if newValue && !runtime.hasScreenRecordingPermission {
+                                NSWorkspace.shared.open(URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_ScreenCapture")!)
+                            } else {
+                                runtime.isMagnifierActive = newValue
+                            }
                         }
-                    }
-                ))
+                    ))
+                    desc("⌃⌥M 단축키 또는 라디얼 메뉴(⌃⌥,)로도 토글 가능. 돋보기는 커서 주변 화면을 실시간 확대합니다.")
+                }
 
-                LabeledContent("배율") {
+                PrefSection(label: "배율") {
                     HStack(spacing: 8) {
                         Slider(value: $settings.magnifierZoom, in: 1.5...4.0, step: 0.5)
-                            .frame(width: 180)
                         Text(String(format: "%.1f×", settings.magnifierZoom))
                             .font(.system(.body, design: .monospaced))
-                            .frame(width: 36, alignment: .trailing)
+                            .frame(width: 44, alignment: .trailing)
                     }
+                    desc("확대 배율 (1.5× ~ 4.0×). 발표 중 ⌃⌥= / ⌃⌥- 단축키로 0.5 step 빠르게 조절 가능.")
                 }
 
-                LabeledContent("렌즈 크기") {
+                PrefSection(label: "렌즈 크기") {
                     Picker("크기", selection: $settings.magnifierSize) {
                         ForEach(sizeOptions, id: \.0) { size, label in
                             Text(label).tag(size)
                         }
                     }
-                    .pickerStyle(.segmented)
-                    .labelsHidden()
-                    .frame(width: 200)
+                    .pickerStyle(.segmented).labelsHidden()
+                    desc("렌즈(원/링)의 직경. 코드 한 줄 강조엔 작게, 영역 강조엔 크게 권장.")
                 }
             }
-
-            Section {
-                Text("단축키: ⌃⌥M으로 돋보기를 켜고 끕니다.\n돋보기는 커서 주변 화면을 실시간으로 확대합니다.")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-            }
+            .padding(24)
         }
-        .formStyle(.grouped)
-        .padding(.horizontal)
     }
 }
 
@@ -357,67 +476,61 @@ private struct ShortcutsTab: View {
     }
 
     var body: some View {
-        Form {
-            Section {
-                Text("모든 단축키는 ⌃⌥(Control+Option) + 아래 키 조합입니다.")
-                    .font(.caption).foregroundColor(.secondary)
-            }
-
-            Section("스포트라이트") {
-                KeyRecorder(keyCode: $settings.spotlightKeyCode,
-                            conflictMessage: conflictFor(name: "스포트라이트", code: settings.spotlightKeyCode))
-            }
-
-            Section("키스트로크 표시") {
-                KeyRecorder(keyCode: $settings.keystrokeShortcutKeyCode,
-                            conflictMessage: conflictFor(name: "키스트로크", code: settings.keystrokeShortcutKeyCode))
-            }
-
-            Section("색상 즉시 변경") {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("⌃⌥1 노란색 · ⌃⌥2 빨간색 · ⌃⌥3 파란색 · ⌃⌥4 초록색")
-                    Text("⌃⌥5 하늘색 · ⌃⌥6 보라색 · ⌃⌥7 흰색")
-                    Text("⌃⌥C — 다음 색상으로 순환")
+        ScrollView {
+            VStack(alignment: .leading, spacing: 22) {
+                PrefSection(label: "안내") {
+                    desc("모든 단축키는 ⌃⌥ (Control+Option) + 아래 키 조합입니다. 클릭하고 원하는 키를 누르세요. ESC로 캡처 취소.")
                 }
-                .font(.caption).foregroundColor(.secondary)
-            }
 
-            Section("모양 순환") {
-                Text("⌃⌥H — 다음 모양으로 (원형 → 둥근 사각형 → 마름모)")
-                    .font(.caption).foregroundColor(.secondary)
-            }
+                PrefSection(label: "스포트라이트") {
+                    KeyRecorder(keyCode: $settings.spotlightKeyCode,
+                                conflictMessage: conflictFor(name: "스포트라이트", code: settings.spotlightKeyCode))
+                    desc("커서 주변만 밝게, 나머지는 어둡게 처리해 시선을 모읍니다.")
+                }
 
-            Section("화면 좌표 인스펙터") {
-                KeyRecorder(keyCode: $settings.inspectorKeyCode,
-                            conflictMessage: conflictFor(name: "좌표 인스펙터", code: settings.inspectorKeyCode))
-                Text("cursor 옆 (x, y) Quartz 시스템 좌표 표시")
-                    .font(.caption2).foregroundColor(.secondary)
-            }
+                PrefSection(label: "돋보기") {
+                    KeyRecorder(keyCode: $settings.magnifierShortcutKeyCode,
+                                conflictMessage: conflictFor(name: "돋보기", code: settings.magnifierShortcutKeyCode))
+                    desc("커서 주변 화면을 실시간 확대. 줌 조절은 ⌃⌥= / ⌃⌥- 고정 단축키.")
+                }
 
-            Section("Radial Menu") {
-                KeyRecorder(keyCode: $settings.radialMenuKeyCode,
-                            conflictMessage: conflictFor(name: "Radial Menu", code: settings.radialMenuKeyCode))
-                Text("좌클릭 길게 누름(0.5초)으로도 열림. 8 sector 메뉴, 클릭으로 효과/색/크기 등 즉시 토글, ESC 닫기")
-                    .font(.caption2).foregroundColor(.secondary)
-            }
+                PrefSection(label: "키스트로크 표시") {
+                    KeyRecorder(keyCode: $settings.keystrokeShortcutKeyCode,
+                                conflictMessage: conflictFor(name: "키스트로크", code: settings.keystrokeShortcutKeyCode))
+                    desc("누른 키를 화면 하단에 오버레이로 표시. 발표·녹화 중 단축키 시연용.")
+                }
 
-            Section("그리기 모드") {
-                KeyRecorder(keyCode: $settings.drawingKeyCode,
-                            conflictMessage: conflictFor(name: "그리기 모드", code: settings.drawingKeyCode))
-                Text("펜·직선·화살표·사각형·타원·형광펜·번호 뱃지 — 모디파이어 조합. 모드 활성 중 Cmd+Z 되돌리기, [/] 두께")
-                    .font(.caption2).foregroundColor(.secondary)
-            }
+                PrefSection(label: "좌표 인스펙터") {
+                    KeyRecorder(keyCode: $settings.inspectorKeyCode,
+                                conflictMessage: conflictFor(name: "좌표 인스펙터", code: settings.inspectorKeyCode))
+                    desc("cursor 옆에 (x, y) Quartz 시스템 좌표 표시. UI 디자인·디버깅용.")
+                }
 
+                PrefSection(label: "라디얼 메뉴") {
+                    KeyRecorder(keyCode: $settings.radialMenuKeyCode,
+                                conflictMessage: conflictFor(name: "Radial Menu", code: settings.radialMenuKeyCode))
+                    desc("8 sector 마우스 메뉴. 좌클릭 길게 누름(0.5초)으로도 열림. 클릭으로 효과/색/크기 즉시 토글, ESC 닫기.")
+                }
 
-            Section("돋보기") {
-                KeyRecorder(keyCode: $settings.magnifierShortcutKeyCode,
-                            conflictMessage: conflictFor(name: "돋보기", code: settings.magnifierShortcutKeyCode))
-                Text("돋보기 켜기/끄기. 줌은 ⌃⌥= / ⌃⌥- (고정)")
-                    .font(.caption2).foregroundColor(.secondary)
+                PrefSection(label: "그리기 모드") {
+                    KeyRecorder(keyCode: $settings.drawingKeyCode,
+                                conflictMessage: conflictFor(name: "그리기 모드", code: settings.drawingKeyCode))
+                    desc("펜·직선·화살표·사각형·타원·형광펜·번호 뱃지 — 모디파이어 조합. 모드 활성 중 Cmd+Z 되돌리기, [/] 두께 조절.")
+                }
+
+                PrefSection(label: "고정 단축키") {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(verbatim: "⌃⌥1~7 — 색상 즉시 변경 (노란/빨간/파란/초록/하늘/보라/흰)")
+                        Text(verbatim: "⌃⌥C — 다음 색상으로 순환")
+                        Text(verbatim: "⌃⌥H — 다음 모양으로 순환 (원형 → 둥근 사각형 → 마름모)")
+                        Text(verbatim: "⌃⌥= / ⌃⌥- — 돋보기 줌 in/out (0.5 step)")
+                    }
+                    .font(.callout).foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+                }
             }
+            .padding(24)
         }
-        .formStyle(.grouped)
-        .padding(.horizontal)
     }
 }
 

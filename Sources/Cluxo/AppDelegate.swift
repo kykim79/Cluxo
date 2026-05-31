@@ -76,10 +76,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     // MARK: - UI
     private var statusItem: NSStatusItem?
     private var enableMenuItem: NSMenuItem?
-    private var spotlightMenuItem: NSMenuItem?
-    private var magnifierMenuItem: NSMenuItem?
-    private var keystrokeMenuItem: NSMenuItem?
-    private var screenshotModeMenuItem: NSMenuItem?
+    private var statusMenu: NSMenu?  // 우클릭 시 popUp으로 직접 표시
     private var preferencesController: PreferencesWindowController?
     private var overlays: [OverlayWindowController] = []
 
@@ -390,9 +387,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         guard let button = statusItem?.button else { return }
         button.image = NSImage(systemSymbolName: "cursorarrow.rays", accessibilityDescription: nil)
+        // 좌클릭 → toggleEnabled, 우클릭 → menu. statusItem.menu 안 쓰고 button action으로 직접 분기.
+        button.target = self
+        button.action = #selector(statusItemClicked)
+        button.sendAction(on: [.leftMouseUp, .rightMouseUp])
 
         let menu = NSMenu()
-        menu.delegate = self   // menuWillOpen에서 토글 항목 ✓ state 갱신
 
         let prefItem = NSMenuItem(title: String(localized: "환경설정..."), action: #selector(openPreferences), keyEquivalent: "")
         prefItem.target = self
@@ -400,30 +400,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
         menu.addItem(.separator())
 
-        // 빠른 토글 — 환경설정 안 열고 메뉴바에서 바로. 단축키도 함께 표시(metadata).
-        let spotlight = NSMenuItem(title: String(localized: "스포트라이트  ⌃⌥S"), action: #selector(toggleSpotlight), keyEquivalent: "")
-        spotlight.target = self
-        menu.addItem(spotlight)
-        spotlightMenuItem = spotlight
-
-        let magnifier = NSMenuItem(title: String(localized: "돋보기  ⌃⌥M"), action: #selector(toggleMagnifier), keyEquivalent: "")
-        magnifier.target = self
-        menu.addItem(magnifier)
-        magnifierMenuItem = magnifier
-
-        let keystroke = NSMenuItem(title: String(localized: "키스트로크 표시  ⌃⌥K"), action: #selector(toggleKeystroke), keyEquivalent: "")
-        keystroke.target = self
-        menu.addItem(keystroke)
-        keystrokeMenuItem = keystroke
-
-        // 발표/녹화용 일시 토글 — overlay window를 외부 screencapture/OBS가 잡을 수 있게 풀어줌.
-        // 평소 .none이라 자체 돋보기가 자기 overlay 재캡처 안 함. 앱 재시작 시 자동 OFF.
-        let screenshotMode = NSMenuItem(title: String(localized: "스크린샷 모드 (캡처 허용)"), action: #selector(toggleScreenshotMode), keyEquivalent: "")
-        screenshotMode.target = self
-        menu.addItem(screenshotMode)
-        screenshotModeMenuItem = screenshotMode
-
-        menu.addItem(.separator())
+        // 스포트라이트·돋보기·키스트로크·스크린샷 모드는 단축키(⌃⌥S/M/K) + 라디얼 메뉴(⌃⌥,)로 접근 가능 →
+        // 메뉴바 중복 제거 (v1.0.0).
 
         let ei = NSMenuItem(title: String(localized: "비활성화"), action: #selector(toggleEnabled), keyEquivalent: "")
         ei.target = self
@@ -436,35 +414,22 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         quitItem.target = NSApp
         menu.addItem(quitItem)
 
-        statusItem?.menu = menu
+        statusMenu = menu  // 우클릭 핸들러가 popUp 호출
     }
 
-    // MARK: - 메뉴 빠른 토글 actions
-
-    @objc private func toggleSpotlight() {
-        withAnimation(.easeInOut(duration: 0.35)) { runtime.isSpotlightActive.toggle() }
-        keystrokeOverlay.showStatusNotification(String(localized: runtime.isSpotlightActive ? "🔦 스포트라이트 켜짐" : "🔦 스포트라이트 꺼짐"))
-    }
-
-    @objc private func toggleMagnifier() {
-        if !runtime.hasScreenRecordingPermission {
-            permissionsManager?.requestScreenRecordingPermission()
-            return
-        }
-        withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-            runtime.isMagnifierActive.toggle()
+    /// 메뉴바 아이콘 좌/우 클릭 분기. 좌클릭=활성/비활성 토글, 우클릭=메뉴 popUp.
+    @objc private func statusItemClicked() {
+        guard let event = NSApp.currentEvent else { return }
+        if event.type == .rightMouseUp {
+            guard let button = statusItem?.button, let menu = statusMenu else { return }
+            menu.popUp(positioning: nil, at: NSPoint(x: 0, y: button.bounds.height + 4), in: button)
+        } else {
+            toggleEnabled()
         }
     }
 
-    @objc private func toggleKeystroke() {
-        settings.isKeystrokeEnabled.toggle()
-        keystrokeOverlay.showStatusNotification(String(localized: settings.isKeystrokeEnabled ? "⌨ 키스트로크 켜짐" : "⌨ 키스트로크 꺼짐"))
-    }
-
-    @objc private func toggleScreenshotMode() {
-        settings.isScreenshotMode.toggle()
-        keystrokeOverlay.showStatusNotification(String(localized: settings.isScreenshotMode ? "📸 스크린샷 모드 켜짐 (외부 캡처 허용)" : "📸 스크린샷 모드 꺼짐"))
-    }
+    // v1.0.0: 메뉴바 토글 4개(스포트라이트/돋보기/키스트로크/스크린샷 모드) 제거.
+    // 단축키(⌃⌥S/M/K) + 라디얼 메뉴(⌃⌥,)로 같은 동작 가능. 스크린샷 모드는 환경설정에서 토글.
 
     @objc private func openPreferences() {
         if preferencesController == nil {
@@ -847,9 +812,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 // MARK: - 메뉴 열릴 때마다 토글 항목 ✓ state 동기화
 extension AppDelegate: NSMenuDelegate {
     func menuWillOpen(_ menu: NSMenu) {
-        spotlightMenuItem?.state = runtime.isSpotlightActive ? .on : .off
-        magnifierMenuItem?.state = runtime.isMagnifierActive ? .on : .off
-        keystrokeMenuItem?.state = settings.isKeystrokeEnabled ? .on : .off
-        screenshotModeMenuItem?.state = settings.isScreenshotMode ? .on : .off
+        // 4개 토글 항목은 v1.0.0에서 제거 (단축키/라디얼 메뉴로 접근).
+        // enableMenuItem state는 toggleEnabled에서 즉시 갱신되므로 별도 처리 불필요.
     }
 }
