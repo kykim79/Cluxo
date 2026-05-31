@@ -53,7 +53,7 @@ final class CursorSettings: ObservableObject {
     @Persisted("autoKeystrokeOnUnknownMonitor", default: false) var autoKeystrokeOnUnknownMonitor: Bool
 
     // 발표/녹화용 일시 토글 — overlay window의 sharingType을 .readOnly로 풀어 외부 screencapture/OBS가 잡을 수 있게.
-    // 평소 .none이라야 CursorHighlight 자체 돋보기가 자기 overlay를 다시 capture하지 않음. 앱 재시작 시 항상 false.
+    // 평소 .none이라야 Cluxo 자체 돋보기가 자기 overlay를 다시 capture하지 않음. 앱 재시작 시 항상 false.
     @Published var isScreenshotMode: Bool = false
 
     // 신뢰 모니터 UUID 목록 — 자동 키스트로크 활성화에서 제외할 모니터. [String]이라 @Persisted 미지원, 별도 처리.

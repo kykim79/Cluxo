@@ -184,7 +184,7 @@ final class KeyboardHotkeyHandler {
             CGEvent.tapEnable(tap: tap, enable: true)
             CFRunLoopRun()
         }
-        thread.name = "CursorHighlight.KeyEventTap"
+        thread.name = "Cluxo.KeyEventTap"
         thread.qualityOfService = .userInteractive
         thread.start()
         tapThread = thread

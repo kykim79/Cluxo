@@ -1,4 +1,4 @@
-# Design System — CursorHighlight
+# Design System — Cluxo
 
 화면 위에서 커서를 강조하는 macOS 오버레이의 시각·모션 토큰. 모든 UI 효과(링·클릭·드래그·스포트라이트·돋보기·radial menu·키스트로크·드래그 각도/거리·인스펙터)는 이 문서의 토큰을 따른다. 토큰 외 값을 하드코딩하지 말 것 — 시각 일관성을 깨뜨린다.
 

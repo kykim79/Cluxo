@@ -5,7 +5,7 @@ name: Release
 #
 # 동작:
 #   1. macOS runner에서 xcodegen + xcodebuild Release 빌드 (ad-hoc 코드 사이닝)
-#   2. CursorHighlight.app을 ditto로 .zip 압축 (HFS+ metadata 보존)
+#   2. Cluxo.app을 ditto로 .zip 압축 (HFS+ metadata 보존)
 #   3. SHA256 계산
 #   4. GitHub Releases에 .zip 자동 업로드
 #   5. kykim79/homebrew-tap repo의 Casks/cursorhighlight.rb에 version + sha256 자동 commit
@@ -59,8 +59,8 @@ jobs:
           # MARKETING_VERSION을 CFBundleShortVersionString으로 주입
           # CURRENT_PROJECT_VERSION는 build 번호 (GitHub run number 사용)
           xcodebuild \
-            -project CursorHighlight.xcodeproj \
-            -scheme CursorHighlight \
+            -project Cluxo.xcodeproj \
+            -scheme Cluxo \
             -configuration Release \
             MARKETING_VERSION="$MARKETING_VERSION" \
             CURRENT_PROJECT_VERSION="${GITHUB_RUN_NUMBER}" \
@@ -70,9 +70,9 @@ jobs:
       - name: Locate built .app
         id: app
         run: |
-          APP_PATH=$(find ~/Library/Developer/Xcode/DerivedData/CursorHighlight-*/Build/Products/Release -name "CursorHighlight.app" -type d | head -1)
+          APP_PATH=$(find ~/Library/Developer/Xcode/DerivedData/Cluxo-*/Build/Products/Release -name "Cluxo.app" -type d | head -1)
           if [ -z "$APP_PATH" ]; then
-            echo "::error::CursorHighlight.app not found"; exit 1
+            echo "::error::Cluxo.app not found"; exit 1
           fi
           echo "path=$APP_PATH" >> "$GITHUB_OUTPUT"
           echo "Found app: $APP_PATH"
@@ -81,11 +81,11 @@ jobs:
         id: package
         run: |
           STAGE=$(mktemp -d)
-          ditto -c -k --keepParent --sequesterRsrc "${{ steps.app.outputs.path }}" "$STAGE/CursorHighlight.zip"
-          SHA256=$(shasum -a 256 "$STAGE/CursorHighlight.zip" | awk '{print $1}')
-          mv "$STAGE/CursorHighlight.zip" "./CursorHighlight.zip"
+          ditto -c -k --keepParent --sequesterRsrc "${{ steps.app.outputs.path }}" "$STAGE/Cluxo.zip"
+          SHA256=$(shasum -a 256 "$STAGE/Cluxo.zip" | awk '{print $1}')
+          mv "$STAGE/Cluxo.zip" "./Cluxo.zip"
           echo "sha256=$SHA256" >> "$GITHUB_OUTPUT"
-          echo "zip=./CursorHighlight.zip" >> "$GITHUB_OUTPUT"
+          echo "zip=./Cluxo.zip" >> "$GITHUB_OUTPUT"
           echo "Packaged with SHA256: $SHA256"
 
       - name: Create GitHub Release (idempotent — 기존 release 삭제 후 재생성)
@@ -95,7 +95,7 @@ jobs:
           TAG="v${{ steps.version.outputs.version }}"
           ZIP="${{ steps.package.outputs.zip }}"
           SHA="${{ steps.package.outputs.sha256 }}"
-          NOTES="## CursorHighlight $TAG
+          NOTES="## Cluxo $TAG
 
           ### 설치
           \`\`\`
@@ -106,7 +106,7 @@ jobs:
           \`$SHA\`
 
           ---
-          [전체 변경 사항](https://github.com/kykim79/CursorHighlight/commits/$TAG)"
+          [전체 변경 사항](https://github.com/kykim79/Cluxo/commits/$TAG)"
 
           # 기존 release 강제 삭제 (asset 누락 회피). --cleanup-tag 없이 tag는 유지.
           gh release delete "$TAG" --yes 2>/dev/null || true
@@ -132,11 +132,11 @@ jobs:
             version "$VERSION"
             sha256 "$SHA256"
 
-            url "https://github.com/kykim79/CursorHighlight/releases/download/v#{version}/CursorHighlight.zip",
-                verified: "github.com/kykim79/CursorHighlight/"
-            name "CursorHighlight"
+            url "https://github.com/kykim79/Cluxo/releases/download/v#{version}/Cluxo.zip",
+                verified: "github.com/kykim79/Cluxo/"
+            name "Cluxo"
             desc "Menu bar app for visually highlighting the mouse cursor"
-            homepage "https://github.com/kykim79/CursorHighlight"
+            homepage "https://github.com/kykim79/Cluxo"
 
             livecheck do
               url :url
@@ -146,10 +146,10 @@ jobs:
             depends_on macos: ">= :ventura"
             depends_on arch: :arm64
 
-            app "CursorHighlight.app"
+            app "Cluxo.app"
 
             zap trash: [
-              "~/Library/Preferences/com.ktoy.CursorHighlight.plist",
+              "~/Library/Preferences/com.ktoy.Cluxo.plist",
             ]
           end
           EOF

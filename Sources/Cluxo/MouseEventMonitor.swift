@@ -215,7 +215,7 @@ class MouseEventMonitor {
             CGEvent.tapEnable(tap: tap, enable: true)
             CFRunLoopRun()
         }
-        thread.name = "CursorHighlight.EventTap"
+        thread.name = "Cluxo.EventTap"
         thread.qualityOfService = .userInteractive
         thread.start()
         tapThread = thread

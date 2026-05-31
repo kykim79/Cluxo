@@ -94,7 +94,7 @@
   - PersistedTests (11): native 타입·enum·debounce·objectWillChange
   - DragAngleTests (6): ±π wrapping, 한 바퀴 누적, endDrag 리셋
   - KeyFormatTests (7): 모디파이어 게이트, special keys, 순서
-  - 실행: `xcodebuild test -project CursorHighlight.xcodeproj -scheme CursorHighlight -destination 'platform=macOS'`
+  - 실행: `xcodebuild test -project Cluxo.xcodeproj -scheme Cluxo -destination 'platform=macOS'`
 
 `6487dfc refactor: 흔들기 감지 알고리즘 추출 + 축별 독립 검증 + 14 테스트`:
 

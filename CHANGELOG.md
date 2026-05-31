@@ -4,6 +4,36 @@
 
 ## [Unreleased]
 
+## [1.0.0] — 2026-05-31
+
+### Changed (BREAKING)
+
+- **앱 이름 변경: CursorHighlight → Cluxo** — 단순 커서 강조 도구로 시작했으나 v0.7.0까지 라디얼 메뉴·그리기 7종·키스트로크·인스펙터·자동 모니터 감지 등 발표/스크린캐스트 종합 도우미로 진화. 새 정체성 반영. cursor + lux(빛) 합성어 — 빛나는 커서, unique한 신조어.
+  - **Bundle ID**: `com.ktoy.CursorHighlight` → `com.ktoy.Cluxo`
+  - **앱 파일**: `CursorHighlight.app` → `Cluxo.app`
+  - **GitHub repo**: `kykim79/CursorHighlight` → `kykim79/Cluxo` (별도 마이그레이션)
+  - **Homebrew Cask**: `kykim79/tap/cursor-highlight` → `kykim79/tap/cluxo` (별도 PR)
+  - **소스 디렉토리**: `Sources/CursorHighlight` → `Sources/Cluxo`, `Tests/CursorHighlightTests` → `Tests/CluxoTests`
+  - **재설치 시 TCC 권한 재부여 필요** — 새 Bundle ID라 기존 권한 무효. 시스템 설정에서 4종 권한(손쉬운 사용·입력 모니터링·화면 녹화·이벤트 전송) 재부여.
+
+### Added (v0.7.0 누적 — Cluxo 1.0 마일스톤에 포함)
+
+(v0.7.0 section 참조 — 그리기 도구 7종, 라디얼 menu long-press 트리거, 단축키 재정의, 도구 toolbar 등 모두 1.0에 포함)
+
+### Migration (기존 사용자)
+
+```bash
+# 기존 앱 제거
+brew uninstall --cask cursor-highlight   # 또는: rm -rf /Applications/CursorHighlight.app
+# 옛 권한 정리 (선택)
+tccutil reset Accessibility com.ktoy.CursorHighlight
+tccutil reset ScreenCapture com.ktoy.CursorHighlight
+tccutil reset ListenEvent com.ktoy.CursorHighlight
+
+# 새 앱 설치
+brew install --cask kykim79/tap/cluxo   # Cask 갱신 후
+```
+
 ## [0.7.0] — 2026-05-31
 
 ### Added

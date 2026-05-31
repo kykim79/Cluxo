@@ -2,7 +2,7 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-CursorHighlight는 마우스 커서를 시각적으로 강조하는 macOS 메뉴바 전용 앱(LSUIElement). 화면 녹화·발표·페어 프로그래밍 시 커서 위치를 명확히 보여준다. 코드 주석·UI 소스 언어는 한국어이며 영어는 번역으로 제공된다 — 새 주석/UI 문자열도 한국어로 작성한다.
+Cluxo는 마우스 커서를 시각적으로 강조하는 macOS 메뉴바 전용 앱(LSUIElement). 화면 녹화·발표·페어 프로그래밍 시 커서 위치를 명확히 보여준다. 코드 주석·UI 소스 언어는 한국어이며 영어는 번역으로 제공된다 — 새 주석/UI 문자열도 한국어로 작성한다.
 
 ## 빌드 / 테스트 / 실행
 
@@ -13,23 +13,23 @@ CursorHighlight는 마우스 커서를 시각적으로 강조하는 macOS 메뉴
 xcodegen
 
 # Release 빌드
-xcodebuild -project CursorHighlight.xcodeproj -scheme CursorHighlight -configuration Release build
+xcodebuild -project Cluxo.xcodeproj -scheme Cluxo -configuration Release build
 
 # 전체 테스트 (Debug)
-xcodebuild -project CursorHighlight.xcodeproj -scheme CursorHighlight -configuration Debug test
+xcodebuild -project Cluxo.xcodeproj -scheme Cluxo -configuration Debug test
 
 # 단일 테스트 클래스 / 단일 메서드
-xcodebuild ... test -only-testing:CursorHighlightTests/ShakeDetectionTests
-xcodebuild ... test -only-testing:CursorHighlightTests/ShakeDetectionTests/test_horizontalShakeDetects
+xcodebuild ... test -only-testing:CluxoTests/ShakeDetectionTests
+xcodebuild ... test -only-testing:CluxoTests/ShakeDetectionTests/test_horizontalShakeDetects
 ```
 
-빌드 후 `/Applications` 설치는 `pkill -x CursorHighlight` → 기존 앱 삭제 → DerivedData의 `Release/CursorHighlight.app` 복사 → `open` 순서 (정확한 명령은 README "CLI 빌드 + 설치" 참고).
+빌드 후 `/Applications` 설치는 `pkill -x Cluxo` → 기존 앱 삭제 → DerivedData의 `Release/Cluxo.app` 복사 → `open` 순서 (정확한 명령은 README "CLI 빌드 + 설치" 참고).
 
-권한 변경 테스트 시 초기화: `tccutil reset {Accessibility|ScreenCapture|ListenEvent|PostEvent} com.ktoy.CursorHighlight`.
+권한 변경 테스트 시 초기화: `tccutil reset {Accessibility|ScreenCapture|ListenEvent|PostEvent} com.ktoy.Cluxo`.
 
 ## 테스트 구조 (중요)
 
-테스트 타깃 `CursorHighlightTests`는 **test host 없는 standalone bundle**이며, `Sources/CursorHighlight`를 직접 포함한다(`main.swift`/`Info.plist`/`entitlements`/`Assets.xcassets` 제외). 따라서 GUI를 띄우지 않고 **순수 함수만** 검증한다.
+테스트 타깃 `CluxoTests`는 **test host 없는 standalone bundle**이며, `Sources/Cluxo`를 직접 포함한다(`main.swift`/`Info.plist`/`entitlements`/`Assets.xcassets` 제외). 따라서 GUI를 띄우지 않고 **순수 함수만** 검증한다.
 
 - 테스트 대상 로직은 `static func`으로 분리해 둔다 (예: `DragAngleLabel.displayDegrees`/`directionArrow`). View 본문은 같은 static 함수를 호출만 한다 — 테스트 가능성을 위한 핵심 패턴.
 - 시간 의존 로직(`ShakeState`)은 wall clock을 쓰지 않고 `at:` 인자로 시간을 주입받는다.

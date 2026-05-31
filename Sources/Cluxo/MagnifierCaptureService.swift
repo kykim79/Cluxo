@@ -4,7 +4,7 @@ import CoreImage
 import os
 import ScreenCaptureKit
 
-private let log = Logger(subsystem: "com.ktoy.CursorHighlight", category: "Magnifier")
+private let log = Logger(subsystem: "com.ktoy.Cluxo", category: "Magnifier")
 
 // MARK: - MagnifierCaptureService
 //

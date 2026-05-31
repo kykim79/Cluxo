@@ -173,7 +173,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         UserDefaults.standard.set(currentVersion, forKey: Self.lastRunVersionKey)
         if isUpdate && !missingOrdered.isEmpty {
             let names = missingOrdered.map(\.rawValue).joined(separator: ", ")
-            Logger(subsystem: Bundle.main.bundleIdentifier ?? "CursorHighlight", category: "permissions")
+            Logger(subsystem: Bundle.main.bundleIdentifier ?? "Cluxo", category: "permissions")
                 .notice("업데이트(\(previousVersion ?? "?", privacy: .public)→\(currentVersion, privacy: .public))로 깨진 권한 초기화: \(names, privacy: .public)")
             PermissionsManager.resetTCCEntries(for: missingOrdered)
             permissionsManager?.registerForScreenRecordingPrompt()
@@ -197,7 +197,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         // 클립보드에 앱 경로 복사 — 시스템 설정의 「+」 버튼으로 추가 시 ⌘V로 바로 붙여넣기.
         // (특히 ad-hoc 사이닝된 빌드에선 입력 모니터링은 자동 등재 안 돼 「+」가 유일한 길)
         NSPasteboard.general.clearContents()
-        NSPasteboard.general.setString("/Applications/CursorHighlight.app", forType: .string)
+        NSPasteboard.general.setString("/Applications/Cluxo.app", forType: .string)
 
         NSApp.activate(ignoringOtherApps: true)
         let response = alert.runModal()

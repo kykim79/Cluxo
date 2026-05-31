@@ -14,7 +14,7 @@ class PreferencesWindowController: NSWindowController {
             backing: .buffered,
             defer: false
         )
-        window.title = "CursorHighlight 환경설정"
+        window.title = "Cluxo 환경설정"
         window.contentView = hosting
         window.center()
         window.isReleasedWhenClosed = false
@@ -483,7 +483,7 @@ private struct InfoTab: View {
                         HStack(spacing: 8) {
                             Button("Terminal로 재시도") { runUpgradeInTerminal() }
                             Button("Release 페이지") {
-                                if let url = URL(string: "https://github.com/kykim79/CursorHighlight/releases/latest") {
+                                if let url = URL(string: "https://github.com/kykim79/Cluxo/releases/latest") {
                                     NSWorkspace.shared.open(url)
                                 }
                             }
@@ -506,7 +506,7 @@ private struct InfoTab: View {
                             Button("지금 업데이트") { runHomebrewUpgrade() }
                                 .buttonStyle(.borderedProminent)
                             Button("Release 페이지") {
-                                if let url = URL(string: "https://github.com/kykim79/CursorHighlight/releases/latest") {
+                                if let url = URL(string: "https://github.com/kykim79/Cluxo/releases/latest") {
                                     NSWorkspace.shared.open(url)
                                 }
                             }
@@ -525,7 +525,7 @@ private struct InfoTab: View {
         checking = true
         newerVersion = nil
         defer { checking = false }
-        let url = URL(string: "https://api.github.com/repos/kykim79/CursorHighlight/releases/latest")!
+        let url = URL(string: "https://api.github.com/repos/kykim79/Cluxo/releases/latest")!
         do {
             var request = URLRequest(url: url)
             request.setValue("application/vnd.github+json", forHTTPHeaderField: "Accept")
@@ -649,7 +649,7 @@ private struct InfoTab: View {
     private func relaunchApp() {
         let proc = Process()
         proc.executableURL = URL(fileURLWithPath: "/usr/bin/open")
-        proc.arguments = ["-n", "/Applications/CursorHighlight.app"]
+        proc.arguments = ["-n", "/Applications/Cluxo.app"]
         do {
             try proc.run()
             // open이 새 instance를 띄울 시간을 잠깐 주고 종료
@@ -670,15 +670,15 @@ private struct InfoTab: View {
         let scriptPath = NSTemporaryDirectory() + "cursorhighlight-upgrade.sh"
         let script = """
         #!/bin/zsh
-        echo "▶ CursorHighlight 업데이트 (Terminal fallback)"
+        echo "▶ Cluxo 업데이트 (Terminal fallback)"
         echo "  명령: brew upgrade --cask kykim79/tap/cursorhighlight"
         echo
         if brew upgrade --cask kykim79/tap/cursorhighlight; then
             echo
-            echo "✓ 업데이트 완료. CursorHighlight를 재시작합니다..."
-            pkill -x CursorHighlight 2>/dev/null
+            echo "✓ 업데이트 완료. Cluxo를 재시작합니다..."
+            pkill -x Cluxo 2>/dev/null
             sleep 0.5
-            open -a CursorHighlight
+            open -a Cluxo
             echo "  재시작됨."
         else
             echo

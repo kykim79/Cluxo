@@ -1,4 +1,4 @@
-# CursorHighlight
+# Cluxo
 
 macOS menu bar app. Visually emphasizes the mouse cursor for screen recording, presentations, and pair programming.
 
@@ -64,14 +64,14 @@ Homebrew automatically removes the quarantine flag, so no Gatekeeper bypass need
 
 ### Manual
 
-Download `CursorHighlight.zip` from [Releases](https://github.com/kykim79/CursorHighlight/releases):
+Download `Cluxo.zip` from [Releases](https://github.com/kykim79/Cluxo/releases):
 
-1. Unzip → move `CursorHighlight.app` to `/Applications`
+1. Unzip → move `Cluxo.app` to `/Applications`
 2. **First launch**: right-click in Finder → Open → confirm "Open" (Gatekeeper bypass, once)
 
 If right-click → Open doesn't work:
 ```bash
-xattr -dr com.apple.quarantine /Applications/CursorHighlight.app
+xattr -dr com.apple.quarantine /Applications/Cluxo.app
 ```
 
 ### Permissions (required regardless of install method)
