@@ -213,7 +213,7 @@ final class KeyboardHotkeyHandler {
         if let drawing = drawingState, drawing.isDrawingModeActive || !drawing.shapes.isEmpty {
             drawing.clearAndExit()
             mouseMonitor?.isDrawingModeActive = false
-            keystrokeOverlay?.showStatusNotification("✏️ 그리기 · clear")
+            keystrokeOverlay?.showStatusNotification(valueText("✏️", "그리기", "clear"))
             return
         }
     }
@@ -282,6 +282,22 @@ final class KeyboardHotkeyHandler {
     }
 
 
+    // MARK: - 알림 텍스트 빌더
+    //
+    // 하단 상태 알림은 `[아이콘] [라벨] · [값/상태]` 단일 포맷(DESIGN.md). showStatusNotification은
+    // plain String을 Text(변수)로 그리므로 SwiftUI 자동 번역이 안 걸린다 → 한글 토큰을 .loc로 명시 lookup.
+    // 라벨(catalog 키)·켜짐/꺼짐은 lookup, 값(이미 번역된 .label·숫자·단위)은 그대로 합성.
+
+    /// 켜짐/꺼짐 토글 알림.
+    private func statusText(_ icon: String, _ label: String, on: Bool) -> String {
+        "\(icon) \(label.loc) · \((on ? "켜짐" : "꺼짐").loc)"
+    }
+
+    /// 값 표시 알림 — value는 이미 번역됐거나(.label) 숫자/단위라 그대로 사용.
+    private func valueText(_ icon: String, _ label: String, _ value: String) -> String {
+        "\(icon) \(label.loc) · \(value)"
+    }
+
     /// 서브 ring에서 떼면 호출 — 메인 액션 대신 sub 값으로 직접 설정. 알림 형식 통일: `[아이콘] [라벨] · [값/상태]`.
     /// 스포트라이트/돋보기/키 입력은 sub 0이 "토글" — 메인 release가 cancel이라 메뉴 안에서 켤 길 보장.
     private func executeRadialSubAction(sector: Int, sub: Int) {
@@ -290,75 +306,75 @@ final class KeyboardHotkeyHandler {
         case 0:
             if sub == 0 {
                 withAnimation(.easeInOut(duration: 0.35)) { runtime.isSpotlightActive.toggle() }
-                keystrokeOverlay.showStatusNotification("🔦 스포트라이트 · \(runtime.isSpotlightActive ? "켜짐" : "꺼짐")")
+                keystrokeOverlay.showStatusNotification(statusText("🔦", "스포트라이트", on: runtime.isSpotlightActive))
             } else {
                 let radii: [CGFloat] = [60, 100, 140, 180, 220]
                 let idx = sub - 1
                 guard idx < radii.count else { return }
                 settings.spotlightRadius = radii[idx]
-                keystrokeOverlay.showStatusNotification("🔦 스포트라이트 반경 · \(Int(radii[idx]))pt")
+                keystrokeOverlay.showStatusNotification(valueText("🔦", "스포트라이트 반경", "\(Int(radii[idx]))pt"))
             }
         case 1:
             if sub == 0 {
                 runtime.isMagnifierActive.toggle()
-                keystrokeOverlay.showStatusNotification("🔍 돋보기 · \(runtime.isMagnifierActive ? "켜짐" : "꺼짐")")
+                keystrokeOverlay.showStatusNotification(statusText("🔍", "돋보기", on: runtime.isMagnifierActive))
             } else {
                 let zooms: [Double] = [1.5, 2.0, 2.5, 3.0, 4.0]
                 let idx = sub - 1
                 guard idx < zooms.count else { return }
                 settings.magnifierZoom = zooms[idx]
-                keystrokeOverlay.showStatusNotification("🔍 돋보기 줌 · \(String(format: "%.1f", zooms[idx]))×")
+                keystrokeOverlay.showStatusNotification(valueText("🔍", "돋보기 줌", "\(String(format: "%.1f", zooms[idx]))×"))
             }
         case 3:
             let sizes = CursorSettings.RingSize.allCases
             guard sub < sizes.count else { return }
             settings.ringSize = sizes[sub]
-            keystrokeOverlay.showStatusNotification("🔘 링 크기 · \(sizes[sub].label)")
+            keystrokeOverlay.showStatusNotification(valueText("🔘", "링 크기", sizes[sub].label))
         case 4:
             let colors = CursorSettings.RingColor.allCases.filter { $0 != .custom }
             guard sub < colors.count else { return }
             settings.ringColor = colors[sub]
-            keystrokeOverlay.showStatusNotification("🎨 링 색 · \(colors[sub].label)")
+            keystrokeOverlay.showStatusNotification(valueText("🎨", "링 색", colors[sub].label))
         case 5:
             let shapes = CursorSettings.RingShape.allCases
             guard sub < shapes.count else { return }
             settings.ringShape = shapes[sub]
-            keystrokeOverlay.showStatusNotification("⭕ 링 모양 · \(shapes[sub].label)")
+            keystrokeOverlay.showStatusNotification(valueText("⭕", "링 모양", shapes[sub].label))
         case 7:
             if sub == 0 {
                 settings.isKeystrokeEnabled.toggle()
-                keystrokeOverlay.showStatusNotification("⌨ 키 입력 · \(settings.isKeystrokeEnabled ? "켜짐" : "꺼짐")")
+                keystrokeOverlay.showStatusNotification(statusText("⌨", "키 입력", on: settings.isKeystrokeEnabled))
             } else {
                 let times: [Double] = [1, 2, 4, 8]
                 let idx = sub - 1
                 guard idx < times.count else { return }
                 settings.keystrokeTimeout = times[idx]
-                keystrokeOverlay.showStatusNotification("⌨ 키 입력 시간 · \(Int(times[idx]))초")
+                keystrokeOverlay.showStatusNotification(valueText("⌨", "키 입력 시간", "\(Int(times[idx]))\("초".loc)"))
             }
         case 2:  // 효과 그룹 — 4개 독립 토글. sub 라벨과 알림 이름/이모지 일치
             switch sub {
             case 0:
                 settings.isGlowEnabled.toggle()
-                keystrokeOverlay.showStatusNotification("💡 글로우 · \(settings.isGlowEnabled ? "켜짐" : "꺼짐")")
+                keystrokeOverlay.showStatusNotification(statusText("💡", "글로우", on: settings.isGlowEnabled))
             case 1:
                 settings.isTrailEnabled.toggle()
-                keystrokeOverlay.showStatusNotification("💨 트레일 · \(settings.isTrailEnabled ? "켜짐" : "꺼짐")")
+                keystrokeOverlay.showStatusNotification(statusText("💨", "트레일", on: settings.isTrailEnabled))
             case 2:
                 settings.isIdlePulseEnabled.toggle()
-                keystrokeOverlay.showStatusNotification("💫 정지펄스 · \(settings.isIdlePulseEnabled ? "켜짐" : "꺼짐")")
+                keystrokeOverlay.showStatusNotification(statusText("💫", "정지펄스", on: settings.isIdlePulseEnabled))
             case 3:
                 settings.isCometTailEnabled.toggle()
-                keystrokeOverlay.showStatusNotification("☄️ 코멧 · \(settings.isCometTailEnabled ? "켜짐" : "꺼짐")")
+                keystrokeOverlay.showStatusNotification(statusText("☄️", "코멧", on: settings.isCometTailEnabled))
             default: break
             }
         case 6:  // 좌표/각도 묶음 — 위치/방향 라벨 2종
             switch sub {
             case 0:
                 runtime.isInspectorActive.toggle()
-                keystrokeOverlay.showStatusNotification("📐 좌표 · \(runtime.isInspectorActive ? "켜짐" : "꺼짐")")
+                keystrokeOverlay.showStatusNotification(statusText("📐", "좌표", on: runtime.isInspectorActive))
             case 1:
                 settings.isDragAngleLabelEnabled.toggle()
-                keystrokeOverlay.showStatusNotification("🧭 드래그각도 · \(settings.isDragAngleLabelEnabled ? "켜짐" : "꺼짐")")
+                keystrokeOverlay.showStatusNotification(statusText("🧭", "드래그각도", on: settings.isDragAngleLabelEnabled))
             default: break
             }
         default: break
@@ -371,37 +387,37 @@ final class KeyboardHotkeyHandler {
         switch sector {
         case 0:
             withAnimation(.easeInOut(duration: 0.35)) { runtime.isSpotlightActive.toggle() }
-            keystrokeOverlay.showStatusNotification("🔦 스포트라이트 · \(runtime.isSpotlightActive ? "켜짐" : "꺼짐")")
+            keystrokeOverlay.showStatusNotification(statusText("🔦", "스포트라이트", on: runtime.isSpotlightActive))
         case 1:
             runtime.isMagnifierActive.toggle()
-            keystrokeOverlay.showStatusNotification("🔍 돋보기 · \(runtime.isMagnifierActive ? "켜짐" : "꺼짐")")
+            keystrokeOverlay.showStatusNotification(statusText("🔍", "돋보기", on: runtime.isMagnifierActive))
         case 2:
             settings.isGlowEnabled.toggle()
-            keystrokeOverlay.showStatusNotification("✨ 빛 효과 · \(settings.isGlowEnabled ? "켜짐" : "꺼짐")")
+            keystrokeOverlay.showStatusNotification(statusText("✨", "빛 효과", on: settings.isGlowEnabled))
         case 3:
             let cases = CursorSettings.RingSize.allCases
             let i = cases.firstIndex(of: settings.ringSize) ?? 0
             let next = cases[(i + 1) % cases.count]
             settings.ringSize = next
-            keystrokeOverlay.showStatusNotification("🔘 링 크기 · \(next.label)")
+            keystrokeOverlay.showStatusNotification(valueText("🔘", "링 크기", next.label))
         case 4:
             let cases = CursorSettings.RingColor.allCases
             let i = cases.firstIndex(of: settings.ringColor) ?? 0
             let next = cases[(i + 1) % cases.count]
             settings.ringColor = next
-            keystrokeOverlay.showStatusNotification("🎨 링 색 · \(next.label)")
+            keystrokeOverlay.showStatusNotification(valueText("🎨", "링 색", next.label))
         case 5:
             let cases = CursorSettings.RingShape.allCases
             let i = cases.firstIndex(of: settings.ringShape) ?? 0
             let next = cases[(i + 1) % cases.count]
             settings.ringShape = next
-            keystrokeOverlay.showStatusNotification("⭕ 링 모양 · \(next.label)")
+            keystrokeOverlay.showStatusNotification(valueText("⭕", "링 모양", next.label))
         case 6:
             runtime.isInspectorActive.toggle()
-            keystrokeOverlay.showStatusNotification("📐 좌표 표시 · \(runtime.isInspectorActive ? "켜짐" : "꺼짐")")
+            keystrokeOverlay.showStatusNotification(statusText("📐", "좌표 표시", on: runtime.isInspectorActive))
         case 7:
             settings.isKeystrokeEnabled.toggle()
-            keystrokeOverlay.showStatusNotification("⌨ 키 입력 · \(settings.isKeystrokeEnabled ? "켜짐" : "꺼짐")")
+            keystrokeOverlay.showStatusNotification(statusText("⌨", "키 입력", on: settings.isKeystrokeEnabled))
         default: break
         }
     }
@@ -414,17 +430,17 @@ final class KeyboardHotkeyHandler {
         if let drawing = drawingState, drawing.isDrawingModeActive {
             if event.keyCode == 6 && flags == [.command] {
                 drawing.undoLastShape()
-                keystrokeOverlay.showStatusNotification("✏️ 되돌리기 · \(drawing.shapes.count)개 남음")
+                keystrokeOverlay.showStatusNotification(valueText("✏️", "되돌리기", "\(drawing.shapes.count)\("개 남음".loc)"))
                 return
             }
             if event.keyCode == 33 && flags.isEmpty {
                 let w = drawing.decreaseLineWidth()
-                keystrokeOverlay.showStatusNotification("✏️ 두께 · \(Int(w))pt")
+                keystrokeOverlay.showStatusNotification(valueText("✏️", "두께", "\(Int(w))pt"))
                 return
             }
             if event.keyCode == 30 && flags.isEmpty {
                 let w = drawing.increaseLineWidth()
-                keystrokeOverlay.showStatusNotification("✏️ 두께 · \(Int(w))pt")
+                keystrokeOverlay.showStatusNotification(valueText("✏️", "두께", "\(Int(w))pt"))
                 return
             }
         }
@@ -437,9 +453,9 @@ final class KeyboardHotkeyHandler {
                     drawing.toggleMode()
                     mouseMonitor?.isDrawingModeActive = drawing.isDrawingModeActive
                     if drawing.isDrawingModeActive {
-                        keystrokeOverlay.showStatusNotification("✏️ 그리기 · 켜짐 (Shift=직선 / Opt=화살표 / ESC=clear)")
+                        keystrokeOverlay.showStatusNotification(String(localized: "✏️ 그리기 · 켜짐 (Shift=직선 / Opt=화살표 / ESC=clear)"))
                     } else {
-                        keystrokeOverlay.showStatusNotification("✏️ 그리기 · 꺼짐")
+                        keystrokeOverlay.showStatusNotification(statusText("✏️", "그리기", on: false))
                     }
                 }
                 return

@@ -210,21 +210,21 @@ final class CursorSettings: ObservableObject {
         @MainActor
         func currentValue(settings: CursorSettings, runtime: CursorRuntimeState) -> String {
             switch self {
-            case .spotlight: return runtime.isSpotlightActive ? "켜짐 · \(Int(settings.spotlightRadius))pt" : "꺼짐"
-            case .magnifier: return runtime.isMagnifierActive ? "켜짐 · \(String(format: "%.1f", settings.magnifierZoom))×" : "꺼짐"
+            case .spotlight: return runtime.isSpotlightActive ? "\("켜짐".loc) · \(Int(settings.spotlightRadius))pt" : "꺼짐".loc
+            case .magnifier: return runtime.isMagnifierActive ? "\("켜짐".loc) · \(String(format: "%.1f", settings.magnifierZoom))×" : "꺼짐".loc
             case .glow:
                 // ✨ 효과는 독립 토글 묶음이라 단일 ON/OFF 부정확 — 켜진 개수 노출
                 let on = [settings.isGlowEnabled, settings.isTrailEnabled,
                           settings.isIdlePulseEnabled, settings.isCometTailEnabled].filter { $0 }.count
-                return "\(on)/4 켜짐"
+                return "\(on)/4 \("켜짐".loc)"
             case .ringSize:  return settings.ringSize.label
             case .color:     return settings.ringColor.label
             case .ringShape: return settings.ringShape.label
             case .inspector:
                 // 📐 좌표/각도는 2개 독립 토글 묶음
                 let on = [runtime.isInspectorActive, settings.isDragAngleLabelEnabled].filter { $0 }.count
-                return "\(on)/2 켜짐"
-            case .keystroke: return settings.isKeystrokeEnabled ? "켜짐 · \(Int(settings.keystrokeTimeout))초" : "꺼짐"
+                return "\(on)/2 \("켜짐".loc)"
+            case .keystroke: return settings.isKeystrokeEnabled ? "\("켜짐".loc) · \(Int(settings.keystrokeTimeout))\("초".loc)" : "꺼짐".loc
             }
         }
 

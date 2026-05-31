@@ -22,13 +22,13 @@ final class DrawingState: ObservableObject {
         /// 사용자 노출용 한글 이름 — 도구 선택 알림에 사용.
         var displayName: String {
             switch self {
-            case .pen:         return "펜"
-            case .line:        return "직선"
-            case .arrow:       return "화살표"
-            case .rectangle:   return "사각형"
-            case .ellipse:     return "타원"
-            case .highlighter: return "형광펜"
-            case .badge:       return "뱃지"
+            case .pen:         return "펜".loc
+            case .line:        return "직선".loc
+            case .arrow:       return "화살표".loc
+            case .rectangle:   return "사각형".loc
+            case .ellipse:     return "타원".loc
+            case .highlighter: return "형광펜".loc
+            case .badge:       return "뱃지".loc
             }
         }
     }

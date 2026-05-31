@@ -132,7 +132,10 @@ final class MagnifierCaptureService {
             config.pixelFormat = kCVPixelFormatType_32BGRA
             config.minimumFrameInterval = CMTime(value: 1, timescale: 20)
             config.queueDepth = 5
-            config.showsCursor = true
+            // 캡처에서 시스템 커서 제외 — 렌즈는 cursor 위치 중심 crop이라 렌즈 정중앙 = cursor 지점이고,
+            // 실제 시스템 커서가 렌즈 위(OS 최상단)에 그대로 떠 그 지점을 가리킨다. showsCursor=true면
+            // 렌즈 안에 확대된 커서가 한 번 더 캡처돼 시스템 커서와 이중으로 보인다 → false로 중복 제거.
+            config.showsCursor = false
 
             let stream = SCStream(filter: filter, configuration: config, delegate: nil)
             let output = StreamOutput { [weak self] sampleBuffer in

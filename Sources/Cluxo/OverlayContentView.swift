@@ -1007,6 +1007,10 @@ struct RadialMenuView: View {
                     Text(items[i].label)
                         .font(Tokens.Text.captionSmall)
                         .foregroundColor(.white)
+                        .multilineTextAlignment(.center)
+                        .lineLimit(2)
+                        .minimumScaleFactor(Tokens.Radial.labelScale)
+                        .frame(maxWidth: Tokens.Radial.mainLabelWidth)
                 }
                 .offset(x: cos(rad) * r, y: sin(rad) * r)
             }
@@ -1066,8 +1070,13 @@ struct RadialMenuView: View {
                         }
                         Text(subItem.label)
                             .font(.system(size: 12, weight: .semibold))
+                            .multilineTextAlignment(.center)
+                            .lineLimit(2)
+                            .minimumScaleFactor(Tokens.Radial.labelScale)
+                            .fixedSize(horizontal: false, vertical: true)
                     }
                     .foregroundColor(.white)
+                    .frame(maxWidth: Tokens.Radial.subLabelWidth)
                     .offset(x: cos(radSub) * rSub, y: sin(radSub) * rSub)
                 }
             }
@@ -1083,11 +1092,16 @@ struct RadialMenuView: View {
                     Text(items[sec].label)
                         .font(Tokens.Text.labelTiny)
                         .foregroundColor(Tokens.Stroke.textActive)
-                        .lineLimit(1)
+                        .multilineTextAlignment(.center)
+                        .lineLimit(2)
+                        .minimumScaleFactor(Tokens.Radial.labelScale)
+                        .frame(maxWidth: Tokens.Radial.centerLabelWidth)
                     Text(currentValues[sec])
                         .font(.system(size: 8, weight: .medium))
                         .foregroundColor(Tokens.Stroke.textMuted)
                         .lineLimit(1)
+                        .minimumScaleFactor(Tokens.Radial.labelScale)
+                        .frame(maxWidth: Tokens.Radial.centerLabelWidth)
                 }
                 .transition(.opacity)
                 .animation(Tokens.Motion.easeMicro, value: selectedSector)

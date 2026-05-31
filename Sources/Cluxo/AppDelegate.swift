@@ -718,11 +718,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                     }
                     if self.drawing.hitToolbarAndSelect(at: pos) {
                         // Label 제거 후 도구 식별을 알림으로 — "✏️ 도구 · 직선"
-                        self.keystrokeOverlay.showStatusNotification("✏️ 도구 · \(self.drawing.selectedTool.displayName)")
+                        self.keystrokeOverlay.showStatusNotification("✏️ \("도구".loc) · \(self.drawing.selectedTool.displayName)")
                         return
                     }
                     if self.drawing.hitThicknessAndSelect(at: pos) {
-                        self.keystrokeOverlay.showStatusNotification("✏️ 두께 · \(Int(self.drawing.lineWidth))pt")
+                        self.keystrokeOverlay.showStatusNotification("✏️ \("두께".loc) · \(Int(self.drawing.lineWidth))pt")
                         return
                     }
                     if let name = self.drawing.colorAt(pos),

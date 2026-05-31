@@ -105,6 +105,17 @@ enum Tokens {
         static let longPressDuration: TimeInterval = 0.5
         /// hold 중 허용되는 cursor 이동 거리 — 초과 시 드래그로 간주, long-press cancel
         static let longPressDeadband: CGFloat = 5
+
+        // 라벨 폭 — 영어 등 한글보다 긴 번역이 wedge를 벗어나지 않도록 wrap/축소시키는 최대 폭.
+        // 초과하면 2줄 wrap + minimumScaleFactor로 축소 (labelScale).
+        /// 메인 sector 라벨 최대 폭 (r=100, 45° wedge 안)
+        static let mainLabelWidth: CGFloat = 88
+        /// 서브 항목 라벨 최대 폭 (r=190 부채꼴, 인접 항목 겹침 방지)
+        static let subLabelWidth: CGFloat = 84
+        /// 중심 컨텍스트 라벨 최대 폭 (dead zone 지름 100pt 안)
+        static let centerLabelWidth: CGFloat = 92
+        /// 라벨이 폭을 넘을 때 허용하는 최소 축소 배율
+        static let labelScale: CGFloat = 0.65
     }
 
     // MARK: Radius — corner radius 스케일

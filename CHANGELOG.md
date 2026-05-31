@@ -4,6 +4,21 @@
 
 ## [Unreleased]
 
+## [1.1.4] — 2026-05-31
+
+### Fixed
+
+- **라디얼 메뉴 중심 상태값 + 하단 상태 알림이 영어 모드에서도 한국어로 표시** — `RadialMenuItem.currentValue`와 `showStatusNotification`에 넘기는 문자열이 `String` 변수로 `Text(변수)`에 그려져 SwiftUI catalog matching이 일어나지 않았음(1.1.0~1.1.3에서 잡은 것과 같은 유형의 누락 잔존).
+  - 라디얼 중심 상태값(`켜짐 · 220pt`, `꺼짐`, `3/4 켜짐`, `켜짐 · 2초` 등)의 한글 토큰에 `.loc` 적용.
+  - 상태 알림은 `KeyboardHotkeyHandler`에 빌더 헬퍼 `statusText`/`valueText` 신설(DESIGN.md `[아이콘] [라벨] · [값/상태]` 포맷을 한곳에 집약) — 라디얼 메뉴/서브 액션 30여 곳을 헬퍼로 통일. 라벨·켜짐/꺼짐은 catalog lookup, 이미 번역된 `.label`·숫자·단위는 그대로 합성.
+  - `DrawingState.Tool.displayName`(펜/직선/화살표/사각형/타원/형광펜/뱃지)에 `.loc`.
+  - catalog에 새 source key 추가 (`켜짐`→On, `초`→s, `돋보기 줌`, `키 입력 시간`, `빛 효과`, `좌표 표시`, `그리기`, `도구`, `되돌리기`, `개 남음`, 그리기 안내문 전체).
+- **라디얼 메뉴 레이블이 영어 등 긴 번역에서 wedge 박스를 벗어남** — `Text` 레이블에 폭 제약·줄바꿈·축소가 없어 `Coordinates / Angle`·`Extra Large (96pt)` 같은 긴 번역이 흘러넘쳤음.
+  - 메인 sector·서브 항목·중심 컨텍스트 레이블에 `frame(maxWidth:)` + `lineLimit(2)` + `multilineTextAlignment(.center)` + `minimumScaleFactor` 적용.
+  - 폭/축소 값은 `Tokens.Radial`에 토큰화(`mainLabelWidth`/`subLabelWidth`/`centerLabelWidth`/`labelScale`) — 하드코딩 금지 원칙 준수. 한글 레이블은 짧아 wrap/축소가 트리거되지 않아 기존 레이아웃 유지.
+- **돋보기 모드에서 마우스 포인터가 이중으로 표시** — `MagnifierCaptureService`의 `SCStreamConfiguration.showsCursor = true`라 캡처 이미지에 시스템 커서가 포함됐음. 렌즈는 커서 위치 중심 crop을 확대하므로 확대된 커서가 렌즈 안에 한 번 더 그려지고, 그 위에 실제 시스템 커서(원본 크기)가 겹쳐 이중으로 보였음.
+  - `showsCursor = false`로 변경 — 렌즈 정중앙 = 커서 지점이고 실제 시스템 커서가 그 위에 떠 지점을 가리키므로, 캡처에서 커서를 빼면 중복 없이 포인터 하나만 남음.
+
 ## [1.1.3] — 2026-05-31
 
 ### Fixed
