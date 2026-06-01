@@ -24,6 +24,15 @@ class MouseEventMonitor {
     /// 마우스 hold / 트랙패드 long touch 모두 같은 left mouse 이벤트라 단일 메커니즘으로 처리.
     var onLongPress: ((CGPoint) -> Void)?
 
+    /// 라디얼 메뉴 활성 중 잡아 끌어 메뉴 중심을 이동 — delta(Quartz 좌표 이동량)를 전달.
+    var onRadialMenuDrag: ((CGPoint) -> Void)?
+    // 라디얼 메뉴 grab 추적 — 활성 중 leftMouseDown으로 grab, deadband 초과 이동이면 drag(이동),
+    // 그 이하로 release면 click(실행/닫기)으로 판정.
+    private var radialGrabbing = false
+    private var radialPressStart: CGPoint = .zero
+    private var radialLastDrag: CGPoint = .zero
+    private var radialDidDrag = false
+
     // long press 추적 — mouseDown 시 timer 시작, deadband 초과 이동 또는 mouseUp 시 cancel.
     private var longPressWorkItem: DispatchWorkItem?
     private var longPressStartPos: CGPoint = .zero
@@ -91,6 +100,32 @@ class MouseEventMonitor {
                     DispatchQueue.main.async { m.onMouseMove?(loc) }
 
                 case .leftMouseDragged:
+                    // 라디얼 메뉴 활성 중 버튼 누른 채 이동 = 메뉴 잡아끌기. down에서 grab 못 한 경로
+                    // (좌클릭 long-press로 연 경우 — 열릴 때 이미 버튼 down)도 여기서 grab 시작.
+                    if m.shouldConsumeLeftClick {
+                        if !m.radialGrabbing {
+                            m.radialGrabbing = true
+                            m.radialPressStart = loc
+                            m.radialLastDrag = loc
+                            m.radialDidDrag = false
+                        }
+                        let pdx = loc.x - m.radialPressStart.x
+                        let pdy = loc.y - m.radialPressStart.y
+                        let db = Tokens.Radial.longPressDeadband
+                        if !m.radialDidDrag && (pdx * pdx + pdy * pdy) > (db * db) {
+                            m.radialDidDrag = true
+                        }
+                        if m.radialDidDrag {
+                            let ddx = loc.x - m.radialLastDrag.x
+                            let ddy = loc.y - m.radialLastDrag.y
+                            DispatchQueue.main.async {
+                                m.onRadialMenuDrag?(CGPoint(x: ddx, y: ddy))   // 중심 이동
+                                m.onMouseMove?(loc)                            // cursor 위치 갱신(선택은 center 따라 유지)
+                            }
+                        }
+                        m.radialLastDrag = loc
+                        return nil
+                    }
                     m.processMove(loc)
                     DispatchQueue.main.async { m.onMouseMove?(loc) }
                     // Long-press deadband 초과 이동 → 드래그로 간주, timer cancel (라디얼 트리거 안 함)
@@ -131,6 +166,14 @@ class MouseEventMonitor {
                     m.inDrag = false
                     let clickState = event.getIntegerValueField(.mouseEventClickState)
                     let isDouble = clickState >= 2
+                    // 라디얼 메뉴 활성: 잡아 옮길 수 있게 click 판정을 up으로 미룸(down은 grab 시작만).
+                    if m.shouldConsumeLeftClick {
+                        m.radialGrabbing = true
+                        m.radialPressStart = loc
+                        m.radialLastDrag = loc
+                        m.radialDidDrag = false
+                        return nil
+                    }
                     DispatchQueue.main.async { m.onLeftClick?(loc, isDouble) }
                     // Long-press 트리거 — 라디얼 메뉴 미활성 + 그리기 미활성일 때만 timer 시작
                     if m.canStartLongPress {
@@ -152,6 +195,14 @@ class MouseEventMonitor {
                     }
 
                 case .leftMouseUp:
+                    // 라디얼 메뉴 grab 종료 — drag였으면 이동만(클릭 무시), 제자리였으면 click(실행/닫기).
+                    if m.radialGrabbing {
+                        m.radialGrabbing = false
+                        if !m.radialDidDrag {
+                            DispatchQueue.main.async { m.onLeftClick?(m.radialPressStart, false) }
+                        }
+                        return nil
+                    }
                     // Long-press timer 살아있으면 cancel — 사용자가 threshold 전에 손 뗌 = 짧은 클릭
                     if let work = m.longPressWorkItem {
                         work.cancel()

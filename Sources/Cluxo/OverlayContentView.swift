@@ -1152,13 +1152,16 @@ struct RadialMenuView: View {
                     let e = Angle.degrees(subStart + step * Double(i + 1))
                     let isSubSelected = selectedSubItem == i
                     let isCurrentSub = subActiveStates?[i] ?? false
-                    // 바탕색 3단계로 상태 표시:
-                    //   hover(곧 실행) → accent 0.9 (강조)
-                    //   current(현재 설정값/켜짐) → accent 0.40 (옅은 액센트)
-                    //   inactive → surface.subtle (어둠)
-                    let fill: Color = isSubSelected
-                        ? accentColor.opacity(0.9)
-                        : (isCurrentSub ? accentColor.opacity(0.40) : Tokens.Surface.subtle)
+                    let subItem = subItems[i]
+                    let isBranch = subItem.isBranch
+                    // 바탕색: 선택(0.9) > 현재값(0.40) > branch(accent tint, 펼침 가능) > leaf(어두움).
+                    // branch는 옅은 accent로 깔아 leaf(단색)와 직관적으로 구분.
+                    let fill: Color = {
+                        if isSubSelected { return accentColor.opacity(0.9) }
+                        if isCurrentSub { return accentColor.opacity(0.40) }
+                        if isBranch { return accentColor.opacity(Tokens.Radial.branchFillOpacity) }
+                        return Tokens.Surface.subtle
+                    }()
                     PieWedge(startAngle: s, endAngle: e, innerRadius: mainOuter, outerRadius: subOuter)
                         .fill(fill)
                         .overlay(
@@ -1173,7 +1176,6 @@ struct RadialMenuView: View {
                     let subCenterDeg = subStart + step * (Double(i) + 0.5)
                     let rSub = (mainOuter + subOuter) / 2
                     let radSub = subCenterDeg * .pi / 180
-                    let subItem = subItems[i]
                     HStack(spacing: 4) {
                         if let iconName = subItem.icon {
                             Image(systemName: iconName)
@@ -1251,6 +1253,13 @@ struct RadialMenuView: View {
                         .animation(.easeOut(duration: 0.24).delay(Double(j) * 0.06), value: subSubAppeared)
                 }
             }
+
+            // 중심 배경 — 흰 배경에서도 ✕/라벨(흰색)이 보이도록 어두운 원 (dead zone 크기).
+            Circle()
+                .fill(Tokens.Surface.veil)
+                .frame(width: deadRadius * 2, height: deadRadius * 2)
+                .opacity(appeared ? 1 : 0)
+                .animation(appearAnim(0), value: appeared)
 
             // 중심(dead zone) 컨텍스트 — sector hover 시: 라벨+현재값 / dead zone 진입 시: ✕ 취소 affordance.
             // dead zone release는 원래도 cancel(80pt 안전선 미달)이지만, 명시 표시 없으면 사용자가 알기 어려움.

@@ -4,6 +4,18 @@
 
 ## [Unreleased]
 
+## [1.2.3] — 2026-06-01
+
+### Added
+
+- **라디얼 메뉴 잡아끌기 이동** — 메뉴 활성 중 중심을 좌클릭으로 잡고 드래그하면 메뉴 전체가 따라 이동. 제자리 클릭(deadband 이내)은 기존처럼 실행/닫기. clamp 없이 모니터 union 안에서 자유 — 인접 모니터로 넘어가되 모니터 없는 방향은 거부. ⌃⌥,·좌클릭 long-press 둘 다 동작.
+- **sector/branch/leaf 시각 구분** — branch sub에 옅은 accent 배경(`branchFillOpacity` 0.22) + 바깥 방향 chevron으로 "펼칠 수 있음"을 명시. leaf는 어두운 단색. sector(아이콘)/branch(tint+chevron)/leaf(단색) 3계층 위계.
+
+### Changed
+
+- **라디얼 중심 dead zone에 어두운 원 배경**(`surface.veil`) — 흰 배경에서도 흰색 ✕·라벨이 보이게.
+- **마지막 확장 영역 이탈 시 닫기 일관화** — leaf sub는 sub 영역 너머로, branch sub는 subSub 영역 너머로 끌면 닫기(✕). "더 갈 데 없는데 바깥으로 = 닫힘"이 leaf/branch 공통.
+
 ## [1.2.2] — 2026-06-01
 
 ### Fixed

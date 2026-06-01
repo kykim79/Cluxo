@@ -73,7 +73,7 @@ enum RadialHitTest {
         let dist = (dx * dx + dy * dy).squareRoot()
 
         if dist < rings.dead { return Hit(sector: nil, sub: nil, subSub: nil) }      // cancel
-        if dist > rings.subSub { return Hit(sector: nil, sub: nil, subSub: nil) }    // 바깥 무효
+        if dist > rings.subSub { return Hit(sector: nil, sub: nil, subSub: nil) }    // 가장 바깥 너머 → 닫기(✕)
 
         let cw = clockwiseFromTop(dx: dx, dy: dy)
 
@@ -98,8 +98,9 @@ enum RadialHitTest {
         // 3번째 ring — branch sub LOCK (옆 branch로 새지 않게)
         let lockSub = lockedSub ?? sub
         guard isBranch(sector, lockSub) else {
-            // leaf — subSub 없이 sub 유지 (3번째 ring에서도 클릭하면 leaf 실행)
-            return Hit(sector: sector, sub: lockSub, subSub: nil)
+            // leaf — 확장할 자식이 없음. sub 영역을 벗어나 더 바깥으로 오면 닫기(✕). branch가 subSub로
+            // 확장하는 것과 대칭 — 각 sub의 마지막 확장 영역을 바깥으로 벗어나면 닫힌다.
+            return Hit(sector: nil, sub: nil, subSub: nil)
         }
         let kidCount = subSubCountOf(sector, lockSub)
         guard kidCount > 0 else { return Hit(sector: sector, sub: lockSub, subSub: nil) }

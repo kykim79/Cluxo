@@ -775,6 +775,16 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             monitor?.onLongPress = { [weak self] _ in
                 self?.keyboardHotkeyHandler?.openRadialMenu()
             }
+            // 라디얼 메뉴를 잡아 끌어 이동 — delta는 Quartz(y-down)라 Cocoa(y-up)로 y 부호 반전.
+            // 모니터가 있는 영역으로만 — 인접 모니터로는 넘어가되, 어느 화면에도 없는 위치(빈 방향)는 거부.
+            monitor?.onRadialMenuDrag = { [weak self] delta in
+                guard let self, self.runtime.isRadialMenuActive else { return }
+                var c = self.runtime.radialMenuCenter
+                c.x += delta.x
+                c.y -= delta.y
+                guard NSScreen.screens.contains(where: { $0.frame.contains(c) }) else { return }
+                self.runtime.radialMenuCenter = c
+            }
             monitor?.onRightClick = { [weak self] _ in
                 guard let self else { return }
                 self.lastMoveTime = Date()

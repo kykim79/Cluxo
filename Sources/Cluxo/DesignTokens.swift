@@ -120,6 +120,8 @@ enum Tokens {
         static let centerLabelWidth: CGFloat = 92
         /// 라벨이 폭을 넘을 때 허용하는 최소 축소 배율
         static let labelScale: CGFloat = 0.65
+        /// branch sub 배경 — accent를 옅게 깔아 leaf(어두운 단색)와 구분(펼칠 수 있음 암시).
+        static let branchFillOpacity: Double = 0.22
     }
 
     // MARK: Radius — corner radius 스케일

@@ -48,7 +48,13 @@ final class RadialHitTestTests: XCTestCase {
     }
 
     func test_beyondOuter_noSelection() {
-        let hit = classify(dx: 0, dy: 320)   // dist 320 > 290
+        let hit = classify(dx: 0, dy: 320)   // dist 320 > 290, lock 없음 → 전체 해제(✕)
+        XCTAssertEqual(hit, .init(sector: nil, sub: nil, subSub: nil))
+    }
+
+    func test_beyondOuter_branchClears() {
+        // branch sub(0,1)를 펼친 채 가장 바깥 너머로 가면 닫기(✕) — leaf와 일관
+        let hit = classify(dx: 0, dy: 320, lockSector: 0, lockSub: 1)
         XCTAssertEqual(hit, .init(sector: nil, sub: nil, subSub: nil))
     }
 
@@ -100,12 +106,10 @@ final class RadialHitTestTests: XCTestCase {
         XCTAssertEqual(hit.subSub, 2)         // 5개 fan 중앙(12시)
     }
 
-    func test_subSubArea_leafSub_staysLeaf() {
-        // sector 0의 sub 0(leaf)을 lock하고 3번째 ring → subSub 없음, sub 유지
+    func test_subSubArea_leafSub_closes() {
+        // sector 0의 sub 0(leaf, 확장 없음)을 lock하고 sub 영역 너머 → 닫기(✕). branch가 subSub로 확장하는 것과 대칭.
         let hit = classify(dx: 0, dy: 260, lockSector: 0, lockSub: 0)
-        XCTAssertEqual(hit.sector, 0)
-        XCTAssertEqual(hit.sub, 0)
-        XCTAssertNil(hit.subSub)
+        XCTAssertEqual(hit, .init(sector: nil, sub: nil, subSub: nil))
     }
 
     func test_subSubArea_lockedSubDoesNotDriftToNeighbor() {
