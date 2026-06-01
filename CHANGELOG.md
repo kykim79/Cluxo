@@ -4,6 +4,12 @@
 
 ## [Unreleased]
 
+## [1.2.4] — 2026-06-01
+
+### Changed
+
+- **라디얼 잡아끌기 이동을 ⌃⌥, 토글로 연 경우로 한정** — 좌클릭 long-press로 연 경우는 hold-drag가 sector 선택(marking menu)으로 동작하도록 되돌림. grab은 leftMouseDown 시점에만 시작하므로, down 시 메뉴가 아직 안 열린 long-press 경로에서는 잡아끌기가 발동하지 않는다.
+
 ## [1.2.3] — 2026-06-01
 
 ### Added

@@ -100,15 +100,9 @@ class MouseEventMonitor {
                     DispatchQueue.main.async { m.onMouseMove?(loc) }
 
                 case .leftMouseDragged:
-                    // 라디얼 메뉴 활성 중 버튼 누른 채 이동 = 메뉴 잡아끌기. down에서 grab 못 한 경로
-                    // (좌클릭 long-press로 연 경우 — 열릴 때 이미 버튼 down)도 여기서 grab 시작.
-                    if m.shouldConsumeLeftClick {
-                        if !m.radialGrabbing {
-                            m.radialGrabbing = true
-                            m.radialPressStart = loc
-                            m.radialLastDrag = loc
-                            m.radialDidDrag = false
-                        }
+                    // 라디얼 메뉴를 잡아 끄는 중 — 메뉴 중심 이동. grab은 leftMouseDown(⌃⌥,로 연 경우)에서만 시작.
+                    // 좌클릭 long-press로 연 경우는 down 시점에 radial이 꺼져 있어 grab되지 않음 → hold-drag는 sector 선택 유지.
+                    if m.radialGrabbing {
                         let pdx = loc.x - m.radialPressStart.x
                         let pdy = loc.y - m.radialPressStart.y
                         let db = Tokens.Radial.longPressDeadband
