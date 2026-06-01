@@ -61,9 +61,17 @@
 |---|---|---|
 | `sub.hover` | `accentColor.opacity(0.90)` | 지금 떼면 실행 — 사용자 의도 |
 | `sub.current` | `accentColor.opacity(0.40)` | 현재 설정값 / 활성 토글 |
-| `sub.inactive` | `Tokens.Surface.subtle` (0.65 black) | 기본 |
+| `sub.branch` | `accentColor.opacity(0.22)` (`radial.branchFillOpacity`) | branch(자식 펼침 가능) — leaf와 구분, 바깥 방향 chevron 동반 |
+| `sub.inactive` | `Tokens.Surface.subtle` | leaf 기본(어두운 단색) |
 
-**Rule:** 텍스트는 일관 `.semibold + 흰색`. 상태는 바탕색만 변경. hover가 current보다 우선 (둘 다 해당하면 hover fill 적용).
+**우선순위:** hover(0.90) > current(0.40) > branch tint(0.22) > leaf inactive. branch는 항상 옅은 accent가 깔려 leaf(단색)와 한눈에 구분된다.
+
+**계층 시각 구분(sector / branch / leaf):**
+- **sector**(1단계): SF Symbol 아이콘 (라벨은 중심)
+- **branch**(펼쳐짐): accent tint 배경 + 바깥(subSub 방향) chevron
+- **leaf**(값): 어두운 단색, 텍스트만
+
+**Rule:** 텍스트는 일관 `.semibold + 흰색`. 상태는 바탕색만 변경.
 
 ### Outline / Stroke
 | Token | Value | 용도 |
@@ -80,7 +88,7 @@ macOS 시스템 폰트(SF Pro Text/Display)만 사용 — 외부 폰트 금지. 
 
 | Token | Swift | 용도 |
 |---|---|---|
-| `text.label` | `.system(size: 13, weight: .semibold)` | radial menu 메인 라벨, 키스트로크 |
+| `text.label` | `.system(size: 13, weight: .semibold)` | radial menu 중심 컨텍스트 sector 라벨, 키스트로크 (메인 wedge는 아이콘만) |
 | `text.body` | `.system(size: 12, weight: .medium)` | 중앙 컨텍스트, 인스펙터 좌표 |
 | `text.caption` | `.system(size: 11, weight: .medium)` | radial sub item 라벨 |
 | `text.hint` | `.system(size: 10, weight: .medium)` | radial menu help line |
@@ -104,21 +112,32 @@ base unit 4pt — macOS HIG와 정렬.
 ### Radial Menu 전용 거리
 radial menu는 거리(distance)로 의도를 표현하는 컴포넌트라 별도 스케일 사용.
 
+메인 wedge는 SF Symbol 아이콘만 표시(라벨은 중심 컨텍스트로) → 메인 영역을 좁혀 2단계(subSub) ring을 추가해도 전체 반경을 작게 유지.
+
 | Token | Value | 의미 |
 |---|---|---|
-| `radial.deadRadius` | 50 | dead zone — 안쪽이면 nil (cancel) |
-| `radial.mainOuter` | 150 | 메인 영역 바깥 경계 — 여기까지가 sector 자유 회전 |
-| `radial.subOuter` | 230 | 서브 영역 바깥 경계 — sector lock 활성 |
-| `radial.releaseSafety` | 80 | 떼었을 때 이 이상 끌어야 액션 발화 (오발 방지) |
-| `radial.edgeClamp` | 240 | 화면 가장자리에서 중심까지 최소 거리 |
+| `radial.deadRadius` | 50 | dead zone — 중심. 안쪽이면 선택 없음(✕ 닫기). 중심 컨텍스트 라벨 공간 |
+| `radial.mainOuter` | 102 | 메인 영역 바깥 — 아이콘만이라 좁게. 여기까지 sector 자유 회전 |
+| `radial.subOuter` | 174 | 서브 영역 바깥 — sector lock, sub 값 (2번째 ring) |
+| `radial.subSubOuter` | 236 | 서브-서브 바깥 — branch sub를 더 drag하면 자식 값이 펼쳐지는 3번째 ring |
+| `radial.edgeClamp` | 256 | 메뉴 열 때 화면 가장자리에서 중심까지 최소 거리 (잘림 방지). 잡아끌기 이동은 clamp 없이 모니터 union 안에서 자유 |
+| `radial.releaseSafety` | 80 | (현재 미사용 — 인터랙션이 클릭 기반으로 바뀌며 보류) |
+
+**Fan span (sub/subSub 부채꼴 각도):** 항목 수가 아니라 **라벨 내용 폭**에 맞춰 계산(`RadialMenuItem.contentSpan`, 50°~150°). 긴 라벨("매우 크게"/"Extra Large")이면 적은 개수라도 넓혀 라벨 겹침 방지. 렌더(`subSpan`)와 hit-test(`RadialHitTest.fanSpan` 주입)가 같은 함수를 써 항상 일치.
 
 ## Layout
 
 - **Cursor ring (Active):** `frame(width: ringSize, height: ringSize)`, `stroke.accent` lineWidth는 ringSize에 비례 (보통 ringSize × 0.06)
 - **Cursor ring (radial menu hover):** `14pt`, `stroke.cursor`, lineWidth 1.5
-- **Radial wedge:** PieWedge donut shape, inner=`deadRadius`, outer=`mainOuter`
-- **Radial arc (가이드):** outer edge에 1.5pt stroke (비활성) / 3.0pt stroke (활성)
-- **Sub item:** wedge 끝단 너머 80pt offset, 텍스트만 (배경 없음)
+- **Radial wedge (sector):** PieWedge donut, inner=`deadRadius`, outer=`mainOuter`. SF Symbol 아이콘만 — 라벨은 중심 컨텍스트에 표시.
+- **Radial sub wedge:** inner=`mainOuter`, outer=`subOuter`. 값/카테고리 텍스트. branch는 accent tint(`sub.branch`) + 바깥 chevron.
+- **Radial subSub wedge:** inner=`subOuter`, outer=`subSubOuter`. branch sub를 더 바깥으로 drag하면 자식 값이 펼쳐지는 2단계.
+- **Radial arc (가이드):** 활성 sector outer edge에 3.0pt accent stroke. 비활성 sub 영역·외곽 가이드 원은 미리 그리지 않음(메뉴 열 때 sub는 sector 선택 시에만 등장).
+- **중심 컨텍스트:** dead zone에 `surface.veil` 원 배경(흰 배경에서도 흰 라벨이 보이게) + sector 라벨(13pt) + 선택된 sub/subSub 값.
+- **등장/퇴장:** 메인 wedge가 12시→시계방향으로 순차(scale 0.85→1 + fade), 닫을 땐 역순. 외곽 가이드 원은 wedge가 다 등장한 뒤 마지막에. sub/subSub fan도 선택 시 같은 방식으로 순차.
+- **잡아끌기 이동:** 메뉴 활성 중 좌클릭 drag로 중심 이동(deadband 초과 시 drag, 이하 제자리는 실행/닫기). clamp 없이 모니터 union 안에서 자유 — 인접 모니터로 넘어가되 모니터 없는 방향은 거부.
+- **선택 영역 이탈:** leaf sub를 sub 영역 너머로, 또는 branch의 subSub를 마지막 ring 너머로 끌면 닫기(✕)로 — 마지막 확장 영역을 벗어나면 닫힘(일관).
+- **접근성 fallback:** 라디얼은 포인팅 제스처(커서 위치/drag 기반)라 키보드·VoiceOver를 직접 지원하지 않는다. 하지만 라디얼이 노출하는 모든 설정은 **환경설정 창(키보드 완전 접근)** 과 **전역 단축키**(⌃⌥1~7 색, ⌃⌥H 모양, 스포트라이트/돋보기/키스트로크 토글 등)로도 바꿀 수 있다 — 라디얼은 빠른 보조 경로이지 유일 경로가 아니다. 라디얼 자체의 키보드 nav는 TODOS.md에 deferred(라디얼 포인팅 철학과 fallback 존재 때문에 우선순위 낮음).
 - **Keystroke overlay:** 화면 하단 중앙, `.regularMaterial` 배경, cornerRadius 12, padding 16
 - **Inspector label:** 커서 우측 12pt offset, `.regularMaterial`, cornerRadius 6, padding 6×8
 
@@ -344,3 +363,7 @@ radial menu 등 사용자 액션의 알림은 단일 포맷:
 | 2026-05-31 | 단축키 숫자 1~7 = 색 전용 예약 (⌃⌥C / ⌃⌥H로 cycle 이동) | 색이 늘어날 때마다 cycle 키를 옮기는 brittleness 제거. 숫자=색, 알파벳=cycle convention 확립. ⌃⌥0=색순환·⌃⌥7=모양순환 → ⌃⌥C(Color)·⌃⌥H(sHape)으로 마이그레이션, ⌃⌥7은 흰색에 할당 |
 | 2026-05-31 | 도구박스 selection vs 색 채널 분리 (Option B) | 기존 `accent.opacity(0.9)` fill 배경 → 색이 큰 면적 차지하므로 ringColor 변경 시마다 glyph/ring luminance 매칭 필요. 색은 외곽 ring(작은 면적)에만 두고 selection은 고정 `white.opacity(0.18)` surface tint로 표시 → ringColor 무관하게 가독성 안정. `needsDarkText` 분기 toolButton/thicknessButton에서 제거 (colorButton은 본질이 색 표시라 유지) |
 | 2026-05-31 | `Color.needsDarkText` 헬퍼 (WCAG luminance) | yellow/cyan/white 위 흰 텍스트 invisible 패치를 위해 `L = 0.299R + 0.587G + 0.114B > 0.6` 단일 source. 도구박스 colorButton hint·DrawnShapeView badge 텍스트가 공유. 새 밝은 색 추가 시 분기 자동 적용 |
+| 2026-06-01 | radial menu 2단계 계층 + 메인 아이콘화 (v1.2.x) | 환경설정 수준 설정을 라디얼에서 빠르게 — sub를 leaf/branch 트리로, branch는 더 drag해 자식(subSub) 펼침. 메인 wedge는 아이콘만(라벨 중심 컨텍스트로) + 거리 토큰 축소(mainOuter 150→102, subOuter→174, subSubOuter 236)로 2단계인데도 반경은 기존보다 작게. fan span은 항목 수 대신 라벨 내용 폭 기반(긴 라벨 겹침 방지). 거리→sector/sub/subSub 분류는 순수함수 `RadialHitTest`로 분리(unit test). |
+| 2026-06-01 | branch/leaf 시각 구분 (`sub.branch` tint) | 둘 다 sub 텍스트라 한눈에 안 구분됨. branch에 옅은 accent(0.22) 배경 + 바깥 chevron으로 "펼칠 수 있음"을 명시. leaf는 어두운 단색. sector(아이콘)/branch(tint+chevron)/leaf(단색) 3계층 시각 위계 |
+| 2026-06-01 | 등장/퇴장 순차 애니 + 잡아끌기 이동 | 한 번에 나타나면 평면적 — 12시→시계방향 순차(scale+fade), 닫을 땐 역순으로 "고급" 인상. 외곽 가이드 원은 미리 안 그리고 마지막에. 잡아끌기는 clamp 없이 모니터 union(인접 모니터 넘김, 빈 방향 거부) — 발표 중 메뉴 위치 재배치 |
+| 2026-06-01 | 마지막 확장 영역 이탈 = 닫기 (일관) | leaf는 sub 영역 너머, branch는 subSub 영역 너머로 끌면 닫기(✕). "더 갈 데 없는데 바깥으로 = 닫힘"이 leaf/branch 공통. 중심 dead zone엔 `surface.veil` 배경 추가 — 흰 배경에서도 흰 ✕/라벨 가독 |
