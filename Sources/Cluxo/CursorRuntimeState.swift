@@ -25,6 +25,7 @@ final class CursorRuntimeState: ObservableObject {
     @Published var radialMenuDismissing: Bool = false  // 닫는 중 — wedge가 역순으로 사라진 뒤 실제 제거  // 서브 ring(≥150pt) 도달 시 활성, 메인 영역이면 nil
     @Published var isRadialMenuVisible: Bool = false  // 150ms hold 후만 true (marking mode — 빠른 release면 시각 안 띄우고 실행)
     @Published var radialMenuShowHelp: Bool = false  // 첫 5회 hold 동안만 메뉴 하단에 사용법 한 줄 표시
+    @Published var radialMenuShowDesc: Bool = false  // 항목 위 dwell(0.6s) 시 하단에 항목 설명 표시 (선택 변경 시 false)
     @Published var magnifierImage: CGImage?
     // 위 magnifierImage가 캡처된 시점의 cursor 글로벌 좌표. 렌즈를 이 위치에 그려 이미지 내용과
     // 정확히 동기화한다(렌즈는 60Hz cursor, 이미지는 캡처 fps라 어긋나면 떨림으로 보임).

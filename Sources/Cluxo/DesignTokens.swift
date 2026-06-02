@@ -107,6 +107,8 @@ enum Tokens {
         static let longPressDuration: TimeInterval = 0.5
         /// hold 중 허용되는 cursor 이동 거리 — 초과 시 드래그로 간주, long-press cancel
         static let longPressDeadband: CGFloat = 5
+        /// 항목 위에 머무른(dwell) 지 이 시간이 지나면 하단에 설명 표시. 선택이 바뀌면 리셋.
+        static let dwellDelay: TimeInterval = 0.6
 
         // 라벨 폭 — 영어 등 한글보다 긴 번역이 wedge를 벗어나지 않도록 wrap/축소시키는 최대 폭.
         // 초과하면 2줄 wrap + minimumScaleFactor로 축소 (labelScale).
@@ -118,6 +120,8 @@ enum Tokens {
         static let subSubLabelWidth: CGFloat = 76
         /// 중심 컨텍스트 라벨 최대 폭 (dead zone 지름 100pt 안)
         static let centerLabelWidth: CGFloat = 92
+        /// dwell 설명 캡슐 최대 폭 — 한 줄 설명이 2~3줄로 wrap되되 메뉴 밖 화면을 넘지 않게.
+        static let descWidth: CGFloat = 260
         /// 라벨이 폭을 넘을 때 허용하는 최소 축소 배율
         static let labelScale: CGFloat = 0.65
         /// branch sub 배경 — accent를 옅게 깔아 leaf(어두운 단색)와 구분(펼칠 수 있음 암시).

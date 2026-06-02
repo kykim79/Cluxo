@@ -122,6 +122,8 @@ radial menu는 거리(distance)로 의도를 표현하는 컴포넌트라 별도
 | `radial.subSubOuter` | 236 | 서브-서브 바깥 — branch sub를 더 drag하면 자식 값이 펼쳐지는 3번째 ring |
 | `radial.edgeClamp` | 256 | 메뉴 열 때 화면 가장자리에서 중심까지 최소 거리 (잘림 방지). 잡아끌기 이동은 clamp 없이 모니터 union 안에서 자유 |
 | `radial.releaseSafety` | 80 | (현재 미사용 — 인터랙션이 클릭 기반으로 바뀌며 보류) |
+| `radial.dwellDelay` | 0.6s | 항목 위에 머무른 지 이 시간이 지나면 하단에 설명 캡슐 표시. 선택(sector/sub/subSub)이 바뀌면 즉시 숨기고 타이머 리셋 |
+| `radial.descWidth` | 260 | dwell 설명 캡슐 최대 폭 (2~3줄 wrap) |
 
 **Fan span (sub/subSub 부채꼴 각도):** 항목 수가 아니라 **라벨 내용 폭**에 맞춰 계산(`RadialMenuItem.contentSpan`, 50°~150°). 긴 라벨("매우 크게"/"Extra Large")이면 적은 개수라도 넓혀 라벨 겹침 방지. 렌더(`subSpan`)와 hit-test(`RadialHitTest.fanSpan` 주입)가 같은 함수를 써 항상 일치.
 
@@ -134,6 +136,7 @@ radial menu는 거리(distance)로 의도를 표현하는 컴포넌트라 별도
 - **Radial subSub wedge:** inner=`subOuter`, outer=`subSubOuter`. branch sub를 더 바깥으로 drag하면 자식 값이 펼쳐지는 2단계.
 - **Radial arc (가이드):** 활성 sector outer edge에 3.0pt accent stroke. 비활성 sub 영역·외곽 가이드 원은 미리 그리지 않음(메뉴 열 때 sub는 sector 선택 시에만 등장).
 - **중심 컨텍스트:** dead zone에 `surface.veil` 원 배경(흰 배경에서도 흰 라벨이 보이게) + sector 라벨(13pt) + 선택된 sub/subSub 값.
+- **Dwell 설명(도움말):** 한 항목 위에 `radial.dwellDelay`만큼 머무르면 메뉴 외곽 아래(`subOuter + 18`)에 `surface.veil` 캡슐(radius.lg, `text.hint`)로 설명 한 줄. 폴백 순서 leaf→branch→sector(자식 desc 없으면 상위) — 색/숫자 leaf처럼 자명한 항목은 상위 sector 설명을 보여준다. 선택이 바뀌면 사라지고, 첫 5회 help line과 자리 공유라 설명 표시 중엔 help를 양보.
 - **등장/퇴장:** 메인 wedge가 12시→시계방향으로 순차(scale 0.85→1 + fade), 닫을 땐 역순. 외곽 가이드 원은 wedge가 다 등장한 뒤 마지막에. sub/subSub fan도 선택 시 같은 방식으로 순차.
 - **잡아끌기 이동:** 메뉴 활성 중 좌클릭 drag로 중심 이동(deadband 초과 시 drag, 이하 제자리는 실행/닫기). clamp 없이 모니터 union 안에서 자유 — 인접 모니터로 넘어가되 모니터 없는 방향은 거부.
 - **선택 영역 이탈:** leaf sub를 sub 영역 너머로, 또는 branch의 subSub를 마지막 ring 너머로 끌면 닫기(✕)로 — 마지막 확장 영역을 벗어나면 닫힘(일관).
@@ -367,3 +370,4 @@ radial menu 등 사용자 액션의 알림은 단일 포맷:
 | 2026-06-01 | branch/leaf 시각 구분 (`sub.branch` tint) | 둘 다 sub 텍스트라 한눈에 안 구분됨. branch에 옅은 accent(0.22) 배경 + 바깥 chevron으로 "펼칠 수 있음"을 명시. leaf는 어두운 단색. sector(아이콘)/branch(tint+chevron)/leaf(단색) 3계층 시각 위계 |
 | 2026-06-01 | 등장/퇴장 순차 애니 + 잡아끌기 이동 | 한 번에 나타나면 평면적 — 12시→시계방향 순차(scale+fade), 닫을 땐 역순으로 "고급" 인상. 외곽 가이드 원은 미리 안 그리고 마지막에. 잡아끌기는 clamp 없이 모니터 union(인접 모니터 넘김, 빈 방향 거부) — 발표 중 메뉴 위치 재배치 |
 | 2026-06-01 | 마지막 확장 영역 이탈 = 닫기 (일관) | leaf는 sub 영역 너머, branch는 subSub 영역 너머로 끌면 닫기(✕). "더 갈 데 없는데 바깥으로 = 닫힘"이 leaf/branch 공통. 중심 dead zone엔 `surface.veil` 배경 추가 — 흰 배경에서도 흰 ✕/라벨 가독 |
+| 2026-06-02 | 항목 dwell 설명(도움말 툴팁) | 아이콘만 있는 메인 wedge·축약 라벨로는 각 항목이 뭘 하는지 입문자가 알기 어려움. 항목 위에 `dwellDelay`(0.6s) 머무르면 하단 캡슐로 설명 한 줄 — 빠른 조작은 방해 없이(머물러야만 등장), 학습은 보조. 설명은 sector/branch/토글 leaf에만 두고 색·숫자 leaf는 상위 sector 설명으로 폴백(자명한 항목까지 문구 늘리지 않음). first-5 help line과 자리 공유 → 설명 표시 중 help 양보 |

@@ -209,6 +209,21 @@ final class CursorSettings: ObservableObject {
             }
         }
 
+        /// 항목 위에 커서가 잠시 머무르면(dwell) 표시되는 설명 한 줄 — 메뉴 하단 캡슐.
+        /// sub/leaf 자체 desc가 없으면 이 sector desc로 폴백된다(RadialMenuView.hoverDescription).
+        var desc: String {
+            switch self {
+            case .spotlight: return "커서 주변만 밝히고 나머지 화면을 어둡게 덮어 시선을 모읍니다.".loc
+            case .magnifier: return "커서 주변을 실시간 확대해 작은 글씨·UI를 키워 봅니다.".loc
+            case .glow:      return "글로우·트레일·정지 펄스·코멧 등 커서 강조 효과를 켜고 끕니다.".loc
+            case .ringSize:  return "커서를 감싸는 링의 크기·투명도·두께·선 스타일을 조절합니다.".loc
+            case .color:     return "커서 강조 링의 색을 바꿉니다.".loc
+            case .ringShape: return "링의 형태(원·둥근 사각형·마름모·육각형)를 바꿉니다.".loc
+            case .inspector: return "커서 좌표와 드래그 각도를 화면에 표시합니다.".loc
+            case .keystroke: return "누른 단축키를 화면에 자막처럼 표시합니다.".loc
+            }
+        }
+
         /// 현재 설정/상태값을 짧게 표현 (radial menu 중심에 "라벨 / 값"으로 표시).
         @MainActor
         func currentValue(settings: CursorSettings, runtime: CursorRuntimeState) -> String {
@@ -346,11 +361,15 @@ final class CursorSettings: ObservableObject {
             let icon: String?
             let label: String
             let children: [SubItem]?
+            /// dwell 설명 — branch/토글 leaf처럼 라벨만으론 모호한 항목에만 채운다.
+            /// nil이면 상위(branch→sector) desc로 폴백. 색/모양/숫자 leaf는 자명해 nil.
+            let desc: String?
             var isBranch: Bool { children?.isEmpty == false }
 
-            init(icon: String? = nil, label: String, children: [SubItem]? = nil) {
+            init(icon: String? = nil, label: String, desc: String? = nil, children: [SubItem]? = nil) {
                 self.icon = icon
                 self.label = label
+                self.desc = desc
                 self.children = children
             }
         }
@@ -358,43 +377,43 @@ final class CursorSettings: ObservableObject {
         var subItems: [SubItem] {
             switch self {
             case .spotlight: return [
-                SubItem(label: "토글".loc),   // leaf — 클릭 즉시 토글
-                SubItem(label: "반경".loc, children: [
+                SubItem(label: "토글".loc, desc: "스포트라이트를 켜거나 끕니다.".loc),   // leaf — 클릭 즉시 토글
+                SubItem(label: "반경".loc, desc: "밝게 남길 원의 반경을 정합니다.".loc, children: [
                     SubItem(label: "60pt"), SubItem(label: "100pt"), SubItem(label: "140pt"),
                     SubItem(label: "180pt"), SubItem(label: "220pt"),
                 ]),
-                SubItem(label: "경계".loc, children: [
+                SubItem(label: "경계".loc, desc: "밝은 영역과 어두운 영역 사이 경계의 부드러움을 정합니다.".loc, children: [
                     SubItem(label: "또렷".loc), SubItem(label: "보통".loc), SubItem(label: "부드럽게".loc),
                 ]),
             ]
             case .magnifier: return [
-                SubItem(label: "토글".loc),
-                SubItem(label: "배율".loc, children: [
+                SubItem(label: "토글".loc, desc: "돋보기를 켜거나 끕니다.".loc),
+                SubItem(label: "배율".loc, desc: "확대 배율을 정합니다.".loc, children: [
                     SubItem(label: "1.5×"), SubItem(label: "2×"), SubItem(label: "2.5×"),
                     SubItem(label: "3×"), SubItem(label: "4×"),
                 ]),
-                SubItem(label: "크기".loc, children: [
+                SubItem(label: "크기".loc, desc: "돋보기 창의 크기를 정합니다.".loc, children: [
                     SubItem(label: "작게".loc), SubItem(label: "보통".loc),
                     SubItem(label: "크게".loc), SubItem(label: "매우 크게".loc),
                 ]),
             ]
             case .glow: return [
-                SubItem(icon: "lightbulb.fill", label: "글로우".loc),
-                SubItem(icon: "wind",           label: "트레일".loc),
-                SubItem(icon: "target",         label: "정지펄스".loc),
-                SubItem(icon: "sparkle",        label: "코멧".loc),
+                SubItem(icon: "lightbulb.fill", label: "글로우".loc, desc: "커서 주위에 은은한 빛 번짐을 더합니다.".loc),
+                SubItem(icon: "wind",           label: "트레일".loc, desc: "커서가 지나간 자리에 짧은 잔상을 남깁니다.".loc),
+                SubItem(icon: "target",         label: "정지펄스".loc, desc: "커서가 잠시 멈추면 물결 펄스로 위치를 알립니다.".loc),
+                SubItem(icon: "sparkle",        label: "코멧".loc, desc: "드래그할 때 혜성 같은 꼬리를 그립니다.".loc),
             ]
             case .ringSize: return [   // "링 외형" — 4개 branch
-                SubItem(label: "크기".loc, children: RingSize.allCases.map { SubItem(label: $0.label) }),
-                SubItem(label: "투명도".loc, children: Self.ringOpacities.map { SubItem(label: "\(Int($0 * 100))%") }),
-                SubItem(label: "두께".loc, children: BorderWeight.allCases.map { SubItem(label: $0.label) }),
-                SubItem(label: "스타일".loc, children: BorderStyle.allCases.map { SubItem(label: $0.label) }),
+                SubItem(label: "크기".loc, desc: "링의 지름을 정합니다.".loc, children: RingSize.allCases.map { SubItem(label: $0.label) }),
+                SubItem(label: "투명도".loc, desc: "링의 불투명도를 정합니다.".loc, children: Self.ringOpacities.map { SubItem(label: "\(Int($0 * 100))%") }),
+                SubItem(label: "두께".loc, desc: "링 외곽선의 두께를 정합니다.".loc, children: BorderWeight.allCases.map { SubItem(label: $0.label) }),
+                SubItem(label: "스타일".loc, desc: "링 외곽선의 선 종류(실선·점선 등)를 정합니다.".loc, children: BorderStyle.allCases.map { SubItem(label: $0.label) }),
             ]
             case .color:     return RingColor.allCases.filter { $0 != .custom }.map { SubItem(icon: nil, label: $0.label) }
             case .ringShape: return RingShape.allCases.map { SubItem(icon: nil, label: $0.label) }
             case .inspector: return [
-                SubItem(icon: "viewfinder",     label: "좌표".loc),
-                SubItem(icon: "arrow.up.right", label: "드래그각도".loc),
+                SubItem(icon: "viewfinder",     label: "좌표".loc, desc: "커서의 화면 좌표(x, y)를 실시간 표시합니다.".loc),
+                SubItem(icon: "arrow.up.right", label: "드래그각도".loc, desc: "드래그 중 이동 방향의 각도를 표시합니다.".loc),
             ]
             case .keystroke: return [
                 SubItem(icon: nil, label: "토글".loc),

@@ -2,864 +2,52 @@
   "sourceLanguage": "ko",
   "version": "1.0",
   "strings": {
-    "낯선 모니터 자동 키스트로크": {
+    "%.1f초": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Auto-Keystroke on Unknown Monitor"
+            "value": "%.1fs"
           }
         }
       }
     },
-    "낯선 외장 모니터 연결 시 키스트로크 자동 표시": {
+    "1.5초 멈추면 1회 확장 표시. \"여기 보세요\" 자연스러운 강조.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Auto-show keystrokes when an unknown external monitor connects"
+            "value": "Pulses once when idle for 1.5s — a natural \"look here\" cue."
           }
         }
       }
     },
-    "회의실·강의실처럼 처음 연결하는 외장 모니터에서 자동으로 키스트로크 표시가 켜집니다. 자주 쓰는 데스크탑 모니터는 아래에서 신뢰 등록해 제외하세요.": {
+    "1.5초 이상 정지 — 주목 포인트": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Keystroke display turns on automatically for external monitors you connect for the first time (meeting rooms, lecture halls). Trust your everyday desktop monitors below to exclude them."
+            "value": "Idle for 1.5s+ — attention point"
           }
         }
       }
     },
-    "연결된 외장 모니터 없음": {
+    "100%는 명확하지만 아래 콘텐츠를 가립니다. 80~90% 정도면 콘텐츠도 보이면서 강조 효과 유지.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "No external monitor connected"
+            "value": "100% is clearest but covers underlying content. 80–90% keeps the highlight while letting content show through."
           }
         }
       }
     },
-    "신뢰 — 이 모니터에서는 자동 활성화 안 함": {
+    "100pt 또는 1초 이상 드래그 시 시작점에서 cursor까지 점선 표시. 영역 선택 시연에 유용.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Trusted — won't auto-enable on this monitor"
-          }
-        }
-      }
-    },
-    "⌨ 낯선 모니터 감지 — 키스트로크 표시 켜짐": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "⌨ Unknown monitor detected — keystroke display on"
-          }
-        }
-      }
-    },
-    "환경설정...": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Preferences..."
-          }
-        }
-      }
-    },
-    "언어": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Language"
-          }
-        }
-      }
-    },
-    "표시 언어": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Display Language"
-          }
-        }
-      }
-    },
-    "UI 언어": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "UI Language"
-          }
-        }
-      }
-    },
-    "시스템 기본": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "System Default"
-          }
-        }
-      }
-    },
-    "언어 변경 적용": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Apply Language Change"
-          }
-        }
-      }
-    },
-    "변경된 언어를 적용하려면 Cluxo를 재시작해야 합니다.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Cluxo must restart to apply the new language."
-          }
-        }
-      }
-    },
-    "지금 재시작": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Restart Now"
-          }
-        }
-      }
-    },
-    "나중에": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Later"
-          }
-        }
-      }
-    },
-    "앱 UI에 표시할 언어. 변경 후 Cluxo를 재시작해야 적용됩니다. ‘시스템 기본’은 macOS 시스템 언어를 따릅니다.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Language to display in the app UI. Changes apply after Cluxo restarts. ‘System Default’ follows your macOS system language."
-          }
-        }
-      }
-    },
-    "스포트라이트  ⌃⌥S": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Spotlight  ⌃⌥S"
-          }
-        }
-      }
-    },
-    "돋보기  ⌃⌥M": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Magnifier  ⌃⌥M"
-          }
-        }
-      }
-    },
-    "키스트로크 표시  ⌃⌥K": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Show Keystrokes  ⌃⌥K"
-          }
-        }
-      }
-    },
-    "스크린샷 모드 (캡처 허용)": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Screenshot Mode (allow capture)"
-          }
-        }
-      }
-    },
-    "비활성화": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Disable"
-          }
-        }
-      }
-    },
-    "✓ 활성화": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "✓ Enable"
-          }
-        }
-      }
-    },
-    "종료": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Quit"
-          }
-        }
-      }
-    },
-    "권한 일부 재부여 필요": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Permissions Need Regranting"
-          }
-        }
-      }
-    },
-    "시스템 설정 열기": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Open System Settings"
-          }
-        }
-      }
-    },
-    "모든 패널 열기": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Open All Panels"
-          }
-        }
-      }
-    },
-    "손쉬운 사용": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Accessibility"
-          }
-        }
-      }
-    },
-    "화면 녹화": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Screen Recording"
-          }
-        }
-      }
-    },
-    "입력 모니터링": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Input Monitoring"
-          }
-        }
-      }
-    },
-    "입력 보내기": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Send Input"
-          }
-        }
-      }
-    },
-    "permission_alert_body": {
-      "comment": "Body of the launch-time alert listing missing permissions and how to regrant them.",
-      "localizations": {
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Cluxo의 다음 권한이 부여되지 않았습니다:\n\n%@\n\n「시스템 설정 열기」 클릭 후:\n\nA) 목록에 Cluxo 있을 때 → 토글 ON\n   (토글이 안 먹으면 cdhash 변경됨. 「-」로 제거 후 다시 추가/토글.)\nB) 목록에 없을 때 (특히 입력 모니터링) → 「+」 버튼 → Cluxo 선택\n   (Finder에서 ⌘⇧G → ⌘V로 앱 경로 붙여넣기 가능)\n\nCluxo 경로가 클립보드에 복사돼 있습니다."
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Cluxo does not have these permissions:\n\n%@\n\nClick \"Open System Settings\", then:\n\nA) If Cluxo is in the list → toggle ON\n   (If toggling doesn't work, the cdhash changed. Remove with \"-\" and re-add/re-toggle.)\nB) If not in the list (especially Input Monitoring) → click \"+\" → select Cluxo\n   (In Finder, ⌘⇧G → ⌘V to paste the app path)\n\nThe Cluxo path is already on your clipboard."
-          }
-        }
-      }
-    },
-    "🔦 스포트라이트 켜짐": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "🔦 Spotlight on"
-          }
-        }
-      }
-    },
-    "🔦 스포트라이트 꺼짐": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "🔦 Spotlight off"
-          }
-        }
-      }
-    },
-    "⌨ 키스트로크 켜짐": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "⌨ Keystrokes on"
-          }
-        }
-      }
-    },
-    "⌨ 키스트로크 꺼짐": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "⌨ Keystrokes off"
-          }
-        }
-      }
-    },
-    "📸 스크린샷 모드 켜짐 (외부 캡처 허용)": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "📸 Screenshot mode on (external capture allowed)"
-          }
-        }
-      }
-    },
-    "📸 스크린샷 모드 꺼짐": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "📸 Screenshot mode off"
-          }
-        }
-      }
-    },
-    "magnifier_zoom_toast": {
-      "comment": "Zoom level toast — %.1f is the zoom multiplier",
-      "localizations": {
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "🔍 돋보기 줌 %.1fx"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "🔍 Magnifier zoom %.1fx"
-          }
-        }
-      }
-    },
-    "ring_color_toast": {
-      "comment": "Ring color cycle toast — %@ is the localized color name",
-      "localizations": {
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "🎨 %@"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "🎨 %@"
-          }
-        }
-      }
-    },
-    "모양": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Appearance"
-          }
-        }
-      }
-    },
-    "동작": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Behavior"
-          }
-        }
-      }
-    },
-    "단축키": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Shortcuts"
-          }
-        }
-      }
-    },
-    "정보": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Info"
-          }
-        }
-      }
-    },
-    "커서 링 색상": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Cursor Ring Color"
-          }
-        }
-      }
-    },
-    "링 모양": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ring Shape"
-          }
-        }
-      }
-    },
-    "링 크기": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ring Size"
-          }
-        }
-      }
-    },
-    "링 투명도": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ring Opacity"
-          }
-        }
-      }
-    },
-    "테두리 두께": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Border Weight"
-          }
-        }
-      }
-    },
-    "테두리 스타일": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Border Style"
-          }
-        }
-      }
-    },
-    "애니메이션 속도": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Animation Speed"
-          }
-        }
-      }
-    },
-    "스포트라이트 반경": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Spotlight Radius"
-          }
-        }
-      }
-    },
-    "키스트로크": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Keystrokes"
-          }
-        }
-      }
-    },
-    "기타": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Other"
-          }
-        }
-      }
-    },
-    "투명도": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Opacity"
-          }
-        }
-      }
-    },
-    "반경": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Radius"
-          }
-        }
-      }
-    },
-    "표시 시간": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Display Duration"
-          }
-        }
-      }
-    },
-    "커서 숨김 대기": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Idle Hide Delay"
-          }
-        }
-      }
-    },
-    "커스텀 색상": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Custom Color"
-          }
-        }
-      }
-    },
-    "이중 링 (안쪽 반투명 선)": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Inner Ring (translucent line inside)"
-          }
-        }
-      }
-    },
-    "링 채우기 (반투명 도넛)": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ring Fill (translucent donut)"
-          }
-        }
-      }
-    },
-    "글로우 효과": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Glow Effect"
-          }
-        }
-      }
-    },
-    "원근 왜곡 (Perspective Warping)": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Perspective Warping"
-          }
-        }
-      }
-    },
-    "스크롤 인디케이터": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Scroll Indicator"
-          }
-        }
-      }
-    },
-    "커서 트레일": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Cursor Trail"
-          }
-        }
-      }
-    },
-    "드래그 앵커 라인 (100pt 또는 1초 이상 드래그 시 자동 표시)": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Drag Anchor Line (auto-show after 100pt or 1s drag)"
-          }
-        }
-      }
-    },
-    "드래그 코멧 테일 (드래그 중 cursor 뒤 streak)": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Drag Comet Tail (streak behind cursor while dragging)"
-          }
-        }
-      }
-    },
-    "드래그 각도 라벨 (도면·일러스트레이션용)": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Drag Angle Label (for drafting/illustration)"
-          }
-        }
-      }
-    },
-    "우클릭에 링 색상 적용": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Apply ring color to right-click"
-          }
-        }
-      }
-    },
-    "녹화·발표·회의 앱 활성화 시 자동 활성화": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Auto-enable when recording/presentation/meeting apps activate"
-          }
-        }
-      }
-    },
-    "로그인 시 자동 실행": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Launch at login"
-          }
-        }
-      }
-    },
-    "돋보기 설정": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Magnifier Settings"
-          }
-        }
-      }
-    },
-    "배율": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Zoom"
-          }
-        }
-      }
-    },
-    "렌즈 크기": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Lens Size"
-          }
-        }
-      }
-    },
-    "앱 정보": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "App Info"
-          }
-        }
-      }
-    },
-    "버전": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Version"
-          }
-        }
-      }
-    },
-    "개발자": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Developer"
-          }
-        }
-      }
-    },
-    "최소 요구 사항": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Minimum Requirement"
-          }
-        }
-      }
-    },
-    "업데이트": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Update"
-          }
-        }
-      }
-    },
-    "업데이트 확인": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Check for Updates"
-          }
-        }
-      }
-    },
-    "확인 중...": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Checking..."
-          }
-        }
-      }
-    },
-    "지금 업데이트": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Update Now"
-          }
-        }
-      }
-    },
-    "Release 페이지": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Release Page"
-          }
-        }
-      }
-    },
-    "트랙패드 제스처 효과 (4핀치/3·4 스와이프 — 실험적)": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Trackpad gesture effects (4-finger pinch / 3·4-finger swipe — experimental)"
-          }
-        }
-      }
-    },
-    "펜": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Pen"
+            "value": "Shows a dashed line from start to cursor when dragging 100pt+ or 1s+. Useful for demonstrating area selection."
           }
         }
       }
@@ -880,736 +68,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "2s"
-          }
-        }
-      }
-    },
-    "4초": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "4s"
-          }
-        }
-      }
-    },
-    "8초": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "8s"
-          }
-        }
-      }
-    },
-    "굵게": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Bold"
-          }
-        }
-      }
-    },
-    "권한": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Permissions"
-          }
-        }
-      }
-    },
-    "꺼짐": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Off"
-          }
-        }
-      }
-    },
-    "닫기": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Close"
-          }
-        }
-      }
-    },
-    "대시": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Dashed"
-          }
-        }
-      }
-    },
-    "두께": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Width"
-          }
-        }
-      }
-    },
-    "뱃지": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Badge"
-          }
-        }
-      }
-    },
-    "보통": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Normal"
-          }
-        }
-      }
-    },
-    "색상": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Color"
-          }
-        }
-      }
-    },
-    "속도": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Speed"
-          }
-        }
-      }
-    },
-    "실선": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Solid"
-          }
-        }
-      }
-    },
-    "안내": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Guide"
-          }
-        }
-      }
-    },
-    "얇게": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Thin"
-          }
-        }
-      }
-    },
-    "원형": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Circle"
-          }
-        }
-      }
-    },
-    "작게": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Small"
-          }
-        }
-      }
-    },
-    "좌표": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Coordinates"
-          }
-        }
-      }
-    },
-    "직선": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Line"
-          }
-        }
-      }
-    },
-    "코멧": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Comet"
-          }
-        }
-      }
-    },
-    "크게": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Large"
-          }
-        }
-      }
-    },
-    "크기": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Size"
-          }
-        }
-      }
-    },
-    "타원": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ellipse"
-          }
-        }
-      }
-    },
-    "토글": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Toggle"
-          }
-        }
-      }
-    },
-    "효과": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Effects"
-          }
-        }
-      }
-    },
-    "흰색": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "White"
-          }
-        }
-      }
-    },
-    "글로우": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Glow"
-          }
-        }
-      }
-    },
-    "노란색": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Yellow"
-          }
-        }
-      }
-    },
-    "느리게": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Slow"
-          }
-        }
-      }
-    },
-    "돋보기": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Magnifier"
-          }
-        }
-      }
-    },
-    "두껍게": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Heavy"
-          }
-        }
-      }
-    },
-    "링 색": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ring Color"
-          }
-        }
-      }
-    },
-    "마름모": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Rhombus"
-          }
-        }
-      }
-    },
-    "보라색": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Purple"
-          }
-        }
-      }
-    },
-    "빠르게": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Fast"
-          }
-        }
-      }
-    },
-    "빨간색": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Red"
-          }
-        }
-      }
-    },
-    "사각형": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Rectangle"
-          }
-        }
-      }
-    },
-    "스타일": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Style"
-          }
-        }
-      }
-    },
-    "시스템": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "System"
-          }
-        }
-      }
-    },
-    "초록색": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Green"
-          }
-        }
-      }
-    },
-    "커스텀": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Custom"
-          }
-        }
-      }
-    },
-    "트레일": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Trail"
-          }
-        }
-      }
-    },
-    "파란색": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Blue"
-          }
-        }
-      }
-    },
-    "하늘색": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Cyan"
-          }
-        }
-      }
-    },
-    "한국어": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Korean"
-          }
-        }
-      }
-    },
-    "형광펜": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Highlighter"
-          }
-        }
-      }
-    },
-    "화살표": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Arrow"
-          }
-        }
-      }
-    },
-    "활성화": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Enable"
-          }
-        }
-      }
-    },
-    "색 순환": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Cycle Color"
-          }
-        }
-      }
-    },
-    "색상 1": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Color 1"
-          }
-        }
-      }
-    },
-    "색상 2": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Color 2"
-          }
-        }
-      }
-    },
-    "색상 3": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Color 3"
-          }
-        }
-      }
-    },
-    "색상 4": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Color 4"
-          }
-        }
-      }
-    },
-    "색상 5": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Color 5"
-          }
-        }
-      }
-    },
-    "색상 6": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Color 6"
-          }
-        }
-      }
-    },
-    "이중 링": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Double Ring"
-          }
-        }
-      }
-    },
-    "정지펄스": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Idle Pulse"
-          }
-        }
-      }
-    },
-    "줌 in": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Zoom In"
-          }
-        }
-      }
-    },
-    "키 입력": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Keystroke"
-          }
-        }
-      }
-    },
-    "%.1f초": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%.1fs"
-          }
-        }
-      }
-    },
-    "SOS 링": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "SOS Ring"
-          }
-        }
-      }
-    },
-    "각도 라벨": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Angle Label"
-          }
-        }
-      }
-    },
-    "기타 효과": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Other Effects"
-          }
-        }
-      }
-    },
-    "드래그각도": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Drag Angle"
-          }
-        }
-      }
-    },
-    "매우 크게": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Extra Large"
-          }
-        }
-      }
-    },
-    "모양 순환": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Cycle Shape"
-          }
-        }
-      }
-    },
-    "설정 열기": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Open Settings"
-          }
-        }
-      }
-    },
-    "수축+반동": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Contract + Bounce"
-          }
-        }
-      }
-    },
-    "원근 왜곡": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Perspective Distortion"
-          }
-        }
-      }
-    },
-    "좌표/각도": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Coordinates / Angle"
-          }
-        }
-      }
-    },
-    "줌 out": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Zoom Out"
-          }
-        }
-      }
-    },
-    "커서 숨김": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Hide Cursor"
-          }
-        }
-      }
-    },
-    "코멧 테일": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Comet Tail"
           }
         }
       }
@@ -1694,212 +152,12 @@
         }
       }
     },
-    "ESC 취소": {
+    "4손가락 핀치 아웃": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "ESC to cancel"
-          }
-        }
-      }
-    },
-    "고정 단축키": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Fixed shortcut"
-          }
-        }
-      }
-    },
-    "그리기 모드": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Drawing Mode"
-          }
-        }
-      }
-    },
-    "둥근 사각형": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Squircle"
-          }
-        }
-      }
-    },
-    "드래그 효과": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Drag Effects"
-          }
-        }
-      }
-    },
-    "라디얼 메뉴": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Radial Menu"
-          }
-        }
-      }
-    },
-    "방향 늘어남": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Stretch in direction"
-          }
-        }
-      }
-    },
-    "색상 7 흰": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Color 7 White"
-          }
-        }
-      }
-    },
-    "스포트라이트": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Spotlight"
-          }
-        }
-      }
-    },
-    "여기 보세요": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Look here"
-          }
-        }
-      }
-    },
-    "클릭 확인됨": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Click confirmed"
-          }
-        }
-      }
-    },
-    "Glow 강화": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Glow boost"
-          }
-        }
-      }
-    },
-    "검증 중...": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Verifying..."
-          }
-        }
-      }
-    },
-    "돋보기 활성화": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Enable Magnifier"
-          }
-        }
-      }
-    },
-    "설치 중...": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Installing..."
-          }
-        }
-      }
-    },
-    "좌표 인스펙터": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Coordinate Inspector"
-          }
-        }
-      }
-    },
-    "드래그 진행 중": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Dragging"
-          }
-        }
-      }
-    },
-    "마무리 중...": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Finishing up..."
-          }
-        }
-      }
-    },
-    "이 영역 보세요": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Look at this area"
-          }
-        }
-      }
-    },
-    "자동 키스트로크": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Auto-Keystroke"
-          }
-        }
-      }
-    },
-    "키스트로크 표시": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Keystroke Display"
+            "value": "4-finger pinch out"
           }
         }
       }
@@ -1914,392 +172,12 @@
         }
       }
     },
-    "5손가락 핀치 인": {
+    "4초": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "5-finger pinch in"
-          }
-        }
-      }
-    },
-    "다운로드 중...": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Downloading..."
-          }
-        }
-      }
-    },
-    "드래그 앵커 라인": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Drag anchor line"
-          }
-        }
-      }
-    },
-    "보통 (54pt)": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Normal (54pt)"
-          }
-        }
-      }
-    },
-    "작게 (36pt)": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Small (36pt)"
-          }
-        }
-      }
-    },
-    "크게 (72pt)": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Large (72pt)"
-          }
-        }
-      }
-    },
-    "키 누르세요...": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Press a key..."
-          }
-        }
-      }
-    },
-    "4손가락 핀치 아웃": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "4-finger pinch out"
-          }
-        }
-      }
-    },
-    "5손가락 핀치 아웃": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "5-finger pinch out"
-          }
-        }
-      }
-    },
-    "Cluxo 환경설정": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Cluxo Preferences"
-          }
-        }
-      }
-    },
-    "업데이트 시작...": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Starting update..."
-          }
-        }
-      }
-    },
-    "정지 시 펄스 강조": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Pulse when idle"
-          }
-        }
-      }
-    },
-    "매우 크게 (96pt)": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Extra Large (96pt)"
-          }
-        }
-      }
-    },
-    "Terminal로 재시도": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Retry in Terminal"
-          }
-        }
-      }
-    },
-    "macOS 13.0 이상": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "macOS 13.0 or later"
-          }
-        }
-      }
-    },
-    "이전 버전 제거 중...": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Removing old version..."
-          }
-        }
-      }
-    },
-    "흔들기 — 커서 위치 알림": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Shake — cursor location alert"
-          }
-        }
-      }
-    },
-    "Homebrew 갱신 중...": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Refreshing Homebrew..."
-          }
-        }
-      }
-    },
-    "링이 맥박처럼 숨쉼 — 대기 중": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ring breathes like a pulse — idle"
-          }
-        }
-      }
-    },
-    "트랙패드 제스처 효과 (실험적)": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Trackpad gesture effects (experimental)"
-          }
-        }
-      }
-    },
-    "1.5초 이상 정지 — 주목 포인트": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Idle for 1.5s+ — attention point"
-          }
-        }
-      }
-    },
-    "낯선 외장 모니터 연결 시 자동 표시": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Auto-show on unknown external monitor"
-          }
-        }
-      }
-    },
-    "?[Enter를 눌러 이 창을 닫기] ": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "?[Press Enter to close this window] "
-          }
-        }
-      }
-    },
-    "Mac 로그인 후 Cluxo가 자동으로 시작됩니다.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Cluxo starts automatically after Mac login."
-          }
-        }
-      }
-    },
-    "기본 오렌지 우클릭 ripple을 링 색으로 통일.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Match the right-click ripple to your ring color (instead of default orange)."
-          }
-        }
-      }
-    },
-    "방향 이동 · 클릭 실행 · ⌃⌥, 또는 ESC 닫기": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Direction to move · Click to act · ⌃⌥, or ESC to close"
-          }
-        }
-      }
-    },
-    "드래그 방향에 따라 링이 살짝 기울어지는 입체감 효과.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Adds a subtle 3D tilt to the ring in the drag direction."
-          }
-        }
-      }
-    },
-    "메인 링 안쪽에 반투명 보조 선을 추가해 두께감 보강.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Adds a translucent inner ring to reinforce thickness."
-          }
-        }
-      }
-    },
-    "스크롤 방향 화살표(↑↓←→) + 진폭 비례 크기 표시.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Direction arrows (↑↓←→) sized by scroll magnitude."
-          }
-        }
-      }
-    },
-    "커서 이동 자취를 잔상으로 남김. 빠른 움직임 인식 ↑.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Leaves a trailing afterglow as the cursor moves — easier to follow fast motion."
-          }
-        }
-      }
-    },
-    "커서 주변만 밝게, 나머지는 어둡게 처리해 시선을 모읍니다.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Dims everything except a circle around the cursor to focus attention."
-          }
-        }
-      }
-    },
-    "링 주변에 부드러운 빛 번짐. 시각 무게 ↑, 멀리서도 인지 쉬움.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Soft light bloom around the ring — heavier visual weight, easier to see from a distance."
-          }
-        }
-      }
-    },
-    "얇은 테두리는 미니멀한 인상, 굵은 테두리는 멀리서도 잘 보입니다.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Thin borders look minimal; heavy borders read clearly from a distance."
-          }
-        }
-      }
-    },
-    "누른 키를 화면 하단에 오버레이로 표시. 발표·녹화 중 단축키 시연용.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Shows pressed keys as a bottom overlay — useful for demoing shortcuts during presentations and recordings."
-          }
-        }
-      }
-    },
-    "렌즈(원/링)의 직경. 코드 한 줄 강조엔 작게, 영역 강조엔 크게 권장.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Diameter of the lens (circle/ring). Small for highlighting a single line of code; large for emphasizing an area."
-          }
-        }
-      }
-    },
-    "커서 주변 화면을 실시간 확대. 줌 조절은 ⌃⌥= / ⌃⌥- 고정 단축키.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Magnifies the screen around the cursor in real time. Adjust zoom with ⌃⌥= / ⌃⌥- (fixed shortcuts)."
-          }
-        }
-      }
-    },
-    "링 안쪽을 반투명 링 색으로 채워 도넛 형태로. 흰 배경에서도 잘 보입니다.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Fills the ring interior with a translucent ring color — donut shape, visible even on white backgrounds."
-          }
-        }
-      }
-    },
-    "OBS·Zoom·Keynote 등을 켤 때 Cluxo가 자동으로 활성화됩니다.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Cluxo automatically enables when you launch OBS, Zoom, Keynote, etc."
-          }
-        }
-      }
-    },
-    "드래그 중 cursor 옆에 회전 각도(°) 표시. 도면·일러스트레이션 작업용.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Shows the drag angle (°) next to the cursor — for technical drawing and illustration work."
+            "value": "4s"
           }
         }
       }
@@ -2314,142 +192,22 @@
         }
       }
     },
-    "[ / ] 두께 · ⌃⌥1~7 색 · ⌃⌥C 순환 · ⌘Z 되돌리기 · ESC 닫기": {
+    "5손가락 핀치 아웃": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "[ / ] thickness · ⌃⌥1–7 color · ⌃⌥C cycle · ⌘Z undo · ESC to close"
+            "value": "5-finger pinch out"
           }
         }
       }
     },
-    "드래그 중 cursor 뒤로 streak. 빠른 드래그 방향이 시각적으로 잘 보임.": {
+    "5손가락 핀치 인": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Leaves a streak behind the cursor during drag — makes fast drag direction easy to see."
-          }
-        }
-      }
-    },
-    "cursor 옆에 (x, y) Quartz 시스템 좌표 표시. UI 디자인·디버깅용.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Shows (x, y) Quartz system coordinates next to the cursor — for UI design and debugging."
-          }
-        }
-      }
-    },
-    "⇧ 직선 · ⌥ 화살표 · ⌘ 사각형 · ⌘⇧ 타원 · ⌘⌥ 형광펜 · ⇧⌥+클릭 뱃지": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "⇧ line · ⌥ arrow · ⌘ rectangle · ⌘⇧ ellipse · ⌘⌥ highlighter · ⇧⌥+click badge"
-          }
-        }
-      }
-    },
-    "발표 화면 크기와 시청자 거리에 맞춰 선택. 4K·대형 디스플레이일수록 큰 크기 권장.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Pick based on screen size and viewer distance. Larger sizes work better on 4K and large displays."
-          }
-        }
-      }
-    },
-    "클릭·드래그·정지 펄스 등 모든 모션 재생 속도. 발표 중엔 보통, 빠른 시연엔 빠름.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Playback speed for all motion (click, drag, idle pulse, etc.). Use Normal for presentations, Fast for quick demos."
-          }
-        }
-      }
-    },
-    "마우스를 안 움직인 후 링이 페이드 아웃되기까지 대기 시간. 발표 중엔 길게(5초+) 권장.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "How long to wait after mouse stops before the ring fades out. 5s+ is recommended during presentations."
-          }
-        }
-      }
-    },
-    "원형이 가장 자연스럽습니다. 둥근 사각형은 코드 영역 강조, 마름모는 시선 집중도가 가장 높습니다.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Circle looks most natural. Squircle works well for code regions; rhombus draws the most attention."
-          }
-        }
-      }
-    },
-    "100%는 명확하지만 아래 콘텐츠를 가립니다. 80~90% 정도면 콘텐츠도 보이면서 강조 효과 유지.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "100% is clearest but covers underlying content. 80–90% keeps the highlight while letting content show through."
-          }
-        }
-      }
-    },
-    "100pt 또는 1초 이상 드래그 시 시작점에서 cursor까지 점선 표시. 영역 선택 시연에 유용.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Shows a dashed line from start to cursor when dragging 100pt+ or 1s+. Useful for demonstrating area selection."
-          }
-        }
-      }
-    },
-    "⌃⌥M 단축키 또는 라디얼 메뉴(⌃⌥,)로도 토글 가능. 돋보기는 커서 주변 화면을 실시간 확대합니다.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Toggle with ⌃⌥M or the radial menu (⌃⌥,). The magnifier zooms the area around the cursor in real time."
-          }
-        }
-      }
-    },
-    "확대 배율 (1.5× ~ 4.0×). 발표 중 ⌃⌥= / ⌃⌥- 단축키로 0.5 step 빠르게 조절 가능.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Zoom factor (1.5×–4.0×). Quickly adjust with ⌃⌥= / ⌃⌥- in 0.5 steps during presentations."
-          }
-        }
-      }
-    },
-    "키 입력 후 화면 하단 오버레이에 표시되는 시간. 빠른 시연엔 1~2초, 천천히 보여주는 발표엔 3~5초 권장.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "How long pressed keys stay in the bottom overlay. 1–2s for fast demos, 3–5s for slower-paced presentations."
-          }
-        }
-      }
-    },
-    "⌃⌥S 스포트라이트가 비추는 원의 반지름. 코드 한 줄엔 작게(60~100), UI 영역엔 크게(180~220).": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Radius of the ⌃⌥S spotlight circle. Small (60–100) for a single line of code; large (180–220) for UI regions."
+            "value": "5-finger pinch in"
           }
         }
       }
@@ -2464,42 +222,62 @@
         }
       }
     },
-    "펜·직선·화살표·사각형·타원·형광펜·번호 뱃지 — 모디파이어 조합. 모드 활성 중 Cmd+Z 되돌리기, [/] 두께 조절.": {
+    "8초": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pen, line, arrow, rectangle, ellipse, highlighter, numbered badge — selected via modifiers. While active: Cmd+Z to undo, [/] to adjust thickness."
+            "value": "8s"
           }
         }
       }
     },
-    "모든 단축키는 ⌃⌥ (Control+Option) + 아래 키 조합입니다. 클릭하고 원하는 키를 누르세요. ESC로 캡처 취소.": {
+    "?[Enter를 눌러 이 창을 닫기] ": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "All shortcuts use ⌃⌥ (Control+Option) plus the key below. Click a row, then press the key you want. ESC to cancel capture."
+            "value": "?[Press Enter to close this window] "
           }
         }
       }
     },
-    "돋보기 기능이 커서 주변 화면을 캡처하려면 화면 녹화 권한이 필요합니다. 시스템 설정 → 개인정보 보호 및 보안 → 화면 녹화에서 Cluxo 활성화.": {
+    "Cluxo 환경설정": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "The magnifier needs Screen Recording permission to capture the area around the cursor. Enable Cluxo in System Settings → Privacy & Security → Screen Recording."
+            "value": "Cluxo Preferences"
           }
         }
       }
     },
-    "마우스 커서 주변 링의 기본 색. ⌃⌥1~6 단축키 또는 라디얼 메뉴(⌃⌥,)로 빠르게 전환. 클릭/드래그/그리기 등 모든 강조 효과가 이 색을 따릅니다.": {
+    "ESC 취소": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Base color of the ring around the cursor. Switch quickly with ⌃⌥1–6 or the radial menu (⌃⌥,). All click/drag/drawing highlights follow this color."
+            "value": "ESC to cancel"
+          }
+        }
+      }
+    },
+    "Glow 강화": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Glow boost"
+          }
+        }
+      }
+    },
+    "Homebrew 갱신 중...": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Refreshing Homebrew..."
           }
         }
       }
@@ -2514,62 +292,173 @@
         }
       }
     },
-    "📐 좌표 인스펙터 꺼짐": {
+    "Mac 로그인 후 Cluxo가 자동으로 시작됩니다.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "📐 Inspector off"
+            "value": "Cluxo starts automatically after Mac login."
           }
         }
       }
     },
-    "📐 좌표 인스펙터 켜짐": {
+    "Mac 로그인 후 자동 시작, 또는 OBS·Zoom·Keynote 등을 켤 때 Cluxo가 자동으로 활성화됩니다.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "📐 Inspector on"
+            "value": "Cluxo starts automatically after macOS login, or auto-enables when OBS/Zoom/Keynote becomes active."
           }
         }
       }
     },
-    "✏️ 그리기 · 꺼짐": {
+    "OBS·Zoom·Keynote 등을 켤 때 Cluxo가 자동으로 활성화됩니다.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "✏️ Drawing · off"
+            "value": "Cluxo automatically enables when you launch OBS, Zoom, Keynote, etc."
           }
         }
       }
     },
-    "✏️ 그리기 · clear": {
+    "Release 페이지": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "✏️ Drawing · clear"
+            "value": "Release Page"
           }
         }
       }
     },
-    "대기 시간": {
+    "SOS 링": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Idle Duration"
+            "value": "SOS Ring"
           }
         }
       }
     },
-    "화면 녹화 권한 필요": {
+    "Terminal 실행 실패: %@": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Screen Recording permission required"
+            "value": "Terminal launch failed: %@"
+          }
+        }
+      }
+    },
+    "Terminal로 재시도": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Retry in Terminal"
+          }
+        }
+      }
+    },
+    "UI 언어": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "UI Language"
+          }
+        }
+      }
+    },
+    "[ / ] 두께 · ⌃⌥1~7 색 · ⌃⌥C 순환 · ⌘Z 되돌리기 · ESC 닫기": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "[ / ] thickness · ⌃⌥1–7 color · ⌃⌥C cycle · ⌘Z undo · ESC to close"
+          }
+        }
+      }
+    },
+    "cursor 옆에 (x, y) Quartz 시스템 좌표 표시. UI 디자인·디버깅용.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Shows (x, y) Quartz system coordinates next to the cursor — for UI design and debugging."
+          }
+        }
+      }
+    },
+    "macOS 13.0 이상": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS 13.0 or later"
+          }
+        }
+      }
+    },
+    "magnifier_zoom_toast": {
+      "comment": "Zoom level toast — %.1f is the zoom multiplier",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🔍 돋보기 줌 %.1fx"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🔍 Magnifier zoom %.1fx"
+          }
+        }
+      }
+    },
+    "permission_alert_body": {
+      "comment": "Body of the launch-time alert listing missing permissions and how to regrant them.",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cluxo의 다음 권한이 부여되지 않았습니다:\n\n%@\n\n「시스템 설정 열기」 클릭 후:\n\nA) 목록에 Cluxo 있을 때 → 토글 ON\n   (토글이 안 먹으면 cdhash 변경됨. 「-」로 제거 후 다시 추가/토글.)\nB) 목록에 없을 때 (특히 입력 모니터링) → 「+」 버튼 → Cluxo 선택\n   (Finder에서 ⌘⇧G → ⌘V로 앱 경로 붙여넣기 가능)\n\nCluxo 경로가 클립보드에 복사돼 있습니다."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cluxo does not have these permissions:\n\n%@\n\nClick \"Open System Settings\", then:\n\nA) If Cluxo is in the list → toggle ON\n   (If toggling doesn't work, the cdhash changed. Remove with \"-\" and re-add/re-toggle.)\nB) If not in the list (especially Input Monitoring) → click \"+\" → select Cluxo\n   (In Finder, ⌘⇧G → ⌘V to paste the app path)\n\nThe Cluxo path is already on your clipboard."
+          }
+        }
+      }
+    },
+    "ring_color_toast": {
+      "comment": "Ring color cycle toast — %@ is the localized color name",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🎨 %@"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🎨 %@"
+          }
+        }
+      }
+    },
+    "⇧ 직선 · ⌥ 화살표 · ⌘ 사각형 · ⌘⇧ 타원 · ⌘⌥ 형광펜 · ⇧⌥+클릭 뱃지": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "⇧ line · ⌥ arrow · ⌘ rectangle · ⌘⇧ ellipse · ⌘⌥ highlighter · ⇧⌥+click badge"
           }
         }
       }
@@ -2580,6 +469,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "⌃⌥1–7 — Switch ring color instantly (Yellow/Red/Blue/Green/Cyan/Purple/White)"
+          }
+        }
+      }
+    },
+    "⌃⌥= / ⌃⌥- — 돋보기 줌 in/out (0.5 step)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "⌃⌥= / ⌃⌥- — Magnifier zoom in/out (0.5× step)"
           }
         }
       }
@@ -2604,52 +503,52 @@
         }
       }
     },
-    "⌃⌥= / ⌃⌥- — 돋보기 줌 in/out (0.5 step)": {
+    "⌃⌥M 단축키 또는 라디얼 메뉴(⌃⌥,)로도 토글 가능. 돋보기는 커서 주변 화면을 실시간 확대합니다.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "⌃⌥= / ⌃⌥- — Magnifier zoom in/out (0.5× step)"
+            "value": "Toggle with ⌃⌥M or the radial menu (⌃⌥,). The magnifier zooms the area around the cursor in real time."
           }
         }
       }
     },
-    "1.5초 멈추면 1회 확장 표시. \"여기 보세요\" 자연스러운 강조.": {
+    "⌃⌥S 스포트라이트가 비추는 원의 반지름. 코드 한 줄엔 작게(60~100), UI 영역엔 크게(180~220).": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pulses once when idle for 1.5s — a natural \"look here\" cue."
+            "value": "Radius of the ⌃⌥S spotlight circle. Small (60–100) for a single line of code; large (180–220) for UI regions."
           }
         }
       }
     },
-    "확인 실패: 서버 응답 %d": {
+    "⌨ 낯선 모니터 감지 — 키스트로크 표시 켜짐": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Check failed: server response %d"
+            "value": "⌨ Unknown monitor detected — keystroke display on"
           }
         }
       }
     },
-    "✓ 최신 버전입니다 (v%@)": {
+    "⌨ 키스트로크 꺼짐": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "✓ You're on the latest version (v%@)"
+            "value": "⌨ Keystrokes off"
           }
         }
       }
     },
-    "📥 새 버전 v%@ 사용 가능 (현재 v%@)": {
+    "⌨ 키스트로크 켜짐": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "📥 New version v%@ available (current v%@)"
+            "value": "⌨ Keystrokes on"
           }
         }
       }
@@ -2664,312 +563,22 @@
         }
       }
     },
-    "확인 실패: %@": {
+    "✏️ 그리기 · clear": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Check failed: %@"
+            "value": "✏️ Drawing · clear"
           }
         }
       }
     },
-    "업데이트 실패 (exit %d)": {
+    "✏️ 그리기 · 꺼짐": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Update failed (exit %d)"
-          }
-        }
-      }
-    },
-    "실행 실패: %@": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Execution failed: %@"
-          }
-        }
-      }
-    },
-    "재시작 실패: %@": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Restart failed: %@"
-          }
-        }
-      }
-    },
-    "Terminal 실행 실패: %@": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Terminal launch failed: %@"
-          }
-        }
-      }
-    },
-    "✓ v%@ 설치 완료. 곧 재시작됩니다...": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "✓ v%@ installed. Restarting shortly..."
-          }
-        }
-      }
-    },
-    "링": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ring"
-          }
-        }
-      }
-    },
-    "모드": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Modes"
-          }
-        }
-      }
-    },
-    "일반": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "General"
-          }
-        }
-      }
-    },
-    "링 효과": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ring Effects"
-          }
-        }
-      }
-    },
-    "스크롤": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Scroll"
-          }
-        }
-      }
-    },
-    "트랙패드": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Trackpad"
-          }
-        }
-      }
-    },
-    "돋보기 권한": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Magnifier Permission"
-          }
-        }
-      }
-    },
-    "시작": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Startup"
-          }
-        }
-      }
-    },
-    "커서": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Cursor"
-          }
-        }
-      }
-    },
-    "스크린샷 모드": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Screenshot Mode"
-          }
-        }
-      }
-    },
-    "숨김 대기": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Hide Delay"
-          }
-        }
-      }
-    },
-    "외부 캡처 허용 (앱 재시작 시 자동 OFF)": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Allow external capture (auto-OFF on restart)"
-          }
-        }
-      }
-    },
-    "평소엔 자체 돋보기가 자기 overlay를 재캡처하지 않게 외부 캡처에서 제외되지만, 발표 자료/데모 GIF 만들 땐 이 토글로 외부 screencapture·OBS에 잡히게 풀어줍니다.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "By default, Cluxo's overlay is excluded from external capture so its own magnifier doesn't re-capture itself. Enable this when recording demos so external screencapture/OBS picks it up."
-          }
-        }
-      }
-    },
-    "Mac 로그인 후 자동 시작, 또는 OBS·Zoom·Keynote 등을 켤 때 Cluxo가 자동으로 활성화됩니다.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Cluxo starts automatically after macOS login, or auto-enables when OBS/Zoom/Keynote becomes active."
-          }
-        }
-      }
-    },
-    "켜짐": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "On"
-          }
-        }
-      }
-    },
-    "초": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "s"
-          }
-        }
-      }
-    },
-    "돋보기 줌": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Magnifier Zoom"
-          }
-        }
-      }
-    },
-    "키 입력 시간": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Keystroke Duration"
-          }
-        }
-      }
-    },
-    "빛 효과": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Light Effect"
-          }
-        }
-      }
-    },
-    "좌표 표시": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Coordinates"
-          }
-        }
-      }
-    },
-    "그리기": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Drawing"
-          }
-        }
-      }
-    },
-    "도구": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Tool"
-          }
-        }
-      }
-    },
-    "되돌리기": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Undo"
-          }
-        }
-      }
-    },
-    "개 남음": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": " left"
+            "value": "✏️ Drawing · off"
           }
         }
       }
@@ -2985,90 +594,84 @@
         }
       }
     },
-    "흔들어서 강조": {
-      "extractionState": "manual",
+    "✓ v%@ 설치 완료. 곧 재시작됩니다...": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Shake to highlight"
+            "value": "✓ v%@ installed. Restarting shortly..."
           }
         }
       }
     },
-    "마우스를 빠르게 여러 번 흔들면 커서 위치에 퍼지는 링 표시. 커서를 놓쳤을 때 찾기 좋음.": {
-      "extractionState": "manual",
+    "✓ 최신 버전입니다 (v%@)": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Quickly shake the mouse several times to show expanding rings at the cursor — handy when you lose track of the cursor."
+            "value": "✓ You're on the latest version (v%@)"
           }
         }
       }
     },
-    "민감": {
-      "extractionState": "manual",
+    "✓ 활성화": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sensitive"
+            "value": "✓ Enable"
           }
         }
       }
     },
-    "둔감": {
-      "extractionState": "manual",
+    "각도 라벨": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Insensitive"
+            "value": "Angle Label"
           }
         }
       }
     },
-    "흔들기 민감도": {
+    "개 남음": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Shake sensitivity"
+            "value": " left"
           }
         }
       }
     },
-    "민감하면 살짝 흔들어도 발동, 둔감하면 여러 번 빠르게 흔들어야 발동. 오발동이 잦으면 둔감 쪽으로.": {
-      "extractionState": "manual",
+    "개발자": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sensitive triggers on a small shake; Insensitive requires several fast shakes. Move toward Insensitive if it triggers by accident."
+            "value": "Developer"
           }
         }
       }
     },
-    "둥근 마름모": {
-      "extractionState": "manual",
+    "검증 중...": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Rounded Diamond"
+            "value": "Verifying..."
           }
         }
       }
     },
-    "둥근 육각형": {
+    "경계": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Rounded Hexagon"
+            "value": "Edge"
           }
         }
       }
@@ -3095,46 +698,355 @@
         }
       }
     },
-    "경계": {
-      "extractionState": "manual",
+    "고정 단축키": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Edge"
+            "value": "Fixed shortcut"
           }
         }
       }
     },
-    "또렷": {
-      "extractionState": "manual",
+    "굵게": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sharp"
+            "value": "Bold"
           }
         }
       }
     },
-    "부드럽게": {
-      "extractionState": "manual",
+    "권한": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Soft"
+            "value": "Permissions"
           }
         }
       }
     },
-    "스포트라이트 경계": {
+    "권한 일부 재부여 필요": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Permissions Need Regranting"
+          }
+        }
+      }
+    },
+    "그리기": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Spotlight Edge"
+            "value": "Drawing"
+          }
+        }
+      }
+    },
+    "그리기 모드": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drawing Mode"
+          }
+        }
+      }
+    },
+    "글로우": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Glow"
+          }
+        }
+      }
+    },
+    "글로우 효과": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Glow Effect"
+          }
+        }
+      }
+    },
+    "글로우·트레일·정지 펄스·코멧 등 커서 강조 효과를 켜고 끕니다.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Toggle cursor-emphasis effects like glow, trail, idle pulse, and comet."
+          }
+        }
+      }
+    },
+    "기본 오렌지 우클릭 ripple을 링 색으로 통일.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Match the right-click ripple to your ring color (instead of default orange)."
+          }
+        }
+      }
+    },
+    "기타": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Other"
+          }
+        }
+      }
+    },
+    "기타 효과": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Other Effects"
+          }
+        }
+      }
+    },
+    "꺼짐": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Off"
+          }
+        }
+      }
+    },
+    "나중에": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Later"
+          }
+        }
+      }
+    },
+    "낯선 모니터 자동 키스트로크": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Auto-Keystroke on Unknown Monitor"
+          }
+        }
+      }
+    },
+    "낯선 외장 모니터 연결 시 자동 표시": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Auto-show on unknown external monitor"
+          }
+        }
+      }
+    },
+    "낯선 외장 모니터 연결 시 키스트로크 자동 표시": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Auto-show keystrokes when an unknown external monitor connects"
+          }
+        }
+      }
+    },
+    "노란색": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Yellow"
+          }
+        }
+      }
+    },
+    "녹화·발표·회의 앱 활성화 시 자동 활성화": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Auto-enable when recording/presentation/meeting apps activate"
+          }
+        }
+      }
+    },
+    "누른 단축키를 화면에 자막처럼 표시합니다.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Display pressed shortcuts on screen like subtitles."
+          }
+        }
+      }
+    },
+    "누른 키를 화면 하단에 오버레이로 표시. 발표·녹화 중 단축키 시연용.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Shows pressed keys as a bottom overlay — useful for demoing shortcuts during presentations and recordings."
+          }
+        }
+      }
+    },
+    "느리게": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Slow"
+          }
+        }
+      }
+    },
+    "다운로드 중...": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Downloading..."
+          }
+        }
+      }
+    },
+    "단축키": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Shortcuts"
+          }
+        }
+      }
+    },
+    "닫기": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Close"
+          }
+        }
+      }
+    },
+    "대기 시간": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Idle Duration"
+          }
+        }
+      }
+    },
+    "대시": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dashed"
+          }
+        }
+      }
+    },
+    "도구": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tool"
+          }
+        }
+      }
+    },
+    "돋보기": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Magnifier"
+          }
+        }
+      }
+    },
+    "돋보기  ⌃⌥M": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Magnifier  ⌃⌥M"
+          }
+        }
+      }
+    },
+    "돋보기 권한": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Magnifier Permission"
+          }
+        }
+      }
+    },
+    "돋보기 기능이 커서 주변 화면을 캡처하려면 화면 녹화 권한이 필요합니다. 시스템 설정 → 개인정보 보호 및 보안 → 화면 녹화에서 Cluxo 활성화.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The magnifier needs Screen Recording permission to capture the area around the cursor. Enable Cluxo in System Settings → Privacy & Security → Screen Recording."
+          }
+        }
+      }
+    },
+    "돋보기 설정": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Magnifier Settings"
+          }
+        }
+      }
+    },
+    "돋보기 줌": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Magnifier Zoom"
+          }
+        }
+      }
+    },
+    "돋보기 창의 크기를 정합니다.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Set the size of the magnifier window."
           }
         }
       }
@@ -3150,6 +1062,341 @@
         }
       }
     },
+    "돋보기 활성화": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enable Magnifier"
+          }
+        }
+      }
+    },
+    "돋보기를 켜거나 끕니다.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turn the magnifier on or off."
+          }
+        }
+      }
+    },
+    "동작": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Behavior"
+          }
+        }
+      }
+    },
+    "되돌리기": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Undo"
+          }
+        }
+      }
+    },
+    "두껍게": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Heavy"
+          }
+        }
+      }
+    },
+    "두께": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Width"
+          }
+        }
+      }
+    },
+    "둔감": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Insensitive"
+          }
+        }
+      }
+    },
+    "둥근 마름모": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rounded Diamond"
+          }
+        }
+      }
+    },
+    "둥근 사각형": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Squircle"
+          }
+        }
+      }
+    },
+    "둥근 육각형": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rounded Hexagon"
+          }
+        }
+      }
+    },
+    "드래그 각도 라벨 (도면·일러스트레이션용)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drag Angle Label (for drafting/illustration)"
+          }
+        }
+      }
+    },
+    "드래그 방향에 따라 링이 살짝 기울어지는 입체감 효과.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adds a subtle 3D tilt to the ring in the drag direction."
+          }
+        }
+      }
+    },
+    "드래그 앵커 라인": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drag anchor line"
+          }
+        }
+      }
+    },
+    "드래그 앵커 라인 (100pt 또는 1초 이상 드래그 시 자동 표시)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drag Anchor Line (auto-show after 100pt or 1s drag)"
+          }
+        }
+      }
+    },
+    "드래그 중 cursor 뒤로 streak. 빠른 드래그 방향이 시각적으로 잘 보임.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Leaves a streak behind the cursor during drag — makes fast drag direction easy to see."
+          }
+        }
+      }
+    },
+    "드래그 중 cursor 옆에 회전 각도(°) 표시. 도면·일러스트레이션 작업용.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Shows the drag angle (°) next to the cursor — for technical drawing and illustration work."
+          }
+        }
+      }
+    },
+    "드래그 중 이동 방향의 각도를 표시합니다.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Shows the angle of the movement direction while dragging."
+          }
+        }
+      }
+    },
+    "드래그 진행 중": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dragging"
+          }
+        }
+      }
+    },
+    "드래그 코멧 테일 (드래그 중 cursor 뒤 streak)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drag Comet Tail (streak behind cursor while dragging)"
+          }
+        }
+      }
+    },
+    "드래그 효과": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drag Effects"
+          }
+        }
+      }
+    },
+    "드래그각도": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drag Angle"
+          }
+        }
+      }
+    },
+    "드래그할 때 혜성 같은 꼬리를 그립니다.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Draws a comet-like tail while dragging."
+          }
+        }
+      }
+    },
+    "또렷": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sharp"
+          }
+        }
+      }
+    },
+    "라디얼 메뉴": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Radial Menu"
+          }
+        }
+      }
+    },
+    "렌즈 크기": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lens Size"
+          }
+        }
+      }
+    },
+    "렌즈(원/링)의 직경. 코드 한 줄 강조엔 작게, 영역 강조엔 크게 권장.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Diameter of the lens (circle/ring). Small for highlighting a single line of code; large for emphasizing an area."
+          }
+        }
+      }
+    },
+    "로그인 시 자동 실행": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Launch at login"
+          }
+        }
+      }
+    },
+    "링": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ring"
+          }
+        }
+      }
+    },
+    "링 모양": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ring Shape"
+          }
+        }
+      }
+    },
+    "링 색": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ring Color"
+          }
+        }
+      }
+    },
+    "링 안쪽을 반투명 링 색으로 채워 도넛 형태로. 흰 배경에서도 잘 보입니다.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fills the ring interior with a translucent ring color — donut shape, visible even on white backgrounds."
+          }
+        }
+      }
+    },
+    "링 외곽선의 두께를 정합니다.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Set the thickness of the ring's outline."
+          }
+        }
+      }
+    },
+    "링 외곽선의 선 종류(실선·점선 등)를 정합니다.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Set the ring outline's line style (solid, dashed, etc.)."
+          }
+        }
+      }
+    },
     "링 외형": {
       "extractionState": "manual",
       "localizations": {
@@ -3157,6 +1404,1999 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ring Look"
+          }
+        }
+      }
+    },
+    "링 주변에 부드러운 빛 번짐. 시각 무게 ↑, 멀리서도 인지 쉬움.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Soft light bloom around the ring — heavier visual weight, easier to see from a distance."
+          }
+        }
+      }
+    },
+    "링 채우기 (반투명 도넛)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ring Fill (translucent donut)"
+          }
+        }
+      }
+    },
+    "링 크기": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ring Size"
+          }
+        }
+      }
+    },
+    "링 투명도": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ring Opacity"
+          }
+        }
+      }
+    },
+    "링 효과": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ring Effects"
+          }
+        }
+      }
+    },
+    "링의 불투명도를 정합니다.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Set the opacity of the ring."
+          }
+        }
+      }
+    },
+    "링의 지름을 정합니다.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Set the diameter of the ring."
+          }
+        }
+      }
+    },
+    "링의 형태(원·둥근 사각형·마름모·육각형)를 바꿉니다.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Change the ring shape (circle, rounded square, rhombus, hexagon)."
+          }
+        }
+      }
+    },
+    "링이 맥박처럼 숨쉼 — 대기 중": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ring breathes like a pulse — idle"
+          }
+        }
+      }
+    },
+    "마름모": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rhombus"
+          }
+        }
+      }
+    },
+    "마무리 중...": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Finishing up..."
+          }
+        }
+      }
+    },
+    "마우스 커서 주변 링의 기본 색. ⌃⌥1~6 단축키 또는 라디얼 메뉴(⌃⌥,)로 빠르게 전환. 클릭/드래그/그리기 등 모든 강조 효과가 이 색을 따릅니다.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Base color of the ring around the cursor. Switch quickly with ⌃⌥1–6 or the radial menu (⌃⌥,). All click/drag/drawing highlights follow this color."
+          }
+        }
+      }
+    },
+    "마우스를 빠르게 여러 번 흔들면 커서 위치에 퍼지는 링 표시. 커서를 놓쳤을 때 찾기 좋음.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quickly shake the mouse several times to show expanding rings at the cursor — handy when you lose track of the cursor."
+          }
+        }
+      }
+    },
+    "마우스를 안 움직인 후 링이 페이드 아웃되기까지 대기 시간. 발표 중엔 길게(5초+) 권장.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "How long to wait after mouse stops before the ring fades out. 5s+ is recommended during presentations."
+          }
+        }
+      }
+    },
+    "매우 크게": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Extra Large"
+          }
+        }
+      }
+    },
+    "매우 크게 (96pt)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Extra Large (96pt)"
+          }
+        }
+      }
+    },
+    "메인 링 안쪽에 반투명 보조 선을 추가해 두께감 보강.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adds a translucent inner ring to reinforce thickness."
+          }
+        }
+      }
+    },
+    "모드": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Modes"
+          }
+        }
+      }
+    },
+    "모든 단축키는 ⌃⌥ (Control+Option) + 아래 키 조합입니다. 클릭하고 원하는 키를 누르세요. ESC로 캡처 취소.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "All shortcuts use ⌃⌥ (Control+Option) plus the key below. Click a row, then press the key you want. ESC to cancel capture."
+          }
+        }
+      }
+    },
+    "모든 패널 열기": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open All Panels"
+          }
+        }
+      }
+    },
+    "모양": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Appearance"
+          }
+        }
+      }
+    },
+    "모양 순환": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cycle Shape"
+          }
+        }
+      }
+    },
+    "민감": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sensitive"
+          }
+        }
+      }
+    },
+    "민감하면 살짝 흔들어도 발동, 둔감하면 여러 번 빠르게 흔들어야 발동. 오발동이 잦으면 둔감 쪽으로.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sensitive triggers on a small shake; Insensitive requires several fast shakes. Move toward Insensitive if it triggers by accident."
+          }
+        }
+      }
+    },
+    "반경": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Radius"
+          }
+        }
+      }
+    },
+    "발표 화면 크기와 시청자 거리에 맞춰 선택. 4K·대형 디스플레이일수록 큰 크기 권장.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pick based on screen size and viewer distance. Larger sizes work better on 4K and large displays."
+          }
+        }
+      }
+    },
+    "밝게 남길 원의 반경을 정합니다.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Set the radius of the lit circle."
+          }
+        }
+      }
+    },
+    "밝은 영역과 어두운 영역 사이 경계의 부드러움을 정합니다.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Set how soft the edge between the lit and dimmed areas is."
+          }
+        }
+      }
+    },
+    "방향 늘어남": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stretch in direction"
+          }
+        }
+      }
+    },
+    "방향 이동 · 클릭 실행 · ⌃⌥, 또는 ESC 닫기": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Direction to move · Click to act · ⌃⌥, or ESC to close"
+          }
+        }
+      }
+    },
+    "배율": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zoom"
+          }
+        }
+      }
+    },
+    "뱃지": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Badge"
+          }
+        }
+      }
+    },
+    "버전": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Version"
+          }
+        }
+      }
+    },
+    "변경된 언어를 적용하려면 Cluxo를 재시작해야 합니다.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cluxo must restart to apply the new language."
+          }
+        }
+      }
+    },
+    "보라색": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Purple"
+          }
+        }
+      }
+    },
+    "보통": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Normal"
+          }
+        }
+      }
+    },
+    "보통 (54pt)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Normal (54pt)"
+          }
+        }
+      }
+    },
+    "부드럽게": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Soft"
+          }
+        }
+      }
+    },
+    "비활성화": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Disable"
+          }
+        }
+      }
+    },
+    "빛 효과": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Light Effect"
+          }
+        }
+      }
+    },
+    "빠르게": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fast"
+          }
+        }
+      }
+    },
+    "빨간색": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Red"
+          }
+        }
+      }
+    },
+    "사각형": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rectangle"
+          }
+        }
+      }
+    },
+    "색 순환": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cycle Color"
+          }
+        }
+      }
+    },
+    "색상": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Color"
+          }
+        }
+      }
+    },
+    "색상 1": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Color 1"
+          }
+        }
+      }
+    },
+    "색상 2": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Color 2"
+          }
+        }
+      }
+    },
+    "색상 3": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Color 3"
+          }
+        }
+      }
+    },
+    "색상 4": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Color 4"
+          }
+        }
+      }
+    },
+    "색상 5": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Color 5"
+          }
+        }
+      }
+    },
+    "색상 6": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Color 6"
+          }
+        }
+      }
+    },
+    "색상 7 흰": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Color 7 White"
+          }
+        }
+      }
+    },
+    "설정 열기": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open Settings"
+          }
+        }
+      }
+    },
+    "설치 중...": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Installing..."
+          }
+        }
+      }
+    },
+    "속도": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Speed"
+          }
+        }
+      }
+    },
+    "손쉬운 사용": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Accessibility"
+          }
+        }
+      }
+    },
+    "수축+반동": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Contract + Bounce"
+          }
+        }
+      }
+    },
+    "숨김 대기": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hide Delay"
+          }
+        }
+      }
+    },
+    "스크롤": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scroll"
+          }
+        }
+      }
+    },
+    "스크롤 방향 화살표(↑↓←→) + 진폭 비례 크기 표시.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Direction arrows (↑↓←→) sized by scroll magnitude."
+          }
+        }
+      }
+    },
+    "스크롤 인디케이터": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scroll Indicator"
+          }
+        }
+      }
+    },
+    "스크린샷 모드": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Screenshot Mode"
+          }
+        }
+      }
+    },
+    "스크린샷 모드 (캡처 허용)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Screenshot Mode (allow capture)"
+          }
+        }
+      }
+    },
+    "스타일": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Style"
+          }
+        }
+      }
+    },
+    "스포트라이트": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spotlight"
+          }
+        }
+      }
+    },
+    "스포트라이트  ⌃⌥S": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spotlight  ⌃⌥S"
+          }
+        }
+      }
+    },
+    "스포트라이트 경계": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spotlight Edge"
+          }
+        }
+      }
+    },
+    "스포트라이트 반경": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spotlight Radius"
+          }
+        }
+      }
+    },
+    "스포트라이트를 켜거나 끕니다.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turn the spotlight on or off."
+          }
+        }
+      }
+    },
+    "시스템": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "System"
+          }
+        }
+      }
+    },
+    "시스템 기본": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "System Default"
+          }
+        }
+      }
+    },
+    "시스템 설정 열기": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open System Settings"
+          }
+        }
+      }
+    },
+    "시작": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Startup"
+          }
+        }
+      }
+    },
+    "신뢰 — 이 모니터에서는 자동 활성화 안 함": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trusted — won't auto-enable on this monitor"
+          }
+        }
+      }
+    },
+    "실선": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Solid"
+          }
+        }
+      }
+    },
+    "실행 실패: %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Execution failed: %@"
+          }
+        }
+      }
+    },
+    "안내": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Guide"
+          }
+        }
+      }
+    },
+    "애니메이션 속도": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Animation Speed"
+          }
+        }
+      }
+    },
+    "앱 UI에 표시할 언어. 변경 후 Cluxo를 재시작해야 적용됩니다. ‘시스템 기본’은 macOS 시스템 언어를 따릅니다.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Language to display in the app UI. Changes apply after Cluxo restarts. ‘System Default’ follows your macOS system language."
+          }
+        }
+      }
+    },
+    "앱 정보": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "App Info"
+          }
+        }
+      }
+    },
+    "얇게": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Thin"
+          }
+        }
+      }
+    },
+    "얇은 테두리는 미니멀한 인상, 굵은 테두리는 멀리서도 잘 보입니다.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Thin borders look minimal; heavy borders read clearly from a distance."
+          }
+        }
+      }
+    },
+    "언어": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Language"
+          }
+        }
+      }
+    },
+    "언어 변경 적용": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apply Language Change"
+          }
+        }
+      }
+    },
+    "업데이트": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Update"
+          }
+        }
+      }
+    },
+    "업데이트 시작...": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Starting update..."
+          }
+        }
+      }
+    },
+    "업데이트 실패 (exit %d)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Update failed (exit %d)"
+          }
+        }
+      }
+    },
+    "업데이트 확인": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Check for Updates"
+          }
+        }
+      }
+    },
+    "여기 보세요": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Look here"
+          }
+        }
+      }
+    },
+    "연결된 외장 모니터 없음": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No external monitor connected"
+          }
+        }
+      }
+    },
+    "외부 캡처 허용 (앱 재시작 시 자동 OFF)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Allow external capture (auto-OFF on restart)"
+          }
+        }
+      }
+    },
+    "우클릭에 링 색상 적용": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apply ring color to right-click"
+          }
+        }
+      }
+    },
+    "원근 왜곡": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Perspective Distortion"
+          }
+        }
+      }
+    },
+    "원근 왜곡 (Perspective Warping)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Perspective Warping"
+          }
+        }
+      }
+    },
+    "원형": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Circle"
+          }
+        }
+      }
+    },
+    "원형이 가장 자연스럽습니다. 둥근 사각형은 코드 영역 강조, 마름모는 시선 집중도가 가장 높습니다.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Circle looks most natural. Squircle works well for code regions; rhombus draws the most attention."
+          }
+        }
+      }
+    },
+    "이 영역 보세요": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Look at this area"
+          }
+        }
+      }
+    },
+    "이전 버전 제거 중...": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Removing old version..."
+          }
+        }
+      }
+    },
+    "이중 링": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Double Ring"
+          }
+        }
+      }
+    },
+    "이중 링 (안쪽 반투명 선)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Inner Ring (translucent line inside)"
+          }
+        }
+      }
+    },
+    "일반": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "General"
+          }
+        }
+      }
+    },
+    "입력 모니터링": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Input Monitoring"
+          }
+        }
+      }
+    },
+    "입력 보내기": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Send Input"
+          }
+        }
+      }
+    },
+    "자동 키스트로크": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Auto-Keystroke"
+          }
+        }
+      }
+    },
+    "작게": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Small"
+          }
+        }
+      }
+    },
+    "작게 (36pt)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Small (36pt)"
+          }
+        }
+      }
+    },
+    "재시작 실패: %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restart failed: %@"
+          }
+        }
+      }
+    },
+    "정보": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Info"
+          }
+        }
+      }
+    },
+    "정지 시 펄스 강조": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pulse when idle"
+          }
+        }
+      }
+    },
+    "정지펄스": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Idle Pulse"
+          }
+        }
+      }
+    },
+    "종료": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quit"
+          }
+        }
+      }
+    },
+    "좌표": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Coordinates"
+          }
+        }
+      }
+    },
+    "좌표 인스펙터": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Coordinate Inspector"
+          }
+        }
+      }
+    },
+    "좌표 표시": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Coordinates"
+          }
+        }
+      }
+    },
+    "좌표/각도": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Coordinates / Angle"
+          }
+        }
+      }
+    },
+    "줌 in": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zoom In"
+          }
+        }
+      }
+    },
+    "줌 out": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zoom Out"
+          }
+        }
+      }
+    },
+    "지금 업데이트": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Update Now"
+          }
+        }
+      }
+    },
+    "지금 재시작": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restart Now"
+          }
+        }
+      }
+    },
+    "직선": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Line"
+          }
+        }
+      }
+    },
+    "초": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "s"
+          }
+        }
+      }
+    },
+    "초록색": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Green"
+          }
+        }
+      }
+    },
+    "최소 요구 사항": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Minimum Requirement"
+          }
+        }
+      }
+    },
+    "커서": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cursor"
+          }
+        }
+      }
+    },
+    "커서 강조 링의 색을 바꿉니다.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Change the color of the cursor highlight ring."
+          }
+        }
+      }
+    },
+    "커서 링 색상": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cursor Ring Color"
+          }
+        }
+      }
+    },
+    "커서 숨김": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hide Cursor"
+          }
+        }
+      }
+    },
+    "커서 숨김 대기": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Idle Hide Delay"
+          }
+        }
+      }
+    },
+    "커서 이동 자취를 잔상으로 남김. 빠른 움직임 인식 ↑.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Leaves a trailing afterglow as the cursor moves — easier to follow fast motion."
+          }
+        }
+      }
+    },
+    "커서 좌표와 드래그 각도를 화면에 표시합니다.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show the cursor coordinates and drag angle on screen."
+          }
+        }
+      }
+    },
+    "커서 주변 화면을 실시간 확대. 줌 조절은 ⌃⌥= / ⌃⌥- 고정 단축키.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Magnifies the screen around the cursor in real time. Adjust zoom with ⌃⌥= / ⌃⌥- (fixed shortcuts)."
+          }
+        }
+      }
+    },
+    "커서 주변만 밝게, 나머지는 어둡게 처리해 시선을 모읍니다.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dims everything except a circle around the cursor to focus attention."
+          }
+        }
+      }
+    },
+    "커서 주변만 밝히고 나머지 화면을 어둡게 덮어 시선을 모읍니다.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Brightens only around the cursor and dims the rest of the screen to focus attention."
+          }
+        }
+      }
+    },
+    "커서 주변을 실시간 확대해 작은 글씨·UI를 키워 봅니다.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Magnifies around the cursor in real time to enlarge small text and UI."
+          }
+        }
+      }
+    },
+    "커서 주위에 은은한 빛 번짐을 더합니다.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adds a soft glow around the cursor."
+          }
+        }
+      }
+    },
+    "커서 트레일": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cursor Trail"
+          }
+        }
+      }
+    },
+    "커서가 잠시 멈추면 물결 펄스로 위치를 알립니다.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "When the cursor pauses, a ripple pulse marks its location."
+          }
+        }
+      }
+    },
+    "커서가 지나간 자리에 짧은 잔상을 남깁니다.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Leaves a short trail where the cursor has passed."
+          }
+        }
+      }
+    },
+    "커서를 감싸는 링의 크기·투명도·두께·선 스타일을 조절합니다.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adjust the size, opacity, thickness, and line style of the ring around the cursor."
+          }
+        }
+      }
+    },
+    "커서의 화면 좌표(x, y)를 실시간 표시합니다.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Shows the cursor's screen coordinates (x, y) in real time."
+          }
+        }
+      }
+    },
+    "커스텀": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Custom"
+          }
+        }
+      }
+    },
+    "커스텀 색상": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Custom Color"
+          }
+        }
+      }
+    },
+    "켜짐": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "On"
+          }
+        }
+      }
+    },
+    "코멧": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Comet"
+          }
+        }
+      }
+    },
+    "코멧 테일": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Comet Tail"
+          }
+        }
+      }
+    },
+    "크게": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Large"
+          }
+        }
+      }
+    },
+    "크게 (72pt)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Large (72pt)"
+          }
+        }
+      }
+    },
+    "크기": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Size"
+          }
+        }
+      }
+    },
+    "클릭 확인됨": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Click confirmed"
+          }
+        }
+      }
+    },
+    "클릭·드래그·정지 펄스 등 모든 모션 재생 속도. 발표 중엔 보통, 빠른 시연엔 빠름.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Playback speed for all motion (click, drag, idle pulse, etc.). Use Normal for presentations, Fast for quick demos."
+          }
+        }
+      }
+    },
+    "키 누르세요...": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Press a key..."
+          }
+        }
+      }
+    },
+    "키 입력": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keystroke"
+          }
+        }
+      }
+    },
+    "키 입력 시간": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keystroke Duration"
+          }
+        }
+      }
+    },
+    "키 입력 후 화면 하단 오버레이에 표시되는 시간. 빠른 시연엔 1~2초, 천천히 보여주는 발표엔 3~5초 권장.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "How long pressed keys stay in the bottom overlay. 1–2s for fast demos, 3–5s for slower-paced presentations."
+          }
+        }
+      }
+    },
+    "키스트로크": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keystrokes"
+          }
+        }
+      }
+    },
+    "키스트로크 표시": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keystroke Display"
+          }
+        }
+      }
+    },
+    "키스트로크 표시  ⌃⌥K": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show Keystrokes  ⌃⌥K"
+          }
+        }
+      }
+    },
+    "타원": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ellipse"
+          }
+        }
+      }
+    },
+    "테두리 두께": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Border Weight"
+          }
+        }
+      }
+    },
+    "테두리 스타일": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Border Style"
+          }
+        }
+      }
+    },
+    "토글": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Toggle"
+          }
+        }
+      }
+    },
+    "투명도": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Opacity"
+          }
+        }
+      }
+    },
+    "트랙패드": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trackpad"
+          }
+        }
+      }
+    },
+    "트랙패드 제스처 효과 (4핀치/3·4 스와이프 — 실험적)": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trackpad gesture effects (4-finger pinch / 3·4-finger swipe — experimental)"
+          }
+        }
+      }
+    },
+    "트랙패드 제스처 효과 (실험적)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trackpad gesture effects (experimental)"
+          }
+        }
+      }
+    },
+    "트레일": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trail"
+          }
+        }
+      }
+    },
+    "파란색": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Blue"
+          }
+        }
+      }
+    },
+    "펜": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pen"
+          }
+        }
+      }
+    },
+    "펜·직선·화살표·사각형·타원·형광펜·번호 뱃지 — 모디파이어 조합. 모드 활성 중 Cmd+Z 되돌리기, [/] 두께 조절.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pen, line, arrow, rectangle, ellipse, highlighter, numbered badge — selected via modifiers. While active: Cmd+Z to undo, [/] to adjust thickness."
+          }
+        }
+      }
+    },
+    "평소엔 자체 돋보기가 자기 overlay를 재캡처하지 않게 외부 캡처에서 제외되지만, 발표 자료/데모 GIF 만들 땐 이 토글로 외부 screencapture·OBS에 잡히게 풀어줍니다.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "By default, Cluxo's overlay is excluded from external capture so its own magnifier doesn't re-capture itself. Enable this when recording demos so external screencapture/OBS picks it up."
+          }
+        }
+      }
+    },
+    "표시 시간": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Display Duration"
+          }
+        }
+      }
+    },
+    "표시 언어": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Display Language"
+          }
+        }
+      }
+    },
+    "하늘색": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cyan"
+          }
+        }
+      }
+    },
+    "한국어": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Korean"
+          }
+        }
+      }
+    },
+    "형광펜": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Highlighter"
+          }
+        }
+      }
+    },
+    "화면 녹화": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Screen Recording"
+          }
+        }
+      }
+    },
+    "화면 녹화 권한 필요": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Screen Recording permission required"
+          }
+        }
+      }
+    },
+    "화살표": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Arrow"
+          }
+        }
+      }
+    },
+    "확대 배율 (1.5× ~ 4.0×). 발표 중 ⌃⌥= / ⌃⌥- 단축키로 0.5 step 빠르게 조절 가능.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zoom factor (1.5×–4.0×). Quickly adjust with ⌃⌥= / ⌃⌥- in 0.5 steps during presentations."
+          }
+        }
+      }
+    },
+    "확대 배율을 정합니다.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Set the magnification level."
+          }
+        }
+      }
+    },
+    "확인 실패: %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Check failed: %@"
+          }
+        }
+      }
+    },
+    "확인 실패: 서버 응답 %d": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Check failed: server response %d"
+          }
+        }
+      }
+    },
+    "확인 중...": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Checking..."
+          }
+        }
+      }
+    },
+    "환경설정...": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Preferences..."
+          }
+        }
+      }
+    },
+    "활성화": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enable"
+          }
+        }
+      }
+    },
+    "회의실·강의실처럼 처음 연결하는 외장 모니터에서 자동으로 키스트로크 표시가 켜집니다. 자주 쓰는 데스크탑 모니터는 아래에서 신뢰 등록해 제외하세요.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keystroke display turns on automatically for external monitors you connect for the first time (meeting rooms, lecture halls). Trust your everyday desktop monitors below to exclude them."
+          }
+        }
+      }
+    },
+    "효과": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Effects"
+          }
+        }
+      }
+    },
+    "흔들기 — 커서 위치 알림": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Shake — cursor location alert"
+          }
+        }
+      }
+    },
+    "흔들기 민감도": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Shake sensitivity"
+          }
+        }
+      }
+    },
+    "흔들어서 강조": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Shake to highlight"
+          }
+        }
+      }
+    },
+    "흰색": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "White"
+          }
+        }
+      }
+    },
+    "📐 좌표 인스펙터 꺼짐": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "📐 Inspector off"
+          }
+        }
+      }
+    },
+    "📐 좌표 인스펙터 켜짐": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "📐 Inspector on"
+          }
+        }
+      }
+    },
+    "📥 새 버전 v%@ 사용 가능 (현재 v%@)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "📥 New version v%@ available (current v%@)"
+          }
+        }
+      }
+    },
+    "📸 스크린샷 모드 꺼짐": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "📸 Screenshot mode off"
+          }
+        }
+      }
+    },
+    "📸 스크린샷 모드 켜짐 (외부 캡처 허용)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "📸 Screenshot mode on (external capture allowed)"
+          }
+        }
+      }
+    },
+    "🔦 스포트라이트 꺼짐": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🔦 Spotlight off"
+          }
+        }
+      }
+    },
+    "🔦 스포트라이트 켜짐": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🔦 Spotlight on"
           }
         }
       }

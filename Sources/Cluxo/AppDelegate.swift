@@ -88,6 +88,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private var idleHideWorkItem: DispatchWorkItem?
     private var glowEnhanceWorkItem: DispatchWorkItem?
     private var idlePulseWorkItem: DispatchWorkItem?
+    private var radialDwellWorkItem: DispatchWorkItem?  // 라디얼 항목 위 dwell → 설명 표시
     private var lastPosUpdateTime: TimeInterval = 0
     private var lastTrailSampleTime: TimeInterval = 0
 
@@ -622,14 +623,15 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 },
                 subSubSpanOf: { sec, sub in CursorSettings.RadialMenuItem(rawValue: sec)?.subSubSpan(of: sub) ?? 50 }
             )
-            if runtime.radialMenuSelectedSector != hit.sector {
+            let hitChanged = runtime.radialMenuSelectedSector != hit.sector
+                || runtime.radialMenuSelectedSubItem != hit.sub
+                || runtime.radialMenuSelectedSubSubItem != hit.subSub
+            if hitChanged {
                 runtime.radialMenuSelectedSector = hit.sector
-            }
-            if runtime.radialMenuSelectedSubItem != hit.sub {
                 runtime.radialMenuSelectedSubItem = hit.sub
-            }
-            if runtime.radialMenuSelectedSubSubItem != hit.subSub {
                 runtime.radialMenuSelectedSubSubItem = hit.subSub
+                // 선택이 바뀌면 설명 숨기고, 같은 항목 위에 dwellDelay만큼 머무르면 다시 띄운다.
+                scheduleRadialDwell(hasSelection: hit.sector != nil)
             }
         }
 
@@ -687,6 +689,23 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
         idlePulseWorkItem = pulse
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.5, execute: pulse)
+    }
+
+    /// 라디얼 항목 dwell — 선택이 바뀔 때마다 호출. 설명을 즉시 감추고, 같은 항목 위에
+    /// `dwellDelay`만큼 더 머무르면 다시 띄운다. 선택 없음(dead zone)이면 예약하지 않는다.
+    private func scheduleRadialDwell(hasSelection: Bool) {
+        radialDwellWorkItem?.cancel()
+        if runtime.radialMenuShowDesc {
+            withAnimation(Tokens.Motion.easeShort) { runtime.radialMenuShowDesc = false }
+        }
+        guard hasSelection else { return }
+        let work = DispatchWorkItem { [weak self] in
+            guard let self, self.runtime.isRadialMenuActive,
+                  self.runtime.radialMenuSelectedSector != nil else { return }
+            withAnimation(Tokens.Motion.easeShort) { self.runtime.radialMenuShowDesc = true }
+        }
+        radialDwellWorkItem = work
+        DispatchQueue.main.asyncAfter(deadline: .now() + Tokens.Radial.dwellDelay, execute: work)
     }
 
     // MARK: - 마우스·드래그·스크롤 이벤트 라우팅

@@ -240,6 +240,7 @@ final class KeyboardHotkeyHandler {
         runtime.radialMenuSelectedSector = nil
         runtime.radialMenuSelectedSubItem = nil
         runtime.radialMenuSelectedSubSubItem = nil
+        runtime.radialMenuShowDesc = false
         radialMenuActiveFlag = true
         mouseMonitor?.shouldConsumeLeftClick = true
         withAnimation(Tokens.Motion.easeMicro) { runtime.isRadialMenuVisible = true }
@@ -256,6 +257,7 @@ final class KeyboardHotkeyHandler {
         radialMenuActiveFlag = false
         mouseMonitor?.shouldConsumeLeftClick = false
         runtime.radialMenuShowHelp = false
+        runtime.radialMenuShowDesc = false
 
         // 이미 닫는 중이면 중복 예약 안 함
         guard !runtime.radialMenuDismissing else { return }

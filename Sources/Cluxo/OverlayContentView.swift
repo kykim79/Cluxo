@@ -189,6 +189,7 @@ struct OverlayContentView: View {
                     subActiveStates: subActiveStates,
                     subSubActiveStates: subSubActiveStates,
                     showHelp: runtime.radialMenuShowHelp,
+                    showDesc: runtime.radialMenuShowDesc,
                     accentColor: effectiveColor,
                     dismissing: runtime.radialMenuDismissing
                 )
@@ -1059,12 +1060,27 @@ struct RadialMenuView: View {
     let subActiveStates: [Bool]?  // 활성 sector sub들의 현재 활성 상태 — sub 라벨 강조
     let subSubActiveStates: [Bool]?  // 활성 branch의 자식 강조
     let showHelp: Bool            // 처음 5회 동안만 하단에 사용법 한 줄 표시 (학습성)
+    let showDesc: Bool            // 항목 위 dwell 시 하단에 해당 항목 설명 표시
     let accentColor: Color
     let dismissing: Bool          // 닫는 중 — true가 되면 wedge가 역순으로 빙 둘러 사라진다
 
     // 메인 sector 8종 — RadialMenuItem이 icon(SF Symbol)/label 단일 source.
     private var items: [(icon: String, label: String)] {
         CursorSettings.RadialMenuItem.allCases.map { ($0.icon, $0.label) }
+    }
+
+    /// 현재 hover 중인 항목(leaf→branch→sector 순)의 설명. leaf/sub에 desc가 없으면 상위로 폴백.
+    private var hoverDescription: String? {
+        guard let sec = selectedSector,
+              let item = CursorSettings.RadialMenuItem(rawValue: sec) else { return nil }
+        if let sub = selectedSubItem, sub < item.subItems.count {
+            let subItem = item.subItems[sub]
+            if let ss = selectedSubSubItem, let kids = subItem.children, ss < kids.count {
+                return kids[ss].desc ?? subItem.desc ?? item.desc
+            }
+            return subItem.desc ?? item.desc
+        }
+        return item.desc
     }
     // DESIGN.md "Radial" 토큰
     private let deadRadius = Tokens.Radial.deadRadius
@@ -1310,8 +1326,23 @@ struct RadialMenuView: View {
                 .transition(.opacity)
             }
 
-            // 헬프 텍스트 — 처음 5회 동안만 메뉴 외곽 아래에 사용법 한 줄 (학습성 보조).
-            if showHelp {
+            // 항목 dwell 설명 — 항목 위에 잠시 머무르면 메뉴 외곽 아래에 설명 한 줄. help보다 우선.
+            if showDesc, let desc = hoverDescription {
+                Text(desc)
+                    .font(Tokens.Text.hint)
+                    .foregroundColor(.white.opacity(0.92))
+                    .multilineTextAlignment(.center)
+                    .lineLimit(3)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 6)
+                    .frame(maxWidth: Tokens.Radial.descWidth)
+                    .background(RoundedRectangle(cornerRadius: Tokens.Radius.lg).fill(Tokens.Surface.veil))
+                    .offset(y: subOuter + 18)
+                    .transition(.opacity)
+            }
+            // 헬프 텍스트 — 처음 5회 동안만 메뉴 외곽 아래에 사용법 한 줄 (학습성 보조). 설명 표시 중엔 양보.
+            else if showHelp {
                 Text("방향 이동 · 클릭 실행 · ⌃⌥, 또는 ESC 닫기")
                     .font(Tokens.Text.hint)
                     .foregroundColor(.white.opacity(0.75))
