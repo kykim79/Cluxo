@@ -13,8 +13,6 @@ macOS menu bar app for presentations and screencasts. Visually emphasizes the mo
 
 ![Cluxo demo — colors · spotlight · magnifier · radial menu · drawing](docs/screenshots/01-hero-en.gif)
 
-> 🎬 **[Watch the full promo video (50s, with sound)](docs/Cluxo-promo-en.mp4)** — plays on GitHub when clicked
-
 ## Features
 
 - **Cursor Ring** — colored ring around the cursor (circle/squircle/rounded diamond/rounded hexagon, 4 sizes, opacity, border weight/style, glow, breathing animation)
