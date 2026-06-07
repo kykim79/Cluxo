@@ -11,7 +11,9 @@ macOS menu bar app for presentations and screencasts. Visually emphasizes the mo
 
 > 🇰🇷 [한국어 README](README.md)
 
-![Cluxo demo — drawing mode · radial menu · keystroke display](docs/screenshots/01-hero.gif)
+![Cluxo demo — colors · spotlight · magnifier · radial menu · drawing](docs/screenshots/01-hero-en.gif)
+
+> 🎬 **[Watch the full promo video (50s)](docs/Cluxo-promo-en.mp4)**
 
 ## Features
 
@@ -60,11 +62,13 @@ Some shortcuts are configurable in Preferences (menu bar → Preferences).
 
 ## Preferences
 
-8 color slots (incl. custom), 4 ring shapes, 4 sizes, plus opacity / border / speed / effect toggles, spotlight edge softness, and shake sensitivity — all in one place. UI language (System Default / Korean / English) is selectable from the **Info** tab.
+8 color slots (incl. custom), 4 ring shapes, 4 sizes, plus opacity / border / speed / effect toggles, spotlight edge softness, and shake sensitivity — all in one place. UI language (System Default / Korean / English) is selectable from the **General** tab.
 
-![Preferences — Appearance tab](docs/screenshots/02-preferences.png)
+![Preferences — Ring: color, shape, size, opacity, border](docs/screenshots/pref-en-ring.png)
 
-![Preferences — Behavior tab](docs/screenshots/03-preferences-behavior.png)
+![Preferences — Effects: animation, ring effects, drag, scroll](docs/screenshots/pref-en-effects.png)
+
+![Preferences — General: language, startup, cursor, screenshot mode](docs/screenshots/pref-en-general.png)
 
 ## System Requirements
 

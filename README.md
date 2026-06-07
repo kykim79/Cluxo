@@ -11,7 +11,9 @@ macOS 메뉴바 앱. 마우스 커서를 시각적으로 강조해 화면 녹화
 
 > 🇺🇸 [English README](README.en.md)
 
-![Cluxo 데모 — 그리기 모드 · 라디얼 메뉴 · 키스트로크](docs/screenshots/01-hero.gif)
+![Cluxo 데모 — 색상·스포트라이트·돋보기·라디얼 메뉴·그리기](docs/screenshots/01-hero.gif)
+
+> 🎬 **[전체 홍보 영상 보기 (50초)](docs/Cluxo-promo-ko.mp4)**
 
 ## 기능
 
@@ -60,11 +62,13 @@ macOS 메뉴바 앱. 마우스 커서를 시각적으로 강조해 화면 녹화
 
 ## 환경설정
 
-색상 8슬롯 (커스텀 포함), 모양 4종, 크기 4단계, 투명도·테두리·속도·효과 토글, 스포트라이트 경계, 흔들기 민감도까지 한 곳에서 조정. UI 언어는 "정보" 탭에서 시스템 기본 / 한국어 / English 선택.
+색상 8슬롯 (커스텀 포함), 모양 4종, 크기 4단계, 투명도·테두리·속도·효과 토글, 스포트라이트 경계, 흔들기 민감도까지 한 곳에서 조정. UI 언어는 "일반" 탭에서 시스템 기본 / 한국어 / English 선택.
 
-![환경설정 - 모양 탭](docs/screenshots/02-preferences.png)
+![환경설정 — 링(외형): 색·모양·크기·투명도·테두리](docs/screenshots/pref-ko-ring.png)
 
-![환경설정 - 동작 탭](docs/screenshots/03-preferences-behavior.png)
+![환경설정 — 효과: 애니메이션·링 효과·드래그·스크롤](docs/screenshots/pref-ko-effects.png)
+
+![환경설정 — 일반: 언어·시작·커서·스크린샷 모드](docs/screenshots/pref-ko-general.png)
 
 ## 시스템 요구사항
 
