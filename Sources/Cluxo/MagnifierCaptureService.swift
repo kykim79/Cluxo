@@ -120,9 +120,13 @@ final class MagnifierCaptureService {
                 return
             }
 
+            // 스크린샷 모드(overlay sharingType=.readOnly)에서도 돋보기가 자기 오버레이를
+            // 재캡처해 검게 깨지지 않도록, 자기 앱(Cluxo) 윈도우를 캡처에서 항상 제외한다.
+            // 평소(.none)엔 어차피 제외돼 동작 동일 — 스크린샷 모드일 때만 차이(정상 확대).
+            let myApp = content.applications.first { $0.bundleIdentifier == Bundle.main.bundleIdentifier }
             let filter = SCContentFilter(
                 display: display,
-                excludingApplications: [],
+                excludingApplications: myApp.map { [$0] } ?? [],
                 exceptingWindows: []
             )
 
