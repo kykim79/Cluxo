@@ -13,7 +13,9 @@ macOS menu bar app for presentations and screencasts. Visually emphasizes the mo
 
 ![Cluxo demo — colors · spotlight · magnifier · radial menu · drawing](docs/screenshots/01-hero-en.gif)
 
-> 🎬 **[Watch the full promo video (50s)](docs/Cluxo-promo-en.mp4)**
+<video src="https://github.com/kykim79/Cluxo/raw/main/docs/Cluxo-promo-en.mp4" controls width="100%">
+  🎬 <a href="docs/Cluxo-promo-en.mp4">Watch the full promo video (50s)</a>
+</video>
 
 ## Features
 

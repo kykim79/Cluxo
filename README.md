@@ -13,7 +13,9 @@ macOS 메뉴바 앱. 마우스 커서를 시각적으로 강조해 화면 녹화
 
 ![Cluxo 데모 — 색상·스포트라이트·돋보기·라디얼 메뉴·그리기](docs/screenshots/01-hero.gif)
 
-> 🎬 **[전체 홍보 영상 보기 (50초)](docs/Cluxo-promo-ko.mp4)**
+<video src="https://github.com/kykim79/Cluxo/raw/main/docs/Cluxo-promo-ko.mp4" controls width="100%">
+  🎬 <a href="docs/Cluxo-promo-ko.mp4">전체 홍보 영상 보기 (50초)</a>
+</video>
 
 ## 기능
 
