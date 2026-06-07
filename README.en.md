@@ -15,18 +15,20 @@ macOS menu bar app for presentations and screencasts. Visually emphasizes the mo
 
 ## Features
 
-- **Cursor Ring** — colored ring around the cursor (circle/squircle/rhombus, 4 sizes, glow, breathing animation)
-- **Click Effects** — left (circular ripple), right (rhombus double ripple), double-click (burst), middle/wheel (rotating arcs)
+- **Cursor Ring** — colored ring around the cursor (circle/squircle/rounded diamond/rounded hexagon, 4 sizes, opacity, border weight/style, glow, breathing animation)
+- **Click Effects** — left (circular ripple), right (double ripple), double-click (burst), middle/wheel (rotating arcs)
 - **Drag Indicator** — ring stretches in drag direction
 - **Scroll Indicator** — directional arrows (↑↓←→) with magnitude-proportional size (precise scroll vs page scroll distinguished at a glance)
 - **Cursor Trail** — afterglow comet tail
-- **Magnifier** — real-time 1.5×–4× zoom around cursor
-- **Spotlight** — dim everything except a circle around the cursor
+- **Magnifier** — real-time 1.5×–4× zoom around cursor. Adjustable lens size, Lanczos upscale + sharpening for crispness, reduced jitter while moving
+- **Spotlight** — dim everything except a circle around the cursor. Smooth fade in/out when toggled (Mousepose-style), adjustable edge softness (feather) and radius
 - **Keystroke Display** — show pressed shortcuts as bottom overlay. Optional auto-enable when an unknown external monitor (meeting room, etc.) connects (trusted monitors excluded)
-- **Shake Detection** — wave the mouse to flash SOS ring at the cursor
+- **Shake Detection** — shake the mouse to flash expanding rings at the cursor ("where did my cursor go?"). On/off + 3 sensitivity levels
 - **Screenshot Mode** — menu bar toggle. Normally overlay window has `sharingType = .none` (so the magnifier doesn't re-capture itself), but you can flip it to `.readOnly` temporarily for external `screencapture`/OBS. Auto-OFF on app restart.
-- **Radial Menu (⌃⌥, or long-press)** — 8-sector menu at cursor position. Click to toggle effects/color/size/shape/magnifier/spotlight; menu stays open for quick multi-adjustments during a presentation. Currently active settings show with a faint accent background.
-  - **Also opens on a long-press (0.5s) of the left mouse button — or a long-press on the trackpad** — handy on laptops or whenever your hand is on the trackpad and reaching for the keyboard would break flow. A 5pt deadband prevents conflict with normal drag/click.
+- **Radial Menu (⌃⌥, or long-press)** — 8-sector menu fans out at the cursor. Adjust effects/color/shape/spotlight/magnifier/ring-look with the menu staying open for quick multi-changes during a presentation.
+  - **Two-level hierarchy** — grab an item and drag further out to fan out its detail values: spotlight (radius, edge), magnifier (zoom, lens size), ring look (size, opacity, border weight/style). The current value is highlighted with a faint accent.
+  - **Drag to reposition** — grab the center and drag to move the menu anywhere (across monitors too).
+  - **How to open** — `⌃⌥,`, a **long-press (0.5s) of the left mouse button**, or a **long-press on the trackpad** (handy on laptops). A 5pt deadband prevents conflict with normal drag/click.
 - **Drawing Mode (⌃⌥D)** — on-screen annotation for presentations/screencasts. 7 tools: free pen, line (Shift), arrow (Opt), rectangle (Cmd), ellipse (Cmd+Shift), highlighter (Cmd+Opt), numbered badge (Shift+Opt click). While active: Cmd+Z to undo last shape, `[` / `]` to adjust thickness (5 steps). Stroke color follows the ring color.
 - **Trackpad gesture feedback (experimental)** — visual labels/effects for system gestures: 4-finger pinch in/out, 3- and 4-finger swipes (↑↓←→), 5-finger pinch. Useful for showing your gestures to the audience during a presentation. Relies on the private MultitouchSupport API, so it's OFF by default — enable it in the Behavior tab of Preferences.
 
@@ -49,16 +51,16 @@ All shortcuts use `⌃⌥` (Control + Option):
 | `⌃⌥6` | Purple ring |
 | `⌃⌥7` | White ring |
 | `⌃⌥C` | Cycle to next ring color |
-| `⌃⌥H` | Cycle to next ring shape (circle ↔ squircle ↔ rhombus) |
+| `⌃⌥H` | Cycle to next ring shape (circle → squircle → rounded diamond → rounded hexagon) |
 | `⌃⌥I` | Inspector — show (x, y) system coordinates next to the cursor |
-| `⌃⌥,` | **Radial Menu** — 8-sector mouse menu. Click to toggle effects/color/size/shape/magnifier/spotlight instantly; menu stays open for multi-adjustments. ESC to close. **Also opens on long-press (0.5s) of the left mouse button — or a long-press on the trackpad** |
+| `⌃⌥,` | **Radial Menu** — 8-sector mouse menu. Grab an item and drag further out to fan out detail values (radius/zoom/size/opacity/border…) in a second level. Grab the center to move the menu. ESC to close. **Also opens on long-press (0.5s) of the left mouse button — or a long-press on the trackpad** |
 | `⌃⌥D` | **Toggle Drawing Mode** — on-screen annotation. While active: Drag=pen / **Shift**+drag=line / **Opt**+drag=arrow / **Cmd**+drag=rectangle / **Cmd+Shift**+drag=ellipse / **Cmd+Opt**+drag=highlighter / **Shift+Opt**+click=numbered badge. While active: **Cmd+Z**=undo last shape, **`[`** / **`]`**=adjust thickness, **ESC**=clear+exit. Color follows current ring color |
 
 Some shortcuts are configurable in Preferences (menu bar → Preferences).
 
 ## Preferences
 
-8 color slots (incl. custom), 3 ring shapes, 4 sizes, plus opacity / speed / effect toggles — all in one place. UI language (System Default / Korean / English) is selectable from the **Info** tab.
+8 color slots (incl. custom), 4 ring shapes, 4 sizes, plus opacity / border / speed / effect toggles, spotlight edge softness, and shake sensitivity — all in one place. UI language (System Default / Korean / English) is selectable from the **Info** tab.
 
 ![Preferences — Appearance tab](docs/screenshots/02-preferences.png)
 
