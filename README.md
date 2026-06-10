@@ -13,6 +13,8 @@ macOS 메뉴바 앱. 마우스 커서를 시각적으로 강조해 화면 녹화
 
 ![Cluxo 데모 — 색상·스포트라이트·돋보기·라디얼 메뉴·그리기](docs/screenshots/01-hero.gif)
 
+<a href="https://www.producthunt.com/products/cluxo?embed=true&amp;utm_source=badge-featured&amp;utm_medium=badge&amp;utm_campaign=badge-cluxo" target="_blank" rel="noopener noreferrer"><img alt="Cluxo - Highlight your cursor for screencasts and demos | Product Hunt" width="250" height="54" src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1165711&amp;theme=light"></a>
+
 ## 기능
 
 - **커서 링** — 마우스 주위에 색상 링 표시 (원형/둥근 사각형/둥근 마름모/둥근 육각형, 4단계 크기, 투명도·테두리 두께/스타일, 글로우, 호흡 애니메이션)
