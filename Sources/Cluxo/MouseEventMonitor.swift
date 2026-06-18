@@ -74,6 +74,8 @@ class MouseEventMonitor {
             (1 << CGEventType.rightMouseDown.rawValue) |
             (1 << CGEventType.otherMouseDown.rawValue) |  // 휠 클릭(button 2) 및 나머지
             (1 << CGEventType.leftMouseDragged.rawValue) |
+            (1 << CGEventType.rightMouseDragged.rawValue) |  // 오른쪽 버튼 드래그 — 링이 따라가도록 위치 추적
+            (1 << CGEventType.otherMouseDragged.rawValue) |  // 가운데(휠) 버튼 드래그 — 링이 따라가도록 위치 추적
             (1 << CGEventType.scrollWheel.rawValue)
 
         let retained = Unmanaged.passRetained(self)
@@ -221,6 +223,12 @@ class MouseEventMonitor {
                     if button == 2 {
                         DispatchQueue.main.async { m.onMiddleClick?(loc) }
                     }
+
+                case .rightMouseDragged, .otherMouseDragged:
+                    // 가운데(휠)·오른쪽 버튼 드래그 — 링이 커서를 따라가도록 위치만 갱신.
+                    // 왼쪽 드래그 전용 시각 효과(jelly stretch·anchored line)는 적용하지 않는다.
+                    m.processMove(loc)
+                    DispatchQueue.main.async { m.onMouseMove?(loc) }
 
                 case .scrollWheel:
                     let deltaV = event.getIntegerValueField(.scrollWheelEventPointDeltaAxis1)

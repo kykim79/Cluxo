@@ -657,6 +657,14 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         scheduleIdleAndGlow()
     }
 
+    /// 클릭·스크롤·흔들기 등 이동 외 마우스 활동 — 커서를 다시 보이게 하고 idle 숨김 타이머를 재시작.
+    /// 휠 클릭·스크롤처럼 커서를 안 움직이는 활동 후에도 링이 idleTimeout 뒤 정상적으로 페이드 아웃되도록 한다.
+    private func registerCursorActivity() {
+        lastMoveTime = Date()
+        if !runtime.isCursorVisible { runtime.isCursorVisible = true }
+        scheduleIdleAndGlow()
+    }
+
     private func scheduleIdleAndGlow() {
         idleHideWorkItem?.cancel()
         glowEnhanceWorkItem?.cancel()
@@ -720,8 +728,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             }
             monitor?.onLeftClick = { [weak self] _, isDouble in
                 guard let self else { return }
-                self.lastMoveTime = Date()
-                self.runtime.isCursorVisible = true
+                self.registerCursorActivity()
                 // Radial menu 활성 중 클릭은 sub 실행 / dead zone close — 일반 클릭 효과 표시 안 함 (메뉴 위 ripple 부적절).
                 if self.runtime.isRadialMenuActive {
                     self.keyboardHotkeyHandler?.handleRadialMenuClick()
@@ -806,16 +813,14 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             }
             monitor?.onRightClick = { [weak self] _ in
                 guard let self else { return }
-                self.lastMoveTime = Date()
-                self.runtime.isCursorVisible = true
+                self.registerCursorActivity()
                 let pos = self.runtime.cursorPosition
                 self.effects.addClickEffect(at: pos, isRight: true, animationSpeed: self.settings.animationSpeed.multiplier)
                 self.runtime.triggerClickPulse()
             }
             monitor?.onMiddleClick = { [weak self] _ in
                 guard let self else { return }
-                self.lastMoveTime = Date()
-                self.runtime.isCursorVisible = true
+                self.registerCursorActivity()
                 let pos = self.runtime.cursorPosition
                 self.effects.addMiddleClickEffect(at: pos, animationSpeed: self.settings.animationSpeed.multiplier)
                 self.runtime.triggerClickPulse()
@@ -823,14 +828,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             monitor?.onShake = { [weak self] _ in
                 guard let self else { return }
                 guard self.settings.isShakeEnabled else { return }
-                self.lastMoveTime = Date()
-                self.runtime.isCursorVisible = true
+                self.registerCursorActivity()
                 self.effects.triggerShake(at: self.runtime.cursorPosition, animationSpeed: self.settings.animationSpeed.multiplier)
             }
             monitor?.onScroll = { [weak self] _, isPositive, isVertical, magnitude in
                 guard let self else { return }
-                self.lastMoveTime = Date()
-                self.runtime.isCursorVisible = true
+                self.registerCursorActivity()
                 self.effects.addScrollEffect(at: self.runtime.cursorPosition, isPositive: isPositive, isVertical: isVertical, magnitude: magnitude, animationSpeed: self.settings.animationSpeed.multiplier)
             }
             monitor?.onDragStart = { [weak self] cgPos in

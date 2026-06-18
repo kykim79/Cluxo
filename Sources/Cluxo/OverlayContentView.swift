@@ -42,13 +42,17 @@ struct OverlayContentView: View {
                 )
             }
 
-            // 커서 링
-            if cursorOnScreen && runtime.isCursorVisible {
+            // 커서 링 — idle 시 즉시 제거하지 않고 opacity로 페이드 아웃.
+            // 다시 움직이면 빠르게(easeMicro) 페이드 인, 정지하면 부드럽게(easeLong) 사라진다.
+            if cursorOnScreen {
                 CursorRingView(
                     position: localPos,
                     appearance: RingAppearance(settings: settings, effectiveColor: effectiveColor),
                     motion: RingMotion(runtime: runtime)
                 )
+                .opacity(runtime.isCursorVisible ? 1 : 0)
+                .animation(runtime.isCursorVisible ? Tokens.Motion.easeMicro : Tokens.Motion.easeLong,
+                           value: runtime.isCursorVisible)
             }
 
             // 정지 펄스 — 1.5초 정지 시 1회 ring shape 확장 fade
