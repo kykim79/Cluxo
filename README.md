@@ -10,6 +10,8 @@
 macOS 메뉴바 앱. 마우스 커서를 시각적으로 강조해 화면 녹화, 발표, 페어 프로그래밍 시 커서 위치를 명확하게 보여줍니다. 그리기 도구·라디얼 메뉴·키스트로크 표시 등 발표/스크린캐스트 워크플로우를 위한 종합 도우미.
 
 > 🇺🇸 [English README](README.en.md)
+>
+> 🪟 **Windows 사용자라면** → [**Cluxo for Windows**](https://github.com/kykim79/cluxo-windows) (네이티브 재구현)
 
 ![Cluxo 데모 — 색상·스포트라이트·돋보기·라디얼 메뉴·그리기](docs/screenshots/01-hero.gif)
 

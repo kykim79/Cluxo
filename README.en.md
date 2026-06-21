@@ -10,6 +10,8 @@
 macOS menu bar app for presentations and screencasts. Visually emphasizes the mouse cursor with drawing tools, radial menu, keystroke display, spotlight, magnifier, and more — a complete helper for screen-sharing workflows.
 
 > 🇰🇷 [한국어 README](README.md)
+>
+> 🪟 **On Windows?** → [**Cluxo for Windows**](https://github.com/kykim79/cluxo-windows) (native reimplementation)
 
 ![Cluxo demo — colors · spotlight · magnifier · radial menu · drawing](docs/screenshots/01-hero-en.gif)
 
