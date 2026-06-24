@@ -3400,6 +3400,16 @@
           }
         }
       }
+    },
+    "🆕 새 버전 v%@ — 지금 업데이트": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🆕 New version v%@ — Update now"
+          }
+        }
+      }
     }
   }
 }

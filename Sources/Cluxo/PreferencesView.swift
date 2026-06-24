@@ -733,6 +733,8 @@ private struct GeneralTab: View {
         .onAppear {
             launchAtLogin = settings.launchAtLoginEnabled
         }
+        // 환경설정을 열면 자동으로 업데이트 확인 — 메뉴바 "새 버전" 항목으로 진입 시 바로 "지금 업데이트"가 보이게.
+        .task { await checkForUpdate() }
     }
 
     /// 앱 정보 한 줄 — secondary 라벨 + 우측 값. LabeledContent 대신 단순 HStack.

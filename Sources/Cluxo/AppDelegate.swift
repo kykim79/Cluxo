@@ -78,6 +78,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private var enableMenuItem: NSMenuItem?
     private var languageMenuItem: NSMenuItem?  // 서브메뉴 checkmark 갱신용
     private var statusMenu: NSMenu?  // 우클릭 시 popUp으로 직접 표시
+    private var updateMenuItem: NSMenuItem?    // 새 버전 있을 때만 노출
+    private var updateSeparator: NSMenuItem?   // 업데이트 항목 아래 구분선
+
+    // MARK: - Update check
+    private var updateChecker: UpdateChecker?
+    private var updateCancellable: AnyCancellable?
     private var preferencesController: PreferencesWindowController?
     private var overlays: [OverlayWindowController] = []
 
@@ -139,6 +145,15 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
         // 시작 시 이미 낯선 외장 모니터 연결돼 있으면 자동 키스트로크 평가
         evaluateAutoKeystroke()
+
+        // 업데이트 백그라운드 체크 — 시작 시 + 하루 1회. 새 버전 감지 시 메뉴바 배지/메뉴 갱신.
+        let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? ""
+        let checker = UpdateChecker(currentVersion: version)
+        updateCancellable = checker.$availableVersion
+            .receive(on: RunLoop.main)
+            .sink { [weak self] _ in self?.refreshUpdateUI() }
+        updateChecker = checker
+        checker.start()
 
         // UI 안정화 후 권한 4개 체크 — 일부라도 missing 시 alert.
         // brew upgrade 같은 cdhash 변경으로 권한이 reset된 경우 사용자에게 즉시 안내.
@@ -405,7 +420,18 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
         let menu = NSMenu()
 
-        let prefItem = NSMenuItem(title: String(localized: "환경설정..."), action: #selector(openPreferences), keyEquivalent: "")
+        // 새 버전 알림 — 평소 숨김, 업데이트 감지 시 refreshUpdateUI()가 노출.
+        let updateItem = NSMenuItem(title: "", action: #selector(handleUpdateMenuClick), keyEquivalent: "")
+        updateItem.target = self
+        updateItem.isHidden = true
+        menu.addItem(updateItem)
+        updateMenuItem = updateItem
+        let updateSep = NSMenuItem.separator()
+        updateSep.isHidden = true
+        menu.addItem(updateSep)
+        updateSeparator = updateSep
+
+        let prefItem = NSMenuItem(title: String(localized: "환경설정..."), action: #selector(openPreferences as () -> Void), keyEquivalent: "")
         prefItem.target = self
         menu.addItem(prefItem)
 
@@ -499,6 +525,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     @objc private func openPreferences() {
+        openPreferences(tab: nil)
+    }
+
+    private func openPreferences(tab: PrefTab?) {
         if preferencesController == nil {
             let controller = PreferencesWindowController(settings: settings, runtime: runtime)
             // 윈도우를 닫으면 controller를 풀어줘 SwiftUI view tree 전체를 해제한다.
@@ -512,6 +542,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             }
             preferencesController = controller
         }
+        if let tab { preferencesController?.selection.tab = tab }
         NSApp.activate(ignoringOtherApps: true)
         preferencesController?.showWindow(nil)
         // NSApp.activate가 오버레이 순서를 흐트러뜨리므로 즉시 복원
@@ -534,8 +565,54 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     private func updateIcon() {
         let name = isEnabled ? "cursorarrow.rays" : "cursorarrow"
-        statusItem?.button?.image = NSImage(systemSymbolName: name, accessibilityDescription: nil)
+        let badged = updateChecker?.availableVersion != nil
+        statusItem?.button?.image = Self.statusImage(symbolName: name, badged: badged)
         enableMenuItem?.title = String(localized: isEnabled ? "비활성화" : "✓ 활성화")
+    }
+
+    /// 메뉴바 아이콘 이미지. badged=true면 우상단에 빨간 점을 합성한다.
+    /// drawingHandler는 그릴 때마다 호출되므로 라이트/다크 메뉴바 전환에도 심볼 색이 따라온다.
+    private static func statusImage(symbolName: String, badged: Bool) -> NSImage? {
+        guard let base = NSImage(systemSymbolName: symbolName, accessibilityDescription: nil) else { return nil }
+        guard badged else {
+            base.isTemplate = true
+            return base
+        }
+        let size = base.size
+        let image = NSImage(size: size, flipped: false) { rect in
+            base.isTemplate = true
+            base.draw(in: rect)
+            // template은 흑색 마스크라 현재 appearance의 라벨 색으로 덮어 메뉴바 테마에 맞춘다.
+            NSColor.labelColor.set()
+            rect.fill(using: .sourceAtop)
+            // 우상단 빨간 배지
+            let d = max(5, rect.width * 0.36)
+            let badgeRect = NSRect(x: rect.maxX - d, y: rect.maxY - d, width: d, height: d)
+            NSColor.systemRed.setFill()
+            NSBezierPath(ovalIn: badgeRect).fill()
+            return true
+        }
+        image.isTemplate = false
+        return image
+    }
+
+    /// 새 버전 감지/해제 시 메뉴바 배지 + 메뉴 항목을 갱신. updateChecker 구독 sink에서 호출.
+    private func refreshUpdateUI() {
+        let version = updateChecker?.availableVersion
+        if let version {
+            updateMenuItem?.title = String(format: String(localized: "🆕 새 버전 v%@ — 지금 업데이트"), version)
+            updateMenuItem?.isHidden = false
+            updateSeparator?.isHidden = false
+        } else {
+            updateMenuItem?.isHidden = true
+            updateSeparator?.isHidden = true
+        }
+        updateIcon()  // 배지 반영
+    }
+
+    /// 메뉴의 "새 버전" 항목 클릭 — 환경설정 일반 탭(업데이트 섹션)을 연다. 거기서 인앱 업데이트.
+    @objc private func handleUpdateMenuClick() {
+        openPreferences(tab: .general)
     }
 
     // MARK: - Service callbacks
