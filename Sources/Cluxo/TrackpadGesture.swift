@@ -22,11 +22,12 @@ enum TrackpadGesture: String, Equatable, CaseIterable {
     case fourFingerPinchOut       // Show Desktop (4손가락)
     case fiveFingerPinchIn        // Launchpad (5손가락 = 엄지+4)
     case fiveFingerPinchOut       // Show Desktop (5손가락)
+    case threeFingerTap           // 세 손가락 탭 (움직임 없이 빠르게 탭) — 라디얼 메뉴 열기용
 
     var fingerCount: Int {
         switch self {
         case .threeFingerSwipeUp, .threeFingerSwipeDown,
-             .threeFingerSwipeLeft, .threeFingerSwipeRight:
+             .threeFingerSwipeLeft, .threeFingerSwipeRight, .threeFingerTap:
             return 3
         case .fiveFingerPinchIn, .fiveFingerPinchOut:
             return 5
@@ -50,6 +51,7 @@ enum TrackpadGesture: String, Equatable, CaseIterable {
         case .fourFingerPinchOut:    return "4손가락 핀치 아웃".loc
         case .fiveFingerPinchIn:     return "5손가락 핀치 인".loc
         case .fiveFingerPinchOut:    return "5손가락 핀치 아웃".loc
+        case .threeFingerTap:        return "3손가락 탭".loc
         }
     }
 }
@@ -80,6 +82,25 @@ enum TrackpadGestureClassifier {
     /// 핀치로 분류하는 평균 (현재 - 시작) 중심 거리 변화 임계.
     /// 0.05 = ~5% 변화. 너무 작으면 단순 손 떨림.
     static let pinchThreshold: Double = 0.05
+
+    /// 세 손가락 탭 — 움직임이 이 이하라야 탭(스와이프와 구분). swipeThreshold보다 작게.
+    static let tapMaxMovement: Double = 0.03
+    /// 세 손가락 탭 — 접촉~떼기 지속이 이 이내라야 탭(손가락 올려둔 hold와 구분), 초 단위.
+    static let tapMaxDuration: Double = 0.30
+
+    /// 세 손가락 탭 여부 — 정확히 3손가락, 거의 안 움직임, 짧은 지속.
+    /// 움직임/지속 정보가 필요해 swipe·pinch classify와 분리한 순수 함수 (손가락 lift 시점에 판정).
+    static func isThreeFingerTap(peakFingers: Int, traces: [FingerTrace], duration: Double) -> Bool {
+        guard peakFingers == 3, traces.count >= 3 else { return false }
+        guard duration >= 0, duration <= tapMaxDuration else { return false }
+        for t in traces {
+            let dx: Double = t.lastPos.x - t.startPos.x
+            let dy: Double = t.lastPos.y - t.startPos.y
+            let move = (dx * dx + dy * dy).squareRoot()
+            if move > tapMaxMovement { return false }
+        }
+        return true
+    }
 
     /// peakFingerCount: 세션 중 동시에 인식된 손가락 최댓값 (사이 순간 1개 떨어진 경우 보정).
     /// traces: 세션 동안 등장한 모든 손가락(ID 별)의 startPos/lastPos.

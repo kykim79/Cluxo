@@ -31,6 +31,5 @@ final class PermissionsResetTests: XCTestCase {
     func test_tccServiceName_mapping() {
         XCTAssertEqual(PermissionsManager.PermissionType.accessibility.tccServiceName, "Accessibility")
         XCTAssertEqual(PermissionsManager.PermissionType.screenRecording.tccServiceName, "ScreenCapture")
-        XCTAssertEqual(PermissionsManager.PermissionType.listenEvent.tccServiceName, "ListenEvent")
     }
 }

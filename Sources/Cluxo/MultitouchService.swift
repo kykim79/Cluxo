@@ -220,11 +220,19 @@ final class MultitouchService {
             let peak = session!.peakActiveCount
             let traces = Array(session!.fingers.values)
             let everFired = session!.lastFireTimestamp != 0
+            let duration = timestamp - session!.startTimestamp
             session = nil
 
-            if !everFired, let gesture = TrackpadGestureClassifier.classify(peakFingers: peak, traces: traces) {
-                let cb = onGesture
-                DispatchQueue.main.async { cb?(gesture) }
+            // swipe로 한 번도 안 발사된 세션만 종료 판정. 탭(움직임 없는 짧은 3손가락)을 먼저 보고,
+            // 아니면 마지막 swipe/pinch classify 시도.
+            if !everFired {
+                if TrackpadGestureClassifier.isThreeFingerTap(peakFingers: peak, traces: traces, duration: duration) {
+                    let cb = onGesture
+                    DispatchQueue.main.async { cb?(.threeFingerTap) }
+                } else if let gesture = TrackpadGestureClassifier.classify(peakFingers: peak, traces: traces) {
+                    let cb = onGesture
+                    DispatchQueue.main.async { cb?(gesture) }
+                }
             }
         }
     }

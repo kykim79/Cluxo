@@ -53,6 +53,7 @@ final class CursorSettings: ObservableObject {
     @Persisted("isShakeEnabled", default: true) var isShakeEnabled: Bool  // 마우스 흔들어서 강조 (퍼지는 링) — "커서 어디 갔지?" 찾기용, default on
     @Persisted("shakeSensitivity", default: ShakeSensitivity.normal) var shakeSensitivity: ShakeSensitivity  // 흔들기 감지 민감도 (방향 전환 횟수)
     @Persisted("radialOpenTrigger", default: RadialOpenTrigger.middleClick) var radialOpenTrigger: RadialOpenTrigger  // 라디얼 메뉴를 여는 마우스 동작 (⌃⌥,는 항상 동작)
+    @Persisted("radialThreeFingerTap", default: true) var radialThreeFingerTap: Bool  // 트랙패드 세 손가락 탭으로 라디얼 메뉴 열기 (가운데 버튼 없는 트랙패드용)
 
     // 앱 UI 언어 강제 — .system이면 macOS 시스템 언어 따름.
     // 실제 적용은 main.swift에서 NSApplication 생성 전 AppleLanguages override.

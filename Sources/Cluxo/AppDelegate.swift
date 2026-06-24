@@ -162,7 +162,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
 
-    /// launch 시 권한 3개 (손쉬운 사용 / 화면 녹화 / 입력 모니터링) 체크.
+    /// launch 시 권한 2개 (손쉬운 사용 / 화면 녹화) 체크.
     /// TCC 권한 동기화가 launch 직후 1-2초 false negative 반환하는 경우 있어 1초 간격으로
     /// 5번 retry — 5번 모두 missing인 권한만 진짜 missing 판단. 일부라도 missing 시 NSAlert.
     /// 총 대기 약 6초.
@@ -192,7 +192,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 .notice("업데이트(\(previousVersion ?? "?", privacy: .public)→\(currentVersion, privacy: .public))로 깨진 권한 초기화: \(names, privacy: .public)")
             PermissionsManager.resetTCCEntries(for: missingOrdered)
             permissionsManager?.registerForScreenRecordingPrompt()
-            permissionsManager?.registerForInputMonitoringPrompt()
         }
 
         guard !missingOrdered.isEmpty else { return }
@@ -210,7 +209,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         alert.addButton(withTitle: String(localized: "나중에"))
 
         // 클립보드에 앱 경로 복사 — 시스템 설정의 「+」 버튼으로 추가 시 ⌘V로 바로 붙여넣기.
-        // (특히 ad-hoc 사이닝된 빌드에선 입력 모니터링은 자동 등재 안 돼 「+」가 유일한 길)
+        // (ad-hoc 사이닝된 빌드에서 권한 목록 자동 등재가 안 될 때 「+」 수동 추가 경로)
         NSPasteboard.general.clearContents()
         NSPasteboard.general.setString("/Applications/Cluxo.app", forType: .string)
 
@@ -240,11 +239,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private func setupServices() {
         permissionsManager = PermissionsManager(runtime: runtime)
         permissionsManager?.startPolling()
-        // 시스템 화면 녹화 + 입력 모니터링 권한 목록에 우리 앱을 silent 등록 —
-        // 손쉬운 사용처럼 자동 등장. 첫 launch 시 macOS 표준 프롬프트 1회, 이후엔 캐시된 결정 사용.
-        // 사용자가 in-app "권한 요청" 버튼 거치지 않고 시스템 설정에서 직접 토글 가능.
+        // 시스템 화면 녹화 권한 목록에 우리 앱을 silent 등록 — 손쉬운 사용처럼 자동 등장.
+        // 첫 launch 시 macOS 표준 프롬프트 1회, 이후엔 캐시된 결정 사용. 사용자가 in-app "권한 요청"
+        // 버튼 거치지 않고 시스템 설정에서 직접 토글 가능. (입력 모니터링은 요청하지 않음 — 손쉬운 사용으로 충분.)
         permissionsManager?.registerForScreenRecordingPrompt()
-        permissionsManager?.registerForInputMonitoringPrompt()
 
         appActivationDetector = AppActivationDetector(settings: settings) { [weak self] in
             self?.handleTriggerAppActivated()
@@ -272,6 +270,14 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         // 수직 swipe·핀치는 IMMEDIATE 유지 (Space 전환 아니라 compositor 차단 없음).
         MultitouchService.shared.onGesture = { [weak self] gesture in
             guard let self else { return }
+            // 세 손가락 탭 → 라디얼 메뉴 열기 (트랙패드용, 가운데 버튼 대체). 효과 토글과 무관하게 동작.
+            if gesture == .threeFingerTap {
+                if self.settings.radialThreeFingerTap {
+                    self.keyboardHotkeyHandler?.openRadialMenu()
+                }
+                return
+            }
+            // 그 외 swipe·pinch 시각 효과는 효과 토글이 켜진 경우만.
             guard self.settings.isTrackpadGesturesEnabled else { return }
             let pos = self.runtime.cursorPosition
             let speed = self.settings.animationSpeed.multiplier
@@ -299,14 +305,19 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             }
         }
         // 초기 상태 반영 + 토글 변화에 따라 start/stop.
-        if settings.isTrackpadGesturesEnabled, MultitouchService.shared.isAvailable {
+        // 제스처 효과 또는 세 손가락 탭(라디얼 열기) 중 하나라도 켜져 있으면 멀티터치 수신 필요.
+        let needsMultitouch = { [weak self] in
+            guard let self else { return false }
+            return self.settings.isTrackpadGesturesEnabled || self.settings.radialThreeFingerTap
+        }
+        if needsMultitouch(), MultitouchService.shared.isAvailable {
             MultitouchService.shared.start()
         }
         trackpadGestureCancellable = settings.objectWillChange
             .receive(on: RunLoop.main)
             .sink { [weak self] in
                 guard let self else { return }
-                if self.settings.isTrackpadGesturesEnabled, MultitouchService.shared.isAvailable {
+                if needsMultitouch(), MultitouchService.shared.isAvailable {
                     MultitouchService.shared.start()
                 } else {
                     MultitouchService.shared.stop()

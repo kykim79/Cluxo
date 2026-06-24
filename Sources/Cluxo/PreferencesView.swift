@@ -584,7 +584,8 @@ private struct ShortcutsTab: View {
                             Text(verbatim: t.label).tag(t)
                         }
                     }
-                    desc("8 sector 마우스 메뉴. ⌃⌥, 단축키는 항상 열립니다. ‘좌클릭 길게’는 드래그·텍스트 선택과 겹칠 수 있어 기본은 ‘가운데 버튼’입니다(트랙패드엔 가운데 버튼이 없어 ‘좌클릭 길게’ 권장). 클릭으로 효과/색/크기 즉시 토글, ESC 닫기.")
+                    Toggle("트랙패드 세 손가락 탭으로 열기", isOn: $settings.radialThreeFingerTap)
+                    desc("8 sector 마우스 메뉴. ⌃⌥, 단축키는 항상 열립니다. ‘좌클릭 길게’는 드래그·텍스트 선택과 겹칠 수 있어 기본은 ‘가운데 버튼’입니다. 트랙패드는 가운데 버튼이 없어 ‘세 손가락 탭’으로 열 수 있습니다(macOS ‘조회 및 데이터 감지기’ 세 손가락 탭과 함께 동작할 수 있음). 클릭으로 효과/색/크기 즉시 토글, ESC 닫기.")
                 }
 
                 PrefSection(label: "그리기 모드") {

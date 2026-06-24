@@ -1,26 +1,19 @@
 import AppKit
 import ApplicationServices
 import ScreenCaptureKit
-import IOKit.hid
-
-// CGRequestListenEventAccess — private CoreGraphics API. CGRequestScreenCaptureAccess의 키보드 버전:
-// 입력 모니터링 TCC 목록 등록 + 첫 호출 시 prompt. macOS Sonoma+에서 IOHIDRequestAccess가
-// preflight 조회만 하고 prompt 안 띄우는 회귀가 있어 이쪽으로 우회 (BetterTouchTool 등 다수 앱이 사용).
-@_silgen_name("CGRequestListenEventAccess")
-private func CGRequestListenEventAccess() -> Bool
 
 // MARK: - PermissionsManager
 //
-// 손쉬운 사용 / 화면 녹화 / 입력 모니터링 권한 요청·polling·설정 패널 오픈.
+// 손쉬운 사용 / 화면 녹화 권한 요청·polling·설정 패널 오픈.
 // 화면 녹화 권한 상태는 runtime.hasScreenRecordingPermission으로 publish.
-// PostEvent(입력 보내기)는 우리 앱이 이벤트 inject 안 하므로 필요 없음 — 체크 안 함.
+// 입력 모니터링(ListenEvent)은 요청하지 않는다 — 키보드 CGEventTap이 `.defaultTap`(능동)이라
+// 손쉬운 사용(Accessibility) 권한만으로 동작하므로 redundant. (입력 보내기 PostEvent도 inject 안 해 불필요.)
 @MainActor
 final class PermissionsManager {
     // MARK: - 권한 타입 — launch 시 사용자에게 missing 안내할 때 사용
     enum PermissionType: String, CaseIterable {
         case accessibility = "손쉬운 사용"
         case screenRecording = "화면 녹화"
-        case listenEvent = "입력 모니터링"
 
         /// 현재 locale에서 표시할 이름. rawValue를 Localizable.xcstrings 키로 사용.
         var localizedName: String { String(localized: String.LocalizationValue(rawValue)) }
@@ -31,7 +24,6 @@ final class PermissionsManager {
             switch self {
             case .accessibility:    key = "Privacy_Accessibility"
             case .screenRecording:  key = "Privacy_ScreenCapture"
-            case .listenEvent:      key = "Privacy_ListenEvent"
             }
             return URL(string: "x-apple.systempreferences:com.apple.preference.security?\(key)")!
         }
@@ -41,7 +33,6 @@ final class PermissionsManager {
             switch self {
             case .accessibility:    return "Accessibility"
             case .screenRecording:  return "ScreenCapture"
-            case .listenEvent:      return "ListenEvent"
             }
         }
     }
@@ -148,37 +139,16 @@ final class PermissionsManager {
         }
     }
 
-    // MARK: - 입력 모니터링 — IOHIDCheckAccess (prompt 없는 상태 조회)
-
-    /// 키보드 CGEventTap(.keyDown)은 macOS 10.15+에서 Input Monitoring 요구.
-    /// KeyboardHotkeyHandler가 사용.
-    static func hasListenEventPermission() -> Bool {
-        IOHIDCheckAccess(kIOHIDRequestTypeListenEvent) == kIOHIDAccessTypeGranted
-    }
-
-    /// 입력 모니터링 목록에 silent 등록 + 첫 호출 시 prompt.
-    /// macOS Sonoma+ 에서 IOHIDRequestAccess는 preflight 조회만 하고 prompt 안 띄움(로그 검증됨).
-    /// CGRequestListenEventAccess가 CGRequestScreenCaptureAccess의 키보드 버전 — 이게 진짜 prompt를 띄움.
-    /// private CoreGraphics API라 @_silgen_name으로 직접 link (BetterTouchTool 등 다수 앱이 같은 패턴 사용).
-    func registerForInputMonitoringPrompt() {
-        _ = CGRequestListenEventAccess()
-    }
-
-    /// 3개 권한 중 현재 부여되지 않은 것 — launch 시 사용자에게 alert.
+    /// 2개 권한(손쉬운 사용·화면 녹화) 중 현재 부여되지 않은 것 — launch 시 사용자에게 alert.
     /// 모두 부여 시 빈 배열.
     static func missingPermissions() -> [PermissionType] {
         var missing: [PermissionType] = []
         if !isAccessibilityTrusted { missing.append(.accessibility) }
         if !hasScreenRecordingPermission() { missing.append(.screenRecording) }
-        if !hasListenEventPermission() { missing.append(.listenEvent) }
         return missing
     }
 
     // MARK: - 설정 패널 열기
-
-    func openInputMonitoringSettings() {
-        NSWorkspace.shared.open(PermissionType.listenEvent.settingsURL)
-    }
 
     func openAccessibilitySettings() {
         NSWorkspace.shared.open(PermissionType.accessibility.settingsURL)

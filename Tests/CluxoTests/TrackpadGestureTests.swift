@@ -169,4 +169,37 @@ final class TrackpadGestureTests: XCTestCase {
         let traces = pinch5(in: false, radius: 0.20)
         XCTAssertEqual(TrackpadGestureClassifier.classify(peakFingers: 5, traces: traces), .fiveFingerPinchOut)
     }
+
+    // MARK: - 3손가락 탭
+
+    /// 거의 안 움직인 3손가락 + 짧은 지속 → 탭.
+    func test_3finger_tap_detected() {
+        let p = CGPoint(x: 0.5, y: 0.5)
+        let traces = [
+            FingerTrace(startPos: p, lastPos: CGPoint(x: 0.505, y: 0.5)),
+            FingerTrace(startPos: CGPoint(x: 0.45, y: 0.5), lastPos: CGPoint(x: 0.452, y: 0.5)),
+            FingerTrace(startPos: CGPoint(x: 0.55, y: 0.5), lastPos: CGPoint(x: 0.55, y: 0.503)),
+        ]
+        XCTAssertTrue(TrackpadGestureClassifier.isThreeFingerTap(peakFingers: 3, traces: traces, duration: 0.12))
+    }
+
+    /// 지속이 길면(손가락 올려둔 hold) 탭 아님.
+    func test_3finger_tap_rejects_long_hold() {
+        let p = CGPoint(x: 0.5, y: 0.5)
+        let traces = Array(repeating: FingerTrace(startPos: p, lastPos: p), count: 3)
+        XCTAssertFalse(TrackpadGestureClassifier.isThreeFingerTap(peakFingers: 3, traces: traces, duration: 1.0))
+    }
+
+    /// 많이 움직이면(스와이프) 탭 아님.
+    func test_3finger_tap_rejects_movement() {
+        let traces = uniformSwipe(count: 3, startCenter: CGPoint(x: 0.5, y: 0.5), delta: CGPoint(x: 0, y: 0.2))
+        XCTAssertFalse(TrackpadGestureClassifier.isThreeFingerTap(peakFingers: 3, traces: traces, duration: 0.1))
+    }
+
+    /// 4손가락이면 3손가락 탭 아님.
+    func test_3finger_tap_rejects_four_fingers() {
+        let p = CGPoint(x: 0.5, y: 0.5)
+        let traces = Array(repeating: FingerTrace(startPos: p, lastPos: p), count: 4)
+        XCTAssertFalse(TrackpadGestureClassifier.isThreeFingerTap(peakFingers: 4, traces: traces, duration: 0.1))
+    }
 }
