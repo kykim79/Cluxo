@@ -67,16 +67,20 @@ class MouseEventMonitor {
         guard AXIsProcessTrusted() else { return }
         guard eventTap == nil else { return }
 
-        let mask: CGEventMask =
-            (1 << CGEventType.mouseMoved.rawValue) |
-            (1 << CGEventType.leftMouseDown.rawValue) |
-            (1 << CGEventType.leftMouseUp.rawValue) |
-            (1 << CGEventType.rightMouseDown.rawValue) |
-            (1 << CGEventType.otherMouseDown.rawValue) |  // 휠 클릭(button 2) 및 나머지
-            (1 << CGEventType.leftMouseDragged.rawValue) |
-            (1 << CGEventType.rightMouseDragged.rawValue) |  // 오른쪽 버튼 드래그 — 링이 따라가도록 위치 추적
-            (1 << CGEventType.otherMouseDragged.rawValue) |  // 가운데(휠) 버튼 드래그 — 링이 따라가도록 위치 추적
-            (1 << CGEventType.scrollWheel.rawValue)
+        // 관심 이벤트 — 한 줄 OR 체인은 untyped `1` 리터럴 추론이 -O(릴리스 WMO)에서 타입체크
+        // 타임아웃을 일으켜, 배열 + reduce로 표현식을 쪼갠다.
+        let monitoredTypes: [CGEventType] = [
+            .mouseMoved,
+            .leftMouseDown,
+            .leftMouseUp,
+            .rightMouseDown,
+            .otherMouseDown,       // 휠 클릭(button 2) 및 나머지
+            .leftMouseDragged,
+            .rightMouseDragged,    // 오른쪽 버튼 드래그 — 링이 따라가도록 위치 추적
+            .otherMouseDragged,    // 가운데(휠) 버튼 드래그 — 링이 따라가도록 위치 추적
+            .scrollWheel,
+        ]
+        let mask: CGEventMask = monitoredTypes.reduce(0) { $0 | (1 << $1.rawValue) }
 
         let retained = Unmanaged.passRetained(self)
         selfPtr = retained.toOpaque()
