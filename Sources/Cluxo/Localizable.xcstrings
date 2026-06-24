@@ -3410,6 +3410,56 @@
           }
         }
       }
+    },
+    "가운데 버튼": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Middle button"
+          }
+        }
+      }
+    },
+    "좌클릭 길게": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Long left-click"
+          }
+        }
+      }
+    },
+    "끄기 (단축키만)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Off (shortcut only)"
+          }
+        }
+      }
+    },
+    "마우스로 열기": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open with mouse"
+          }
+        }
+      }
+    },
+    "8 sector 마우스 메뉴. ⌃⌥, 단축키는 항상 열립니다. ‘좌클릭 길게’는 드래그·텍스트 선택과 겹칠 수 있어 기본은 ‘가운데 버튼’입니다(트랙패드엔 가운데 버튼이 없어 ‘좌클릭 길게’ 권장). 클릭으로 효과/색/크기 즉시 토글, ESC 닫기.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "An 8-sector mouse menu. The ⌃⌥, shortcut always opens it. ‘Long left-click’ can clash with dragging and text selection, so the default is ‘Middle button’ (trackpads have no middle button — use ‘Long left-click’ there). Click to toggle effects/color/size instantly; ESC to close."
+          }
+        }
+      }
     }
   }
 }

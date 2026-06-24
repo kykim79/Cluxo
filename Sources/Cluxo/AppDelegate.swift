@@ -874,8 +874,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 }
                 self.drawing.endShape()
             }
-            // 좌클릭 long-press → 라디얼 메뉴 열기. 키보드 손 이동 없이 마우스 hold만으로 접근.
+            // 좌클릭 long-press → 라디얼 메뉴 열기 (설정이 .longPress일 때만).
+            // 드래그·텍스트 선택과 충돌이 잦아 기본은 가운데 버튼이며, 사용자가 명시적으로 고른 경우에만 동작.
             monitor?.onLongPress = { [weak self] _ in
+                guard self?.settings.radialOpenTrigger == .longPress else { return }
                 self?.keyboardHotkeyHandler?.openRadialMenu()
             }
             // 라디얼 메뉴를 잡아 끌어 이동 — delta는 Quartz(y-down)라 Cocoa(y-up)로 y 부호 반전.
@@ -898,9 +900,14 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             monitor?.onMiddleClick = { [weak self] _ in
                 guard let self else { return }
                 self.registerCursorActivity()
-                let pos = self.runtime.cursorPosition
-                self.effects.addMiddleClickEffect(at: pos, animationSpeed: self.settings.animationSpeed.multiplier)
-                self.runtime.triggerClickPulse()
+                // 가운데 버튼이 라디얼 메뉴 트리거면 메뉴를 열고(효과 없음), 아니면 평소대로 클릭 효과.
+                if self.settings.radialOpenTrigger == .middleClick {
+                    self.keyboardHotkeyHandler?.openRadialMenu()
+                } else {
+                    let pos = self.runtime.cursorPosition
+                    self.effects.addMiddleClickEffect(at: pos, animationSpeed: self.settings.animationSpeed.multiplier)
+                    self.runtime.triggerClickPulse()
+                }
             }
             monitor?.onShake = { [weak self] _ in
                 guard let self else { return }

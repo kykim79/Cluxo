@@ -579,7 +579,12 @@ private struct ShortcutsTab: View {
                 PrefSection(label: "라디얼 메뉴") {
                     KeyRecorder(keyCode: $settings.radialMenuKeyCode,
                                 conflictMessage: conflictFor(name: "Radial Menu", code: settings.radialMenuKeyCode))
-                    desc("8 sector 마우스 메뉴. 좌클릭 길게 누름(0.5초)으로도 열림. 클릭으로 효과/색/크기 즉시 토글, ESC 닫기.")
+                    Picker("마우스로 열기", selection: $settings.radialOpenTrigger) {
+                        ForEach(CursorSettings.RadialOpenTrigger.allCases) { t in
+                            Text(verbatim: t.label).tag(t)
+                        }
+                    }
+                    desc("8 sector 마우스 메뉴. ⌃⌥, 단축키는 항상 열립니다. ‘좌클릭 길게’는 드래그·텍스트 선택과 겹칠 수 있어 기본은 ‘가운데 버튼’입니다(트랙패드엔 가운데 버튼이 없어 ‘좌클릭 길게’ 권장). 클릭으로 효과/색/크기 즉시 토글, ESC 닫기.")
                 }
 
                 PrefSection(label: "그리기 모드") {

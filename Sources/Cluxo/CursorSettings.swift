@@ -52,6 +52,7 @@ final class CursorSettings: ObservableObject {
     @Persisted("isTrackpadGesturesEnabled", default: false) var isTrackpadGesturesEnabled: Bool  // 4핀치/3·4 swipe 효과 — 비공식 API(MultitouchSupport), default off
     @Persisted("isShakeEnabled", default: true) var isShakeEnabled: Bool  // 마우스 흔들어서 강조 (퍼지는 링) — "커서 어디 갔지?" 찾기용, default on
     @Persisted("shakeSensitivity", default: ShakeSensitivity.normal) var shakeSensitivity: ShakeSensitivity  // 흔들기 감지 민감도 (방향 전환 횟수)
+    @Persisted("radialOpenTrigger", default: RadialOpenTrigger.middleClick) var radialOpenTrigger: RadialOpenTrigger  // 라디얼 메뉴를 여는 마우스 동작 (⌃⌥,는 항상 동작)
 
     // 앱 UI 언어 강제 — .system이면 macOS 시스템 언어 따름.
     // 실제 적용은 main.swift에서 NSApplication 생성 전 AppleLanguages override.
@@ -482,6 +483,21 @@ final class CursorSettings: ObservableObject {
     }
 
     /// 흔들기 감지 민감도 — 방향 전환 횟수로 매핑. 적을수록 살짝 흔들어도 발동(민감), 많을수록 둔감.
+    /// 라디얼 메뉴를 여는 마우스 동작. `⌃⌥,` 단축키는 이 설정과 무관하게 항상 동작한다.
+    /// 좌클릭 길게는 드래그·텍스트 선택 등과 충돌이 잦아 기본값은 가운데 버튼.
+    /// (트랙패드엔 가운데 버튼이 없으므로 트랙패드 사용자는 '좌클릭 길게' 또는 `⌃⌥,`를 쓴다.)
+    enum RadialOpenTrigger: String, CaseIterable, Identifiable {
+        case middleClick, longPress, off
+        var id: String { rawValue }
+        var label: String {
+            switch self {
+            case .middleClick: return "가운데 버튼".loc
+            case .longPress:   return "좌클릭 길게".loc
+            case .off:         return "끄기 (단축키만)".loc
+            }
+        }
+    }
+
     enum ShakeSensitivity: String, CaseIterable, Identifiable {
         case sensitive, normal, insensitive
         var id: String { rawValue }
